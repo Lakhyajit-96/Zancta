@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createCanvas, loadImage } from "canvas";
 
 if (typeof globalThis.createImageBitmap === "undefined") {

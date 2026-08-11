@@ -1,5 +1,6 @@
 import { PrismaClient } from "./generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
@@ -8,8 +9,8 @@ function createClient() {
   // Handle both SQLite (dev) and PostgreSQL (production) — provider selection via DATABASE_URL
   const isPostgres = url.startsWith("postgresql://") || url.startsWith("postgres://");
   if (isPostgres) {
-    // Production: PostgreSQL — use driver without BetterSqlite adapter (Prisma handles via connection string)
-    return new PrismaClient({ log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"] } as unknown as never);
+    const adapter = new PrismaPg({ connectionString: url });
+    return new PrismaClient({ adapter, log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"] } as unknown as never);
   }
   // Development: SQLite via BetterSqlite3
   const path = url.startsWith("file:") ? url.slice(5).replace(/^\.\//, "./") : url;
