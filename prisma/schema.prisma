@@ -1,0 +1,204 @@
+// Prisma schema — Privacy-first, no file bytes stored
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// User — minimal, no file data
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  emailVerified   DateTime?
+  passwordHash    String?   // null for OAuth users
+  name            String?
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // soft delete for audit, hard delete after retention
+
+  sessions        Session[]
+  accounts        Account[]
+  entitlement     Entitlement?
+  auditEvents     AuditEvent[]
+  verificationTokens VerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+  paymentCustomers PaymentCustomer[]
+  paymentSubscriptions PaymentSubscription[]
+  payments        Payment[]
+
+  @@index([email])
+  @@index([deletedAt])
+}
+
+// NextAuth Session (database sessions for Auth.js)
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expires])
+}
+
+// OAuth Account (Auth.js)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// Verification token (email verification — Auth.js)
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([identifier, token])
+  @@index([token])
+  @@index([expires])
+}
+
+// Password reset token (custom)
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expires])
+}
+
+// Entitlement — provider-agnostic
+model Entitlement {
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  plan                   String    @default("FREE") // FREE | PREMIUM | ADMIN | EXPIRED | CANCELLED
+  status                 String    @default("ACTIVE") // ACTIVE | EXPIRED | CANCELLED
+  source                 String?   // e.g., "MANUAL", "DODO", "PADDLE"
+  providerCustomerId     String?   // MoR customer id
+  providerSubscriptionId String?   // MoR subscription id
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean   @default(false)
+  startsAt               DateTime  @default(now())
+  expiresAt              DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([plan])
+  @@index([status])
+}
+
+// AuditEvent — only security/business, no file data
+model AuditEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // signup, email_verified, login_success, login_failed, logout, password_reset_requested, password_reset_completed, account_deleted, entitlement_changed
+  targetId  String?  // e.g., userId
+  metadata  String?  // JSON, no PII beyond coarse
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ── Payment domain (9A) — provider-agnostic, no card data, no file data ──
+
+model PaymentCustomer {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  provider           String   // dodo | paddle
+  providerCustomerId String   @unique
+  email              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([provider])
+}
+
+model PaymentSubscription {
+  id                     String    @id @default(cuid())
+  userId                 String
+  provider               String    // dodo | paddle
+  providerSubscriptionId String    @unique
+  providerCustomerId     String?
+  plan                   String    // PREMIUM_MONTHLY | PREMIUM_ANNUAL
+  status                 String    // active | on_hold | cancelled | expired | failed | pending
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean   @default(false)
+  trialEndsAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([provider, status])
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  userId            String?
+  provider          String   // dodo | paddle
+  providerPaymentId String   @unique
+  providerSubscriptionId String?
+  amount            Int      // minor units (cents/paise)
+  currency          String   // USD | INR
+  status            String   // succeeded | failed | processing | cancelled | refunded
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([provider, status])
+}
+
+model WebhookEvent {
+  id              String    @id @default(cuid())
+  provider        String    // dodo | paddle
+  providerEventId String    @unique
+  eventType       String    // e.g., payment.succeeded, subscription.active
+  status          String    @default("processed") // processed | duplicate | failed
+  payloadHash     String?   // sha256 of raw payload (not raw payload)
+  processedAt     DateTime? @default(now())
+  createdAt       DateTime  @default(now())
+
+  @@index([provider, eventType])
+  @@index([createdAt])
+}
