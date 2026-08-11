@@ -133,7 +133,7 @@ export class DodoProvider implements PaymentProvider {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        product_id: productId,
+        product_cart: [{ product_id: productId, quantity: 1 }],
         customer: { email: input.email },
         return_url: returnUrl,
         metadata: { userId: input.userId, planId: input.planId },
