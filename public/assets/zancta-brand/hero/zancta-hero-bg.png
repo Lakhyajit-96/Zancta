@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANCTA Hero Background</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0A0A0A;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .container {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+    }
+    
+    /* Deep gradient base */
+    .gradient-base {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        #0A0A0A 0%, 
+        #121212 20%, 
+        #0F0F0F 40%, 
+        #161616 60%, 
+        #0E0E0E 80%, 
+        #0A0A0A 100%);
+    }
+    
+    /* Subtle grid pattern */
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(64, 64, 64, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(64, 64, 64, 0.05) 1px, transparent 1px);
+      background-size: 120px 120px;
+    }
+    
+    /* Metallic geometry elements */
+    .geometric-shape {
+      position: absolute;
+      border: 1px solid rgba(128, 128, 128, 0.15);
+      backdrop-filter: blur(2px);
+    }
+    
+    .shape-1 {
+      width: 600px;
+      height: 600px;
+      top: 10%;
+      left: 10%;
+      border-radius: 50%;
+      border-left-color: rgba(168, 168, 168, 0.2);
+      border-top-color: rgba(168, 168, 168, 0.15);
+    }
+    
+    .shape-2 {
+      width: 400px;
+      height: 400px;
+      top: 60%;
+      right: 15%;
+      border-radius: 30%;
+      border-right-color: rgba(112, 112, 112, 0.18);
+      border-bottom-color: rgba(112, 112, 112, 0.12);
+    }
+    
+    .shape-3 {
+      width: 800px;
+      height: 800px;
+      top: 20%;
+      right: 25%;
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      border: 1px solid rgba(96, 96, 96, 0.08);
+    }
+    
+    /* Luminous accent orbs */
+    .luminous-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+    }
+    
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      top: 30%;
+      left: 25%;
+      background: radial-gradient(circle, rgba(168, 168, 168, 0.25) 0%, transparent 70%);
+    }
+    
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      bottom: 20%;
+      left: 40%;
+      background: radial-gradient(circle, rgba(128, 128, 128, 0.2) 0%, transparent 65%);
+    }
+    
+    /* Hairline borders */
+    .hairline {
+      position: absolute;
+      background: rgba(128, 128, 128, 0.3);
+    }
+    
+    .hairline-horizontal {
+      height: 1px;
+      width: 1200px;
+      top: 50%;
+      left: 360px;
+    }
+    
+    .hairline-vertical {
+      width: 1px;
+      height: 800px;
+      top: 140px;
+      left: 50%;
+    }
+    
+    /* Technical corner markers */
+    .corner-marker {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+    }
+    
+    .corner-tl {
+      top: 80px;
+      left: 80px;
+      border-left: 2px solid rgba(128, 128, 128, 0.4);
+      border-top: 2px solid rgba(128, 128, 128, 0.4);
+    }
+    
+    .corner-tr {
+      top: 80px;
+      right: 80px;
+      border-right: 2px solid rgba(128, 128, 128, 0.4);
+      border-top: 2px solid rgba(128, 128, 128, 0.4);
+    }
+    
+    .corner-bl {
+      bottom: 80px;
+      left: 80px;
+      border-left: 2px solid rgba(128, 128, 128, 0.4);
+      border-bottom: 2px solid rgba(128, 128, 128, 0.4);
+    }
+    
+    .corner-br {
+      bottom: 80px;
+      right: 80px;
+      border-right: 2px solid rgba(128, 128, 128, 0.4);
+      border-bottom: 2px solid rgba(128, 128, 128, 0.4);
+    }
+    
+    /* Noise texture overlay */
+    .noise-texture {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="gradient-base"></div>
+    <div class="grid-overlay"></div>
+    <div class="noise-texture"></div>
+    
+    <!-- Geometric depth elements -->
+    <div class="geometric-shape shape-1"></div>
+    <div class="geometric-shape shape-2"></div>
+    <div class="geometric-shape shape-3"></div>
+    
+    <!-- Atmospheric glow -->
+    <div class="luminous-orb orb-1"></div>
+    <div class="luminous-orb orb-2"></div>
+    
+    <!-- Technical precision lines -->
+    <div class="hairline hairline-horizontal"></div>
+    <div class="hairline hairline-vertical"></div>
+    
+    <!-- Corner reference points -->
+    <div class="corner-marker corner-tl"></div>
+    <div class="corner-marker corner-tr"></div>
+    <div class="corner-marker corner-bl"></div>
+    <div class="corner-marker corner-br"></div>
+  </div>
+</body>
+</html>

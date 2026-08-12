@@ -1,24 +1,62 @@
+import { LayoutChrome } from "@/components/layout/chrome";
 import { Navigation, Footer } from "@/components/marketing/nav";
 import { PricingClient } from "./pricing-client";
 
 export const metadata = {
-  title: "Pricing — LocalFile",
+  title: "Pricing — ZANCTA",
   description: "Free local tools forever. Premium: no ads, higher limits, advanced controls. Privacy-first.",
 };
 
 export default function PricingPage() {
   return (
-    <>
-      <Navigation />
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <div className="max-w-3xl">
+    <LayoutChrome showNav={true} showFooter={true}>
+      {/* ZANCTA Brand Header */}
+      <section className="border-b">
+        <div className="mx-auto max-w-6xl px-6 py-8 text-center">
+          <img 
+            src="/assets/zancta-brand/logos/primary-wordmark.svg" 
+            alt="ZANCTA" 
+            className="h-10 w-auto mx-auto mb-4"
+          />
           <h1 className="text-3xl font-semibold tracking-tight">Simple, honest pricing</h1>
           <p className="mt-3 text-sm text-muted-foreground">
             All tools run locally — no uploads. Free forever for personal use. Premium adds convenience, not fake limits.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Taxes handled by our Merchant of Record (Dodo Payments) where applicable. Cancel anytime — you keep Premium until the period ends.
+            Taxes handled by our Merchant of Record (Dodo Payments) where applicable. Cancel anytime.
           </p>
+        </div>
+      </section>
+
+      {/* ZANCTA Pricing Banner */}
+      <section className="bg-[#0A0A0A]">
+        <img 
+          src="/assets/zancta-brand/og-images/zancta-pricing-banner.png" 
+          alt="ZANCTA Pricing Plans" 
+          className="w-full h-auto rounded-xl border"
+        />
+      </section>
+
+      <main className="mx-auto max-w-6xl px-6 py-12">
+        <div className="max-w-3xl">
+          {/* Value prop comparison */}
+          <div className="rounded-lg border bg-surface p-6 mt-8">
+            <h2 className="text-sm font-medium mb-4 text-foreground">Value Comparison</h2>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex justify-between pb-2 border-b">
+                <span>Premium Annual:</span>
+                <span className="font-semibold text-accent-foreground">₹999/year ≈ $39/yr</span>
+              </div>
+              <div className="flex justify-between pb-2 border-b">
+                <span>iLovePDF Annual (estimate):</span>
+                <span>₹7,188/year ≈ ₹599/mo × 12 ≈ ₹283/mo converted</span>
+              </div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="font-medium">You save:</span>
+                <span className="text-success font-semibold">58% off iLovePDF annual rate</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <PricingClient />
@@ -43,7 +81,6 @@ export default function PricingPage() {
           <p className="mt-1">Prices shown in INR for India and USD for everyone else. Final charge converted by provider if needed. Need help? Contact support.</p>
         </section>
       </main>
-      <Footer />
-    </>
+    </LayoutChrome>
   );
 }

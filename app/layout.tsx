@@ -1,35 +1,23 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { GeistSans } from "next/font/google";
-import { GeistMono } from "next/font/google";
-
-const geistSans = GeistSans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = GeistMono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: {
-    default: "LocalFile — Privacy-first file tools. Your files never leave your device.",
-    template: "%s — LocalFile",
+    default: "ZANCTA — Privacy-first file tools. Your files never leave your device.",
+    template: "%s — ZANCTA",
   },
   description:
     "Merge, split, compress PDFs and images privately in your browser. No upload, no watermark, no signup. 10 local-first tools.",
   openGraph: {
-    title: "LocalFile — Your files never leave your device",
+    title: "ZANCTA — Your files never leave your device",
     description: "Privacy-first PDF & image tools that run entirely in your browser.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LocalFile — Privacy-first file tools",
+    title: "ZANCTA — Privacy-first file tools",
     description: "Local processing. No upload. No watermark.",
   },
   robots: { index: true, follow: true },
@@ -39,7 +27,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en">
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

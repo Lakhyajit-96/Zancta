@@ -1,3 +1,4 @@
+import { LayoutChrome } from "@/components/layout/chrome";
 import { Navigation, Footer } from "@/components/marketing/nav";
 import { getTool, TOOLS } from "@/lib/tools";
 import { buildMetadata, jsonLdSoftwareApp } from "@/lib/seo";
@@ -24,17 +25,22 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
   const related = tool.related.map((s) => TOOLS.find((t) => t.slug === s)).filter(Boolean) as typeof TOOLS;
 
   return (
-    <>
-      <Navigation />
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
-          <Link href="/" className="hover:text-foreground">Home</Link> <span aria-hidden> / </span>
-          <Link href="/tools" className="hover:text-foreground">Tools</Link> <span aria-hidden> / </span>
-          <span aria-current="page" className="text-foreground">{tool.name}</span>
-        </nav>
+    <LayoutChrome showNav={true} showFooter={true}>
+      {/* ZANCTA Brand Header */}
+      <section className="border-b">
+        <div className="mx-auto max-w-6xl px-6 py-8 text-center">
+          <img 
+            src="/assets/zancta-brand/logos/compact-mark.svg" 
+            alt="ZANCTA" 
+            className="h-10 w-auto mx-auto mb-4"
+          />
+          <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
+            <Link href="/" className="hover:text-foreground">Home</Link> <span aria-hidden> / </span>
+            <Link href="/tools" className="hover:text-foreground">Tools</Link> <span aria-hidden> / </span>
+            <span aria-current="page" className="text-foreground">{tool.name}</span>
+          </nav>
 
-        <div className="mt-6 max-w-3xl">
-          <h1 className="text-3xl font-semibold tracking-tight">{tool.h1}</h1>
+          <h1 className="mt-6 text-3xl font-semibold tracking-tight">{tool.h1}</h1>
           <p className="mt-3 text-sm text-muted-foreground">{tool.longDescription}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
@@ -43,10 +49,11 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
             <span className="text-xs text-muted-foreground">Supports: {tool.supportedFormats.join(", ")} · Max {Math.round(tool.maxFileSize / 1024 / 1024)}MB/file · {tool.maxFiles} files</span>
           </div>
         </div>
+      </section>
 
-        <div className="mt-8">
-          <ToolShell tool={tool} />
-        </div>
+      <main className="mx-auto max-w-6xl px-6 pb-16 pt-10">
+        {/* Tool interface section */}
+        <ToolShell tool={tool} />
 
         {related.length > 0 && (
           <section className="mt-12 border-t pt-8">
@@ -98,7 +105,6 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           }}
         />
       </main>
-      <Footer />
-    </>
+    </LayoutChrome>
   );
 }

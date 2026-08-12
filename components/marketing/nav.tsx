@@ -4,8 +4,13 @@ export function Navigation() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="font-semibold tracking-tight">
-          LocalFile<span className="text-accent">.</span>
+        <Link href="/" className="flex items-center gap-2 group">
+          <img 
+            src="/assets/zancta-brand/logos/compact-mark.svg" 
+            alt="ZANCTA" 
+            className="h-7 w-7 group-hover:scale-110 transition-transform duration-300"
+          />
+          <span className="font-semibold tracking-tight">ZANCTA<span className="text-accent">.</span></span>
         </Link>
         <nav className="hidden gap-8 text-sm md:flex" aria-label="Primary">
           <Link href="/tools" className="hover:text-accent py-2 block">Tools</Link>
@@ -50,8 +55,8 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted-foreground">
         <div className="flex flex-col gap-6 md:flex-row md:justify-between">
           <div>
-            <p className="font-medium text-foreground">LocalFile</p>
-            <p className="max-w-sm mt-2">Privacy-first file tools that run in your browser. No upload, no watermark.</p>
+            <p className="font-medium text-foreground">ZANCTA</p>
+            <p className="max-w-sm mt-2">Privacy-first file tools that run locally in your browser. No upload, no watermark.</p>
           </div>
           <nav className="flex gap-6">
             <a href="/privacy" className="hover:text-foreground">Privacy</a>
@@ -60,7 +65,7 @@ export function Footer() {
             <a href="/help" className="hover:text-foreground">Help</a>
           </nav>
         </div>
-        <p className="mt-8 text-xs">© {new Date().getFullYear()} LocalFile. No fake claims — processing is local at MVP.</p>
+        <p className="mt-8 text-xs">© {new Date().getFullYear()} ZANCTA. Files stay on-device — zero uploads at MVP.</p>
       </div>
     </footer>
   );

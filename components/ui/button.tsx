@@ -9,7 +9,6 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost" | "outline";
   size?: "sm" | "md" | "lg";
 };
-};
 
 export function Button({ variant = "primary", size = "md", className = "", ...props }: Props) {
   const base =
