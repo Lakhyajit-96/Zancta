@@ -15,8 +15,17 @@ class ResendAdapter implements EmailAdapter {
     this.resend = new Resend(key);
     this.from = from;
   }
+  private async sendEmail(params: Parameters<Resend["emails"]["send"]>[0]) {
+    // resend.emails.send() resolves with { data, error } instead of throwing;
+    // surface provider failures so callers never report fake success.
+    const { error } = await this.resend.emails.send(params);
+    if (error) {
+      // Resend error messages are safe (e.g. "domain is not verified"); no API keys included.
+      throw new Error(`Resend send failed: ${error.name}: ${error.message}`);
+    }
+  }
   async sendVerification(to: string, url: string) {
-    await this.resend.emails.send({
+    await this.sendEmail({
       from: this.from,
       to,
       subject: "Verify your email — LocalFile",
@@ -24,7 +33,7 @@ class ResendAdapter implements EmailAdapter {
     });
   }
   async sendPasswordReset(to: string, url: string) {
-    await this.resend.emails.send({
+    await this.sendEmail({
       from: this.from,
       to,
       subject: "Reset your password — LocalFile",
