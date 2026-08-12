@@ -65,6 +65,7 @@ playwright-report/
 # Local tooling / IDE
 .agents/
 .claude/
+.qoder/
 .windsurf/
 memory/
 test-screenshots/
