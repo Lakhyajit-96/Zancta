@@ -1,5 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { GeistSans } from "next/font/google";
+import { GeistMono } from "next/font/google";
+
+const geistSans = GeistSans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = GeistMono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
@@ -27,7 +39,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

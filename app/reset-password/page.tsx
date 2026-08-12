@@ -1,6 +1,7 @@
 "use client";
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { LayoutChrome } from "@/components/layout/chrome";
 
 function ResetInner() {
   const params = useSearchParams();
@@ -24,6 +25,7 @@ function ResetInner() {
   if (!token) return <main className="mx-auto max-w-md px-6 py-12"><p role="alert" className="text-sm text-error">Missing token</p></main>;
 
   return (
+    <LayoutChrome showNav={false}>
     <main className="mx-auto max-w-md px-6 py-12">
       <h1 className="text-2xl font-semibold tracking-tight">Reset password</h1>
       <p className="mt-2 text-sm text-muted-foreground">Token expires in 60 minutes and is one-time use.</p>
@@ -34,12 +36,13 @@ function ResetInner() {
         </div>
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
         {ok && <div role="status" aria-live="polite" className="rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">{ok}</div>}
-        <button type="submit" disabled={loading} className="h-10 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Updating…" : "Update password"}</button>
+        <button type="submit" disabled={loading} className="h-11 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Updating…" : "Update password"}</button>
       </form>
     </main>
+    </LayoutChrome>
   );
 }
 
 export default function ResetPage() {
-  return <Suspense fallback={<main className="mx-auto max-w-md px-6 py-12"><p className="text-sm text-muted-foreground">Loading…</p></main>}><ResetInner /></Suspense>;
+  return <Suspense fallback={<LayoutChrome showNav={false}><main className="mx-auto max-w-md px-6 py-12"><p className="text-sm text-muted-foreground">Loading…</p></main></LayoutChrome>}><ResetInner /></Suspense>;
 }

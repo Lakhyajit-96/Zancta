@@ -20,7 +20,7 @@ export default function DeleteForm() {
     <form onSubmit={submit} className="mt-3 space-y-2">
       <input value={confirm} onChange={(e)=>setConfirm(e.target.value)} placeholder="Type DELETE" className="w-full rounded-md border bg-elevated px-3 py-2 text-sm" aria-label="Confirm deletion" />
       {error && <p role="alert" className="text-xs text-error">{error}</p>}
-      <button type="submit" disabled={loading} className="h-9 px-4 rounded-md bg-error text-error-foreground text-sm disabled:opacity-50">{loading ? "Deleting…" : "Delete account"}</button>
+      <button type="submit" disabled={loading} className="h-9 px-4 rounded-md bg-error text-foreground text-sm disabled:opacity-50">{loading ? "Deleting…" : "Delete account"}</button>
     </form>
   );
 }

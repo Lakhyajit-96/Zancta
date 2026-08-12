@@ -7,18 +7,18 @@ export function Navigation() {
         <Link href="/" className="font-semibold tracking-tight">
           LocalFile<span className="text-accent">.</span>
         </Link>
-        <nav className="hidden gap-6 text-sm md:flex" aria-label="Primary">
-          <Link href="/tools" className="hover:text-accent">Tools</Link>
-          <Link href="/privacy" className="hover:text-accent">Privacy</Link>
-          <Link href="/pricing" className="hover:text-accent">Pricing</Link>
-          <Link href="/about" className="hover:text-accent">About</Link>
+        <nav className="hidden gap-8 text-sm md:flex" aria-label="Primary">
+          <Link href="/tools" className="hover:text-accent py-2 block">Tools</Link>
+          <Link href="/privacy" className="hover:text-accent py-2 block">Privacy</Link>
+          <Link href="/pricing" className="hover:text-accent py-2 block">Pricing</Link>
+          <Link href="/about" className="hover:text-accent py-2 block">About</Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Link href="/tools" className="hidden md:inline-flex h-9 px-4 items-center rounded-md bg-accent text-accent-foreground text-sm font-medium">
+          <Link href="/tools" className="hidden md:inline-flex h-11 px-5 items-center rounded-md bg-accent text-accent-foreground text-sm font-medium">
             Explore tools
           </Link>
-          <Link href="/account" className="hidden md:inline-flex h-9 px-3 items-center rounded-md border text-sm">Account</Link>
-          <Link href="/signin" className="hidden md:inline-flex h-9 px-3 items-center rounded-md border text-sm">Sign in</Link>
+          <Link href="/account" className="hidden md:inline-flex h-11 px-4 items-center rounded-md border text-sm">Account</Link>
+          <Link href="/signin" className="hidden md:inline-flex h-11 px-4 items-center rounded-md border text-sm">Sign in</Link>
           <MobileNav />
         </div>
       </div>
@@ -29,16 +29,16 @@ export function Navigation() {
 function MobileNav() {
   return (
     <details className="md:hidden group">
-      <summary className="list-none h-9 w-9 grid place-items-center rounded-md border hover:bg-muted cursor-pointer" aria-label="Open navigation">
+      <summary className="list-none h-11 w-11 grid place-items-center rounded-md border hover:bg-muted cursor-pointer" aria-label="Open navigation">
         <span aria-hidden className="text-sm">≡</span>
       </summary>
-      <nav className="absolute right-6 top-14 rounded-lg border bg-surface p-4 space-y-3 text-sm shadow-lg">
-        <Link href="/tools" className="block">Tools</Link>
-        <Link href="/privacy" className="block">Privacy</Link>
-        <Link href="/pricing" className="block">Pricing</Link>
-        <Link href="/about" className="block">About</Link>
-        <Link href="/signin" className="block">Sign in</Link>
-        <Link href="/account" className="block">Account</Link>
+      <nav className="absolute right-4 top-14 rounded-lg border bg-surface p-4 space-y-2 text-sm shadow-lg md:right-6 md:py-4">
+        <Link href="/tools" className="block py-2">Tools</Link>
+        <Link href="/privacy" className="block py-2">Privacy</Link>
+        <Link href="/pricing" className="block py-2">Pricing</Link>
+        <Link href="/about" className="block py-2">About</Link>
+        <Link href="/signin" className="block py-2">Sign in</Link>
+        <Link href="/account" className="block py-2">Account</Link>
       </nav>
     </details>
   );

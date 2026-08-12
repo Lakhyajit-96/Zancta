@@ -2,7 +2,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { validateFiles } from "@/lib/file-safety";
-import { UploadZone, Progress, PrivacyIndicator } from "@/components/ui/tool-ui";
+import { UploadZone, Progress, PrivacyIndicator, FileRow } from "@/components/ui/tool-ui";
 import { downloadBlob } from "@/lib/download";
 import type { ToolMeta } from "@/lib/tools";
 type Status = "idle" | "validating" | "loading" | "processing" | "completed" | "failed" | "aborted";
@@ -55,6 +55,14 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
     };
   }, [cleanup]);
 
+  const handleProcessingTimeout = (worker: Worker | null, setProgress: (p: number) => void, setStatus: (s: Status) => void) => {
+    return setTimeout(() => {
+      worker?.terminate();
+      setErrors(["Processing timed out (30s) — try fewer or smaller files."]);
+      setStatus("failed");
+    }, 30_000);
+  };
+
   const start = async () => {
     if (files.length === 0) return;
     cleanup();
@@ -104,11 +112,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
       return;
     }
 
-    const timeout = setTimeout(() => {
-      workerRef.current?.terminate();
-      setErrors(["Processing timed out (30s) — try fewer or smaller files."]);
-      setStatus("failed");
-    }, 30_000);
+    const timeout = handleProcessingTimeout(workerRef.current, setProgress, setStatus);
 
     // Create worker - try with fallback to main thread if worker fails
     try {
@@ -153,7 +157,6 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
           const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
           setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed");
           clearTimeout(timeout);
-          return;
         } catch (err) {
           setErrors([(err as Error).message]); setStatus("failed"); clearTimeout(timeout); return;
         }
@@ -166,44 +169,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
 
     const worker = workerRef.current!;
     let completed = false;
-    // Fallback to main thread if worker doesn't respond in 3s (Turbopack worker bundling may fail in some builds)
-    const fallback = setTimeout(async () => {
-      if (completed) return;
-      try {
-        const { mergePdfs: _merge, splitPdf: _split, compressPdf: _compress, imagesToPdf: _img2pdf, pdfToImages: _pdf2img } = await import("@/lib/pdf-engine");
-        const { compressImage: _cImg, convertImage: _convImg, resizeImage: _resImg, exifClean: _exif } = await import("@/lib/image-engine");
-        let blobs: { name: string; blob: Blob }[] = [];
-        let meta: { originalSize?: number; outputSize?: number } | undefined;
-        if (op === "MERGE") {
-          const b = await _merge(files, (pr)=> setProgress(pr));
-          blobs = [{ name: "merged.pdf", blob: b }];
-        } else if (op === "SPLIT") {
-          blobs = (await _split(files[0], range, (pr)=> setProgress(pr))).map((b,i)=>({name:`split-${i+1}.pdf`, blob:b}));
-        } else if (op === "COMPRESS") {
-          const r = await _compress(files[0]); blobs = [{name:"compressed.pdf", blob:r.blob}]; meta={originalSize:r.original, outputSize:r.output};
-        } else if (op === "IMAGES_TO_PDF") {
-          const b = await _img2pdf(files, (pr)=> setProgress(pr)); blobs=[{name:"images-to-pdf.pdf", blob:b}];
-        } else if (op === "PDF_TO_IMAGES") {
-          const arr = await _pdf2img(files[0], imageFormat, 0.92, (pr)=> setProgress(pr)); blobs=arr.map((b,i)=>({name:`page-${i+1}.${imageFormat}`, blob:b}));
-        } else if (op === "IMAGE_COMPRESS") {
-          const arr = await Promise.all(files.map(async (f)=>{ const b=await _cImg(f, imageQuality); return {name: f.name.replace(/\.[^.]+$/, "")+`-compressed.`+ (f.name.split(".").pop()||"jpg"), blob:b}; })); blobs=arr;
-        } else if (op === "IMAGE_CONVERT") {
-          const arr = await Promise.all(files.map(async (f)=>{ const b=await _convImg(f, convertTarget, 0.92); return {name: f.name.replace(/\.[^.]+$/, "")+`-converted.`+ convertTarget.split("/")[1].replace("jpeg","jpg"), blob:b}; })); blobs=arr;
-        } else if (op === "IMAGE_RESIZE") {
-          const arr = await Promise.all(files.map(async (f)=>{ const b=await _resImg(f, resizeWidth, resizeHeight, convertTarget, 0.92); return {name: f.name.replace(/\.[^.]+$/, "")+`-resized.`+ convertTarget.split("/")[1].replace("jpeg","jpg"), blob:b}; })); blobs=arr;
-        } else if (op === "EXIF_CLEAN") {
-          const arr = await Promise.all(files.map(async (f)=>{ const b=await _exif(f); return {name: f.name.replace(/\.[^.]+$/, "")+`-clean.`+ (f.name.split(".").pop()||"jpg"), blob:b}; })); blobs=arr;
-        }
-        try { worker.terminate(); } catch {}
-        workerRef.current = null;
-        clearTimeout(timeout);
-        clearTimeout(fallback);
-        const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
-        setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed"); completed = true;
-      } catch (err) {
-        setErrors([(err as Error).message]); setStatus("failed"); clearTimeout(timeout);
-      }
-    }, 3000);
+
 
     worker.onmessage = (e: MessageEvent<unknown>) => {
       const msg = e.data as { id: string; status: string; progress?: number; detail?: string; blobs?: { name: string; blob: Blob }[]; meta?: { originalSize?: number; outputSize?: number }; message?: string; hint?: string; errorCode?: string };
@@ -222,7 +188,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
         }
         if (msg.meta) setMeta(msg.meta);
         completed = true;
-        clearTimeout(fallback);
+        clearTimeout(timeout);
         worker.terminate();
         workerRef.current = null;
         // Analytics (privacy-safe, coarse bucket)
@@ -234,7 +200,6 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
       } else if (msg.status === "failed" || msg.status === "aborted") {
         clearTimeout(timeout);
         completed = true;
-        clearTimeout(fallback);
         setStatus(msg.status as Status);
         setErrors([msg.message || "Processing failed", msg.hint || ""].filter(Boolean));
         worker.terminate();
@@ -358,11 +323,12 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
       {files.length > 0 && (
         <ul className="space-y-2" aria-live="polite">
           {files.map((f, i) => (
-            <li key={i} className="flex justify-between rounded-md border bg-elevated px-3 py-2 text-sm">
-              <span className="truncate pr-3">{`file_${i + 1}.${f.name.split(".").pop()}`}</span>
-              <span className="text-xs text-muted-foreground shrink-0">{(f.size / 1024).toFixed(1)} KB</span>
-              <button onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))} className="ml-3 text-xs underline">Remove</button>
-            </li>
+            <FileRow
+              key={i}
+              name={`file_${i + 1}.${f.name.split(".").pop()}`}
+              size={f.size}
+              onRemove={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
+            />
           ))}
         </ul>
       )}

@@ -1,9 +1,14 @@
 "use client";
 import * as React from "react";
 
+/**
+ * @deprecated This component is no longer used. Button patterns are now implemented inline across the codebase.
+ * Will be removed in a future cleanup.
+ */
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost" | "outline";
   size?: "sm" | "md" | "lg";
+};
 };
 
 export function Button({ variant = "primary", size = "md", className = "", ...props }: Props) {

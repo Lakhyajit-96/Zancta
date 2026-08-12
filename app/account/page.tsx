@@ -32,7 +32,7 @@ export default async function AccountPage() {
           {ent.source && <p className="text-xs text-muted-foreground">Provider: {ent.source}{ent.providerSubscriptionId ? ` · ${ent.providerSubscriptionId.slice(0, 12)}…` : ""}</p>}
           {ent.currentPeriodEnd && <p className="text-xs text-muted-foreground">Period ends: {new Date(ent.currentPeriodEnd).toLocaleDateString()} {ent.cancelAtPeriodEnd ? "· cancels at period end" : ""}</p>}
           {ent.expiresAt && ent.status !== "ACTIVE" && <p className="text-xs text-muted-foreground">Expires: {new Date(ent.expiresAt).toLocaleDateString()}</p>}
-          {ent.plan === "FREE" ? <p className="text-xs text-muted-foreground mt-2"><Link href="/pricing" className="underline">View pricing</Link> — Premium ₹199/mo or ₹999/yr · $5/mo or $39/yr.</p> : ent.plan === "PREMIUM" && ent.status === "ACTIVE" ? <p className="text-xs text-green-600 mt-2">✓ Premium active — no ads, higher limits. Manage billing via Dodo (invoices, cancel).</p> : null}
+          {ent.plan === "FREE" ? <p className="text-xs text-muted-foreground mt-2"><Link href="/pricing" className="underline">View pricing</Link> — Premium ₹199/mo or ₹999/yr · $5/mo or $39/yr.</p> : ent.plan === "PREMIUM" && ent.status === "ACTIVE" ? <p className="text-xs text-success mt-2">✓ Premium active — no ads, higher limits. Manage billing via Dodo (invoices, cancel).</p> : null}
         </div>
         <div className="border-t pt-6">
           <h2 className="text-sm font-medium">Privacy</h2>

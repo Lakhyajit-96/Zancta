@@ -38,26 +38,23 @@ export function Hero() {
           <div className="grid grid-cols-3 gap-4 text-center text-xs">
             <div className="rounded-lg border bg-elevated p-4">
               <div className="mx-auto h-10 w-8 rounded bg-muted border" />
-              <p className="mt-2" style={{ color: "#f8f8f8" }}>
+              <p className="mt-2 text-foreground">
                 Your file
               </p>
             </div>
             <div className="flex items-center justify-center">
-              <span className="font-medium" style={{ color: "#8ec2ff" }}>
+              <span className="font-medium text-accent-soft">
                 → browser →
               </span>
             </div>
             <div className="rounded-lg border bg-elevated p-4">
               <div className="mx-auto h-10 w-8 rounded bg-accent/20 border border-accent/40" />
-              <p className="mt-2" style={{ color: "#f8f8f8" }}>
+              <p className="mt-2 text-foreground">
                 Result
               </p>
             </div>
           </div>
-          <div
-            className="mt-4 rounded-md border border-success/30 bg-success/10 p-3 text-xs text-center"
-            style={{ color: "#f8f8f8" }}
-          >
+          <div className="mt-4 rounded-md border border-success/30 bg-success/10 p-3 text-xs text-center text-foreground">
             Encrypted transport not needed — no upload at MVP
           </div>
         </motion.div>

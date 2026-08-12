@@ -1,5 +1,10 @@
 import * as React from "react";
 
+/**
+ * @deprecated These components are no longer used. Inline className composition is preferred throughout the codebase.
+ * Will be removed in a future cleanup.
+ */
+
 export function Badge({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <span className={`inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground ${className}`}>

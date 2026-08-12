@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { LayoutChrome } from "@/components/layout/chrome";
 
 export default function ForgotPage() {
   const [email, setEmail] = useState("");
@@ -16,9 +17,10 @@ export default function ForgotPage() {
     else setMsg(data.message || "Check email");
   };
   return (
+    <LayoutChrome showNav={false}>
     <main className="mx-auto max-w-md px-6 py-12">
       <h1 className="text-2xl font-semibold tracking-tight">Forgot password</h1>
-      <p className="mt-2 text-sm text-muted-foreground">We’ll send a reset link if that email exists — generic response for privacy.</p>
+      <p className="mt-2 text-sm text-muted-foreground">We'll send a reset link if that email exists — generic response for privacy.</p>
       <form onSubmit={submit} className="mt-8 space-y-4">
         <div>
           <label htmlFor="email" className="text-sm font-medium">Email</label>
@@ -26,8 +28,9 @@ export default function ForgotPage() {
         </div>
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
         {msg && <div role="status" aria-live="polite" className="rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">{msg}</div>}
-        <button type="submit" disabled={loading} className="h-10 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Sending…" : "Send reset link"}</button>
+        <button type="submit" disabled={loading} className="h-11 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Sending…" : "Send reset link"}</button>
       </form>
     </main>
+    </LayoutChrome>
   );
 }

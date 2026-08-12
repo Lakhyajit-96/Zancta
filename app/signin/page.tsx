@@ -3,6 +3,7 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { LayoutChrome } from "@/components/layout/chrome";
 
 function SigninInner() {
   const router = useRouter();
@@ -22,6 +23,7 @@ function SigninInner() {
   };
 
   return (
+    <LayoutChrome showNav={false}>
     <main className="mx-auto max-w-md px-6 py-12">
       <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
       <p className="mt-2 text-sm text-muted-foreground">Your files stay local — account is for entitlements only.</p>
@@ -35,16 +37,17 @@ function SigninInner() {
           <input id="password" type="password" required value={password} onChange={(e)=>setPassword(e.target.value)} className="mt-1 w-full rounded-md border bg-elevated px-3 py-2 text-sm" autoComplete="current-password" />
         </div>
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
-        <button type="submit" disabled={loading} className="h-10 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Signing in…" : "Sign in"}</button>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <Link href="/forgot-password" className="underline">Forgot password?</Link>
-          <Link href="/signup" className="underline">Create account</Link>
+        <button type="submit" disabled={loading} className="h-11 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Signing in…" : "Sign in"}</button>
+        <div className="flex justify-between gap-4 text-xs text-muted-foreground">
+          <Link href="/forgot-password" className="underline py-2 block">Forgot password?</Link>
+          <Link href="/signup" className="underline py-2 block">Create account</Link>
         </div>
       </form>
     </main>
+    </LayoutChrome>
   );
 }
 
 export default function SigninPage() {
-  return <Suspense fallback={<main className="mx-auto max-w-md px-6 py-12"><p className="text-sm text-muted-foreground">Loading…</p></main>}><SigninInner /></Suspense>;
+  return <Suspense fallback={<LayoutChrome showNav={false}><main className="mx-auto max-w-md px-6 py-12"><p className="text-sm text-muted-foreground">Loading…</p></main></LayoutChrome>}><SigninInner /></Suspense>;
 }
