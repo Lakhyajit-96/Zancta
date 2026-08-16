@@ -1,5 +1,4 @@
 import { LayoutChrome } from "@/components/layout/chrome";
-import { Navigation, Footer } from "@/components/marketing/nav";
 import { getTool, TOOLS } from "@/lib/tools";
 import { buildMetadata, jsonLdSoftwareApp } from "@/lib/seo";
 import { ToolShell } from "@/components/ui/tool-shell";

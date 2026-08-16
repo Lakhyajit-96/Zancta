@@ -22,6 +22,7 @@ export function buildMetadata({ title, description, path, canonical }: SEOProps)
 }
 
 export function jsonLdSoftwareApp(tool: { name: string; description: string; slug: string }): object {
+  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -30,6 +31,6 @@ export function jsonLdSoftwareApp(tool: { name: string; description: string; slu
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Web",
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    url: `https://example.com/tools/${tool.slug}`,
+    url: `${base}/tools/${tool.slug}`,
   };
 }

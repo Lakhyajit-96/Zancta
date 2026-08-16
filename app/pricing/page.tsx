@@ -1,5 +1,4 @@
 import { LayoutChrome } from "@/components/layout/chrome";
-import { Navigation, Footer } from "@/components/marketing/nav";
 import { PricingClient } from "./pricing-client";
 
 export const metadata = {

@@ -20,7 +20,7 @@ export default function ForgotPage() {
     <LayoutChrome showNav={false}>
     <main className="mx-auto max-w-md px-6 py-12">
       <h1 className="text-2xl font-semibold tracking-tight">Forgot password</h1>
-      <p className="mt-2 text-sm text-muted-foreground">We'll send a reset link if that email exists — generic response for privacy.</p>
+      <p className="mt-2 text-sm text-muted-foreground">We&apos;ll send a reset link if that email exists — generic response for privacy.</p>
       <form onSubmit={submit} className="mt-8 space-y-4">
         <div>
           <label htmlFor="email" className="text-sm font-medium">Email</label>

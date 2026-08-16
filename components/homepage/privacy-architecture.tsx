@@ -60,7 +60,7 @@ export function PrivacyArchitectureSection() {
             Privacy by design, not afterthought
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            We built a zero-trust architecture where your files literally cannot reach our servers. Here's how.
+            We built a zero-trust architecture where your files literally cannot reach our servers. Here&apos;s how.
           </p>
         </motion.div>
 
