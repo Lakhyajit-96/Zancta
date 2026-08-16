@@ -125,7 +125,11 @@ No new heavy dependency, 3D scene, remote font, image library, or animation runt
 
 ## Production verification
 
-The application changes are ready for the existing `origin/main` deployment path. The production anonymous walkthrough will be recorded after the final application push. Firefox and WebKit remain **UNVERIFIED — ENVIRONMENT** because their Playwright executables are unavailable; they were not installed during this phase.
+- Application commit `ae493e7` is pushed to `origin/main` and is serving at `https://toolsite-4q4w.vercel.app`.
+- Production HTML was checked for the new `Open a tool` shell and the truthful `9 PDF` copy after propagation.
+- A real headless Chromium walkthrough checked 19 routes at 320 px and 1440 px, for 38 route/viewport checks. It found no HTTP errors, horizontal overflow, broken images, duplicate `<main>` landmarks, application console errors, or ad DOM.
+- The live walkthrough included `/`, `/tools`, `/pricing`, all auth pages, all public content/trust pages, `/docs`, and `/tools/image-compress`.
+- Firefox and WebKit remain **UNVERIFIED — ENVIRONMENT** because their Playwright executables are unavailable; they were not installed during this phase.
 
 ## Remaining external blockers
 
