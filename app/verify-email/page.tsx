@@ -1,42 +1,16 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+
 import Link from "next/link";
-import { LayoutChrome } from "@/components/layout/chrome";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { AuthShell } from "@/components/marketing/auth-shell";
 
 function VerifyInner() {
-  const token = useSearchParams().get("token");
-  const [status, setStatus] = useState<"idle"|"loading"|"ok"|"error">("idle");
-  const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    if (!token) {
-      queueMicrotask(() => { setStatus("error"); setMsg("Missing token"); });
-      return;
-    }
-    queueMicrotask(() => setStatus("loading"));
-    fetch("/api/auth/verify-email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) })
-      .then(async (r) => {
-        const d = await r.json();
-        if (!r.ok) { setStatus("error"); setMsg(d.error || "Failed"); }
-        else { setStatus("ok"); setMsg("Email verified. You can now sign in."); }
-      })
-      .catch(() => { setStatus("error"); setMsg("Network error"); });
-  }, [token]);
-
-  return (
-    <LayoutChrome showNav={false}>
-    <main className="mx-auto max-w-md px-6 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Verify email</h1>
-      {status==="loading" && <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">Verifying…</p>}
-      {status==="ok" && <div role="status" aria-live="polite" className="mt-4 rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">{msg} <Link href="/signin" className="underline">Sign in</Link></div>}
-      {status==="error" && <div role="alert" className="mt-4 rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{msg}</div>}
-      {status==="idle" && <p className="mt-4 text-sm text-muted-foreground">Waiting for token…</p>}
-    </main>
-    </LayoutChrome>
-  );
+  const token = useSearchParams().get("token"); const [status, setStatus] = useState<"loading" | "ok" | "error">(token ? "loading" : "error"); const [msg, setMsg] = useState(token ? "" : "This verification link is missing a token.");
+  useEffect(() => { if (!token) return; fetch("/api/auth/verify-email", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) }).then(async (r) => { const d = await r.json(); if (!r.ok) { setStatus("error"); setMsg(d.error || "This link is invalid or expired."); } else { setStatus("ok"); setMsg("Email verified. You can now sign in."); } }).catch(() => { setStatus("error"); setMsg("Network error. Please try again."); }); }, [token]);
+  return <AuthShell eyebrow="ACCOUNT VERIFICATION" title="Confirm your email." description="Email verification helps keep account recovery and entitlement changes tied to the right address." reassurance="The link is processed by the existing authentication flow and does not touch your local tool files.">
+    <h2 className="text-xl font-semibold">Verify email</h2>{status === "loading" && <p className="mt-5 text-sm text-muted-foreground" aria-live="polite">Verifying…</p>}{status === "ok" && <div role="status" aria-live="polite" className="mt-5 rounded-md border border-success/40 bg-success/10 px-3 py-3 text-sm text-success">{msg} <Link href="/signin" className="underline">Sign in</Link></div>}{status === "error" && <div role="alert" className="mt-5 rounded-md border border-error/40 bg-error/10 px-3 py-3 text-sm text-error">{msg}<p className="mt-3"><Link href="/signup" className="underline">Create a new account</Link> or <Link href="/signin" className="underline">return to sign in</Link>.</p></div>}
+  </AuthShell>;
 }
 
-export default function VerifyPage() {
-  return <Suspense fallback={<LayoutChrome showNav={false}><main className="mx-auto max-w-md px-6 py-12"><p className="text-sm text-muted-foreground">Loading…</p></main></LayoutChrome>}><VerifyInner /></Suspense>;
-}
+export default function VerifyPage() { return <Suspense fallback={<main className="min-h-screen px-6 py-20 text-center text-sm text-muted-foreground">Loading verification…</main>}><VerifyInner /></Suspense>; }

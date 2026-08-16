@@ -14,9 +14,10 @@ export function Navigation() {
         </Link>
         <nav className="hidden gap-8 text-sm md:flex" aria-label="Primary">
           <Link href="/tools" className="hover:text-accent py-2 block">Tools</Link>
-          <Link href="/privacy" className="hover:text-accent py-2 block">Privacy</Link>
+          <Link href="/features" className="hover:text-accent py-2 block">Features</Link>
+          <Link href="/how-it-works" className="hover:text-accent py-2 block">How it works</Link>
           <Link href="/pricing" className="hover:text-accent py-2 block">Pricing</Link>
-          <Link href="/about" className="hover:text-accent py-2 block">About</Link>
+          <Link href="/help" className="hover:text-accent py-2 block">Help</Link>
         </nav>
         <div className="flex items-center gap-2">
           <Link href="/tools" className="hidden md:inline-flex h-11 px-5 items-center rounded-md bg-accent text-accent-foreground text-sm font-medium">
@@ -39,9 +40,10 @@ function MobileNav() {
       </summary>
       <nav className="absolute right-4 top-14 rounded-lg border bg-surface p-4 space-y-2 text-sm shadow-lg md:right-6 md:py-4">
         <Link href="/tools" className="block py-2">Tools</Link>
-        <Link href="/privacy" className="block py-2">Privacy</Link>
+        <Link href="/features" className="block py-2">Features</Link>
+        <Link href="/how-it-works" className="block py-2">How it works</Link>
         <Link href="/pricing" className="block py-2">Pricing</Link>
-        <Link href="/about" className="block py-2">About</Link>
+        <Link href="/help" className="block py-2">Help</Link>
         <Link href="/signin" className="block py-2">Sign in</Link>
         <Link href="/account" className="block py-2">Account</Link>
       </nav>
@@ -58,14 +60,20 @@ export function Footer() {
             <p className="font-medium text-foreground">ZANCTA</p>
             <p className="max-w-sm mt-2">Privacy-first file tools that run locally in your browser. No upload, no watermark.</p>
           </div>
-          <nav className="flex gap-6">
-            <a href="/privacy" className="hover:text-foreground">Privacy</a>
-            <a href="/terms" className="hover:text-foreground">Terms</a>
-            <a href="/security" className="hover:text-foreground">Security</a>
-            <a href="/help" className="hover:text-foreground">Help</a>
+          <nav className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-3" aria-label="Footer">
+            <Link href="/about" className="hover:text-foreground">About</Link>
+            <Link href="/features" className="hover:text-foreground">Features</Link>
+            <Link href="/how-it-works" className="hover:text-foreground">How it works</Link>
+            <Link href="/faq" className="hover:text-foreground">FAQ</Link>
+            <Link href="/help" className="hover:text-foreground">Help</Link>
+            <Link href="/docs" className="hover:text-foreground">Docs</Link>
+            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+            <Link href="/security" className="hover:text-foreground">Security</Link>
+            <Link href="/contact" className="hover:text-foreground">Contact</Link>
           </nav>
         </div>
-        <p className="mt-8 text-xs">© {new Date().getFullYear()} ZANCTA. Files stay on-device — zero uploads at MVP.</p>
+        <p className="mt-8 text-xs">© {new Date().getFullYear()} ZANCTA. Local browser processing for the supported tools.</p>
       </div>
     </footer>
   );

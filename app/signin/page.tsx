@@ -1,53 +1,40 @@
 "use client";
-import { useState, Suspense } from "react";
+
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { LayoutChrome } from "@/components/layout/chrome";
+import { Suspense, useState } from "react";
+import { AuthShell } from "@/components/marketing/auth-shell";
 
 function SigninInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [email, setEmail] = useState(""); const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
   const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(""); setLoading(true);
-    const res = await signIn("credentials", { email, password, redirect: false });
+    e.preventDefault(); setError(""); setLoading(true);
+    try {
+      const res = await signIn("credentials", { email, password, redirect: false });
+      if (res?.error) setError("Invalid email or password");
+      else router.push(params.get("callbackUrl") || "/account");
+    } catch { setError("Unable to sign in right now. Please try again."); }
     setLoading(false);
-    if (res?.error) setError("Invalid email or password");
-    else router.push(params.get("callbackUrl") || "/account");
   };
-
   return (
-    <LayoutChrome showNav={false}>
-    <main className="mx-auto max-w-md px-6 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Your files stay local — account is for entitlements only.</p>
-      <form onSubmit={submit} className="mt-8 space-y-4">
-        <div>
-          <label htmlFor="email" className="text-sm font-medium">Email</label>
-          <input id="email" type="email" required value={email} onChange={(e)=>setEmail(e.target.value)} className="mt-1 w-full rounded-md border bg-elevated px-3 py-2 text-sm" autoComplete="email" />
-        </div>
-        <div>
-          <label htmlFor="password" className="text-sm font-medium">Password</label>
-          <input id="password" type="password" required value={password} onChange={(e)=>setPassword(e.target.value)} className="mt-1 w-full rounded-md border bg-elevated px-3 py-2 text-sm" autoComplete="current-password" />
-        </div>
+    <AuthShell eyebrow="WELCOME BACK" title="Your workspace, without the upload anxiety." description="Sign in to manage account settings and premium entitlements. Your supported tool files remain local to your browser." reassurance="Authentication protects your account; it is not required to process local files.">
+      <h2 className="text-xl font-semibold">Sign in</h2>
+      <p className="mt-2 text-sm text-muted-foreground">Continue to your ZANCTA account.</p>
+      <form onSubmit={submit} className="mt-6 space-y-4">
+        <div><label htmlFor="email" className="text-sm font-medium">Email</label><input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 h-11 w-full rounded-md border bg-elevated px-3 text-sm" autoComplete="email" /></div>
+        <div><label htmlFor="password" className="text-sm font-medium">Password</label><input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 h-11 w-full rounded-md border bg-elevated px-3 text-sm" autoComplete="current-password" /></div>
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
         <button type="submit" disabled={loading} className="h-11 w-full rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground disabled:opacity-50">{loading ? "Signing in…" : "Sign in"}</button>
-        <div className="flex justify-between gap-4 text-xs text-muted-foreground">
-          <Link href="/forgot-password" className="underline py-2 block">Forgot password?</Link>
-          <Link href="/signup" className="underline py-2 block">Create account</Link>
-        </div>
       </form>
-    </main>
-    </LayoutChrome>
+      <div className="mt-5 flex justify-between gap-4 text-sm"><Link href="/forgot-password" className="text-muted-foreground underline">Forgot password?</Link><Link href="/signup" className="font-medium text-accent underline">Create account</Link></div>
+    </AuthShell>
   );
 }
 
 export default function SigninPage() {
-  return <Suspense fallback={<LayoutChrome showNav={false}><main className="mx-auto max-w-md px-6 py-12"><p className="text-sm text-muted-foreground">Loading…</p></main></LayoutChrome>}><SigninInner /></Suspense>;
+  return <Suspense fallback={<main className="min-h-screen px-6 py-20 text-center text-sm text-muted-foreground">Loading sign in…</main>}><SigninInner /></Suspense>;
 }

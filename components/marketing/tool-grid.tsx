@@ -22,7 +22,7 @@ function ToolSection({ title, tools }: { title: string; tools: typeof TOOLS }) {
             <Link href={`/tools/${t.slug}`} className="block space-y-2 focus:outline-none">
               <h4 className="font-medium">{t.name}</h4>
               <p className="text-sm text-muted-foreground line-clamp-2">{t.description}</p>
-              <span className="text-xs text-accent-soft">Open →</span>
+              <span className="text-xs text-accent-soft">{t.processingType === "bg" ? "View status →" : "Open →"}</span>
             </Link>
           </li>
         ))}

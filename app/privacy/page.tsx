@@ -1,27 +1,15 @@
-import { Navigation, Footer } from "@/components/marketing/nav";
+import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Privacy" };
+export const metadata = { title: "Privacy", description: "How ZANCTA handles local files, accounts, authentication, payments, and future advertising." };
 
 export default function PrivacyPage() {
-  return (
-    <>
-      <Navigation />
-      <main className="mx-auto max-w-3xl px-6 py-12 prose prose-invert dark">
-        <h1 className="text-3xl font-semibold">Privacy</h1>
-        <p className="text-sm text-muted-foreground mt-3">Your file bytes remain on your device during MVP processing.</p>
-        <h2 className="font-medium mt-8">What stays local (MVP)</h2>
-        <ul className="text-sm text-muted-foreground list-disc pl-5">
-          <li>All 10 tools process files locally in your browser — no upload.</li>
-          <li>No server storage of files.</li>
-        </ul>
-        <h2 className="font-medium mt-6">Network activity</h2>
-        <ul className="text-sm text-muted-foreground list-disc pl-5">
-          <li>Page and asset requests from the CDN.</li>
-          <li>Anonymized analytics, with file content and filenames excluded.</li>
-          <li>Future HD/cloud fallback — explicit opt-in only, disclosed here when live.</li>
-        </ul>
-      </main>
-      <Footer />
-    </>
-  );
+  return <ContentPage eyebrow="PRIVACY INFORMATION" title="A clear boundary around your files." intro="This product page describes the current MVP behavior. It is not legal advice and should receive legal review before a public commercial launch.">
+    <ContentSection title="Files and local processing"><p>For the implemented local PDF and image tools, selected files are read by the browser and processed on the device. File bytes are not uploaded to ZANCTA for those operations. Background removal is deferred rather than silently sending files to a server.</p><p>Browser cache, operating-system storage, extensions, backups, and other software on your device are outside this product promise.</p></ContentSection>
+    <ContentSection title="Account information"><p>If you create an account, the application stores the account information needed for authentication and entitlement management, such as email, name when supplied, password hashes, sessions, verification tokens, and password-reset tokens. Passwords are not stored in plain text.</p></ContentSection>
+    <ContentSection title="Cookies and authentication"><p>Auth.js uses secure session mechanisms appropriate to the deployment. Authentication cookies are used to maintain a signed-in session. Local tool processing does not require a session.</p></ContentSection>
+    <ContentSection title="Payments and email"><p>Premium checkout and billing are designed to use the configured payment provider. Email verification and password-reset delivery use the configured email provider when enabled. ZANCTA does not claim that either provider is active or fully verified in every environment.</p></ContentSection>
+    <ContentSection title="Analytics and advertising"><p>No advertising script is enabled in the current application. The client may emit a coarse completion event only when an analytics function is explicitly provided; filenames and file content are not sent in that event. Any future ad provider must be disclosed here, must not receive file metadata, and must not be placed inside the tool workflow.</p></ContentSection>
+    <ContentSection title="Retention and deletion"><p>Generated files are held in browser memory and object URLs for the current session; use Process another or close the page to release them. Account deletion removes the associated application records through the authenticated account flow. Provider retention policies, if a future cloud feature is enabled, must be documented before that feature ships.</p></ContentSection>
+    <ContentSection title="Legal review"><p>This is product documentation, not a final privacy policy. A responsible legal owner should confirm jurisdiction, rights requests, retention language, provider disclosures, and any advertising consent requirements before launch.</p></ContentSection>
+  </ContentPage>;
 }

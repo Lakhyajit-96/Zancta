@@ -16,7 +16,7 @@ export default function ToolsPage() {
             className="h-10 w-auto mx-auto mb-4"
           />
           <h1 className="text-3xl font-semibold tracking-tight">Tool Suite</h1>
-          <p className="mt-2 text-sm text-muted-foreground">10 local-first PDF and image tools — no upload, no watermark.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Nine working local PDF/image tools plus one clearly marked deferred capability.</p>
         </div>
       </section>
       <section className="mx-auto max-w-6xl px-6 pb-16">

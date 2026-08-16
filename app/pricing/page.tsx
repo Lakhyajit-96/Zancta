@@ -44,7 +44,7 @@ export default function PricingPage() {
         <section className="mt-12 rounded-xl border bg-surface p-6">
           <h2 className="text-sm font-medium">What Premium includes</h2>
           <ul className="mt-3 grid gap-2 text-sm text-muted-foreground list-disc pl-5">
-            <li>No ads (free shows only contextual, outside the tool — never inside processing)</li>
+            <li>No advertising on Premium surfaces; any future free-tier slots will be contextual and outside processing</li>
             <li>Higher limits: 100 MB / file, 100 files merge, 500 pages, 15 000 px</li>
             <li>Advanced controls: quality sliders, custom resize, selective EXIF</li>
             <li>Saved preferences & recent metadata (never file bytes)</li>
