@@ -142,3 +142,57 @@ The deployed production site returned HTTP 200 for the new routes. Production Ch
 **PARTIALLY COMPLETE**
 
 The public product is substantially more complete, branded, useful, truthful, and technically prepared for future advertising integration. It is not marked `READY — PHASE 11 COMPLETE` because the contact path, legal review, cross-browser environment, and external provider configuration remain open.
+
+## PHASE 11A FINAL GATE
+
+**Verification date:** 2026-08-16
+**Branch:** `main`
+**Scope:** final public-product, brand, trust, content, auth UX, SEO, ad-readiness, accessibility, performance-regression, deployment, and anonymous walkthrough gate. No Resend, Dodo, domain, Hostinger, or live-ad configuration was changed.
+
+### Repository and deployment evidence
+
+- The application implementation from `18f2d9d` (`fix(phase11): stabilize auth and cancellation flows`) is pushed to `origin/main` and was previously verified live at `https://toolsite-4q4w.vercel.app`.
+- The final gate update is documentation-only; it does not alter runtime behavior.
+- Production anonymous Chromium walkthrough covered the homepage, tools, pricing, all auth pages, all public content/trust pages, and docs at 320 px and 1440 px. The walkthrough found no HTTP errors, horizontal overflow, broken images, duplicate `<main>` landmarks, internal-content matches, or application console errors. FAQ rendered `FAQ — ZANCTA`; production FAQ rendered zero ad slots and zero ad scripts.
+
+### Route and exposure classification
+
+- **PUBLIC:** `/`, `/about`, `/contact`, `/docs`, `/faq`, `/features`, `/help`, `/how-it-works`, `/pricing`, `/privacy`, `/security`, `/terms`, `/tools`, and generated `/tools/[slug]` pages.
+- **AUTH UX:** `/signup`, `/signin`, `/forgot-password`, `/reset-password`, and `/verify-email`. These remain branded, functional auth surfaces and are excluded from indexing.
+- **INTERNAL/PROTECTED:** `/account` and development-only token routes under `/api/dev/*`.
+- **API:** Auth.js and auth mutation routes under `/api/auth/*`, protected account deletion under `/api/account/delete`, and payment/status/webhook routes under `/api/payments/*`.
+- Anonymous public pages contain product-facing explanations only; no account data, provider secrets, internal deployment details, or development token content was observed.
+
+### Final quality checks
+
+- Public content, tool descriptions, FAQ, docs, help, contact, privacy, terms, and security pages are useful and consistent with the implemented product. No fake testimonials, fake customer counts, fabricated certifications, invented support email, or fake tool output was introduced.
+- Brand audit: **KEEP** the existing ZANCTA logo, visual system, favicon, and OG assets. PNG signatures and dimensions are valid for the hero (`1920×1080`) and OG assets (`1200×630`); favicon SVG/ICO assets are valid. Auth, footer, mobile, and responsive brand treatments remain consistent.
+- Tool truthfulness: nine working local PDF/image tools are described as working; the background-remover capability is explicitly deferred with no model and no fake output.
+- SEO: canonical metadata, robots, sitemap, page titles/descriptions, favicon/OG assets, and existing truthful JSON-LD are present. Auth pages remain noindex; no fake schema was added.
+- Accessibility and responsive QA: full Chromium E2E passed, including axe checks with zero serious violations, keyboard/focus checks, mobile widths, reduced-motion behavior, visual QA, and real processing flows.
+- Performance regression check: prior production homepage LCP baseline remains 1.48–1.80 s with CLS 0; new public pages are text-dominant and add no heavy visual dependency. Formal INP and worker-isolated execution remain unverified.
+
+### Advertising readiness and placement
+
+- Status: **READY FOR PROVIDER CONFIGURATION**, not approved for monetization and not represented as Google/Monetag approval.
+- `AdSlot` is gated by `NEXT_PUBLIC_ADS_ENABLED === "true"`; production verification observed zero ad slots and zero ad scripts while disabled.
+- Informational ad slots exist only on suitable public content surfaces (`/about`, `/features`, `/faq`, `/help`). No ad slot is placed in auth, account, checkout/payment, or active tool-processing workflows. No live provider script or ad identifier was added.
+- Provider eligibility, policy, consent, and final placement review remain external launch work.
+
+### Trust, legal, and external blockers
+
+- **Support/security contact:** BLOCKED until a real monitored support/security channel is configured. `/contact` intentionally states that the channel is not configured; no contact address was fabricated.
+- **Legal:** BLOCKED pending human legal review of Privacy and Terms, including legal entity, jurisdiction, retention, rights, and applicable disclosures. No invented legal facts were added.
+- **Cross-browser:** Chromium verified; Firefox and WebKit are **UNVERIFIED — ENVIRONMENT** because their Playwright executables are unavailable in this environment. They were not installed during this gate.
+- **External providers/hosting:** Resend, Dodo, custom domain, Hostinger, and live ads remain intentionally deferred and were not touched.
+
+### Final verification results
+
+- `npm run typecheck` — PASS
+- `npm run lint` — PASS, 0 errors, 13 existing warnings
+- `npm test` — PASS, 40/40
+- `npm run build` — PASS, 43 generated routes
+- `npm run test:e2e -- --workers=1` — PASS, 54/54 Chromium tests
+- Final classification: **PARTIALLY COMPLETE**
+
+This classification is intentional: the implemented public product and ad-readiness architecture pass the repository and anonymous production checks, while monitored contact setup, human legal review, Firefox/WebKit execution, INP/worker verification, and deferred external provider/hosting configuration remain open.
