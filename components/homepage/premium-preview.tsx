@@ -1,17 +1,15 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export function PremiumPreviewSection() {
-  const reduce = useReducedMotion();
-
   return (
     <section className="border-t bg-[#0A0A0A]">
       <div className="mx-auto max-w-6xl px-6 py-20">
         {/* Section Header */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -30,7 +28,7 @@ export function PremiumPreviewSection() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Free Plan */}
           <motion.div
-            initial={reduce ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+            initial={false}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -87,7 +85,7 @@ export function PremiumPreviewSection() {
 
           {/* Premium Plan Teaser */}
           <motion.div
-            initial={reduce ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -151,7 +149,7 @@ export function PremiumPreviewSection() {
 
         {/* Trust Note */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}

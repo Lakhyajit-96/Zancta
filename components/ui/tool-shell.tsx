@@ -260,10 +260,10 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
   };
 
   return (
-    <div className="rounded-xl border bg-surface p-6 space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="border border-border-strong bg-surface p-5 shadow-2xl md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <PrivacyIndicator />
-        <span className="text-xs text-muted-foreground">Your files are processed locally in your browser. Your file bytes are not uploaded for processing.</span>
+        <span className="max-w-xl text-right text-xs leading-5 text-muted-foreground">Your files are processed locally in your browser. Your file bytes are not uploaded for processing.</span>
       </div>
 
       {/* Tool-specific controls */}
@@ -275,7 +275,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
             value={range}
             onChange={(e) => setRange(e.target.value)}
             placeholder="e.g. 1, 1-3, 2,5,8, 1-3,7,10-12"
-            className="w-full rounded-md border bg-elevated px-3 py-2 text-sm"
+            className="w-full border border-border-strong bg-elevated px-3 py-2 text-sm"
             aria-describedby="range-hint"
           />
           <p id="range-hint" className="text-xs text-muted-foreground">Examples: 1 · 1-3 · 2,5,8 · 1-3,7,10-12 — we validate against the document&apos;s page count.</p>
@@ -354,7 +354,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
       )}
 
       {(status === "idle" || status === "failed" || status === "aborted") && files.length > 0 && errors.length === 0 && (
-        <button onClick={start} className="h-10 px-5 rounded-md bg-accent text-accent-foreground font-medium w-full md:w-auto">
+        <button onClick={start} className="premium-button premium-button-primary w-full md:w-auto">
           Process locally
         </button>
       )}
@@ -362,12 +362,12 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
       {(status === "validating" || status === "loading" || status === "processing") && (
         <div className="space-y-3">
           <Progress value={progress} label={detail || (status === "validating" ? "Validating…" : status === "loading" ? "Loading…" : "Processing locally — not uploaded")} />
-          <button onClick={cancel} className="h-9 px-4 rounded-md border bg-surface text-sm">Cancel</button>
+          <button onClick={cancel} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
         </div>
       )}
 
       {status === "completed" && (
-        <div className="rounded-lg border border-success/30 bg-success/10 p-4 space-y-3">
+        <div className="border border-success/30 bg-success/10 p-4 space-y-3">
           <p className="text-sm font-medium text-success">Completed — processed locally</p>
           {meta?.originalSize !== undefined && meta?.outputSize !== undefined && (
             <p className="text-sm text-muted-foreground">
@@ -382,7 +382,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
                   <span className="text-sm truncate pr-3">{r.name} — {(r.blob.size / 1024).toFixed(1)} KB</span>
                   <button
                     onClick={() => downloadBlob(r.blob, r.name)}
-                    className="h-8 px-3 rounded-md bg-accent text-accent-foreground text-xs font-medium shrink-0"
+                    className="premium-button premium-button-primary min-h-8 shrink-0 px-3 text-xs"
                   >
                     Download
                   </button>
@@ -393,8 +393,8 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
             <p className="text-sm text-muted-foreground">No file output — this tool&apos;s image engine ships in Phase 5.</p>
           )}
           <div className="flex gap-2">
-            <button onClick={again} className="h-9 px-4 rounded-md border bg-surface text-sm">Process another</button>
-            <Link href="/tools" className="h-9 px-4 inline-flex items-center rounded-md border bg-surface text-sm">Related tools</Link>
+            <button onClick={again} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Process another</button>
+            <Link href="/tools" className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Related tools</Link>
           </div>
         </div>
       )}

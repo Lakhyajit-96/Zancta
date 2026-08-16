@@ -11,17 +11,16 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export function Button({ variant = "primary", size = "md", className = "", ...props }: Props) {
-  const base =
-    "inline-flex items-center justify-center font-medium transition-colors focus-visible:ring-2 ring-accent disabled:opacity-50 disabled:pointer-events-none";
+  const base = "premium-button focus-visible:ring-2 ring-accent disabled:pointer-events-none";
   const variants: Record<string, string> = {
-    primary: "bg-accent text-accent-foreground hover:opacity-90 rounded-md",
-    ghost: "bg-transparent hover:bg-muted text-foreground rounded-md",
-    outline: "border border-border bg-transparent hover:bg-muted rounded-md",
+    primary: "premium-button-primary",
+    ghost: "border-transparent bg-transparent text-foreground hover:bg-muted",
+    outline: "premium-button-secondary",
   };
   const sizes: Record<string, string> = {
-    sm: "h-9 px-3 text-sm",
-    md: "h-10 px-5 text-sm",
-    lg: "h-12 px-7 text-base",
+    sm: "min-h-9 px-3 text-xs",
+    md: "min-h-10 px-5 text-sm",
+    lg: "min-h-12 px-7 text-base",
   };
   return <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props} />;
 }

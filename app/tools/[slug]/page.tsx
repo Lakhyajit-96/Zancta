@@ -26,22 +26,23 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
   return (
     <LayoutChrome showNav={true} showFooter={true}>
       {/* ZANCTA Brand Header */}
-      <section className="border-b">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-center">
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
           <img 
             src="/assets/zancta-brand/logos/compact-mark.svg" 
             alt="ZANCTA" 
-            className="h-10 w-auto mx-auto mb-4"
+            className="mb-8 h-8 w-auto opacity-90"
           />
-          <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
+          <nav aria-label="Breadcrumb" className="text-left text-xs text-muted-foreground">
             <Link href="/" className="hover:text-foreground">Home</Link> <span aria-hidden> / </span>
             <Link href="/tools" className="hover:text-foreground">Tools</Link> <span aria-hidden> / </span>
             <span aria-current="page" className="text-foreground">{tool.name}</span>
           </nav>
 
-          <h1 className="mt-6 text-3xl font-semibold tracking-tight">{tool.h1}</h1>
-          <p className="mt-3 text-sm text-muted-foreground">{tool.longDescription}</p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <p className="eyebrow mt-10">LOCAL TOOL / {tool.category.toUpperCase()}</p>
+          <h1 className="mt-4 max-w-4xl text-5xl font-medium tracking-[-0.05em] md:text-7xl">{tool.h1}</h1>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{tool.longDescription}</p>
+          <div className="mt-8 flex flex-wrap gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tool.processingType === "bg" ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success"}`}>
               <span aria-hidden className={`h-2 w-2 rounded-full ${tool.processingType === "bg" ? "bg-warning" : "bg-success"}`} /> {tool.processingType === "bg" ? "Deferred — no model" : "Local — no upload"}
             </span>
@@ -50,7 +51,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-6 pb-16 pt-10">
+      <main className="mx-auto max-w-7xl px-5 pb-20 pt-10 md:px-8 md:pt-14">
         {/* Tool interface section */}
         <ToolShell tool={tool} />
 

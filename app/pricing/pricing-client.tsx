@@ -31,9 +31,9 @@ export function PricingClient() {
 
   return (
     <>
-      <div className="mt-8 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-px overflow-hidden border border-border bg-border md:grid-cols-3">
         {/* Free — muted, no CTA emphasis */}
-        <div className="rounded-lg border bg-surface p-6 flex flex-col">
+        <div className="flex flex-col bg-surface p-6 md:p-8">
           <div className="flex items-baseline justify-between">
             <h3 className="text-sm font-medium tracking-wide">Free</h3>
             <span className="text-xs text-muted-foreground">No account needed</span>
@@ -50,7 +50,7 @@ export function PricingClient() {
         </div>
 
         {/* Monthly — standard */}
-        <div className="rounded-lg border bg-elevated p-6 flex flex-col">
+        <div className="flex flex-col bg-elevated p-6 md:p-8">
           <div className="flex items-baseline justify-between">
             <h3 className="text-sm font-medium">Premium — Monthly</h3>
             <span className="text-xs text-muted-foreground">Cancel anytime</span>
@@ -64,7 +64,7 @@ export function PricingClient() {
             onClick={() => checkout("PREMIUM_MONTHLY")}
             disabled={!!loading}
             aria-label="Upgrade to Premium Monthly"
-            className="mt-6 h-9 rounded-md bg-accent text-accent-foreground text-sm font-medium disabled:opacity-50"
+            className="premium-button premium-button-primary mt-6 min-h-10 disabled:opacity-50"
           >
             {loading === "PREMIUM_MONTHLY" ? "Redirecting…" : "Upgrade — Monthly"}
           </button>
@@ -72,7 +72,7 @@ export function PricingClient() {
         </div>
 
         {/* Annual — elevated with accent hairline, not identical card */}
-        <div className="rounded-lg border bg-surface p-6 flex flex-col relative overflow-hidden">
+        <div className="relative flex flex-col overflow-hidden bg-surface p-6 md:p-8">
           <div className="absolute inset-x-0 top-0 h-px bg-accent/60" aria-hidden />
           <div className="flex items-baseline justify-between">
             <h3 className="text-sm font-medium">Premium — Annual</h3>
@@ -88,7 +88,7 @@ export function PricingClient() {
             onClick={() => checkout("PREMIUM_ANNUAL")}
             disabled={!!loading}
             aria-label="Upgrade to Premium Annual"
-            className="mt-6 h-9 rounded-md bg-accent text-accent-foreground text-sm font-medium disabled:opacity-50"
+            className="premium-button premium-button-primary mt-6 min-h-10 disabled:opacity-50"
           >
             {loading === "PREMIUM_ANNUAL" ? "Redirecting…" : "Upgrade — Annual"}
           </button>

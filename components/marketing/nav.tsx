@@ -2,29 +2,29 @@ import Link from "next/link";
 
 export function Navigation() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2 group">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-5 md:px-8">
+        <Link href="/" className="group flex items-center gap-3" aria-label="ZANCTA home">
           <img 
             src="/assets/zancta-brand/logos/compact-mark.svg" 
             alt="ZANCTA" 
-            className="h-7 w-7 group-hover:scale-110 transition-transform duration-300"
+            className="h-7 w-7 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
           />
-          <span className="font-semibold tracking-tight">ZANCTA<span className="text-accent">.</span></span>
+          <span className="text-sm font-semibold tracking-[0.18em]">ZANCTA<span className="text-accent">/</span></span>
         </Link>
-        <nav className="hidden gap-8 text-sm md:flex" aria-label="Primary">
-          <Link href="/tools" className="hover:text-accent py-2 block">Tools</Link>
-          <Link href="/features" className="hover:text-accent py-2 block">Features</Link>
-          <Link href="/how-it-works" className="hover:text-accent py-2 block">How it works</Link>
-          <Link href="/pricing" className="hover:text-accent py-2 block">Pricing</Link>
-          <Link href="/help" className="hover:text-accent py-2 block">Help</Link>
+        <nav className="hidden items-center gap-7 text-[0.8rem] text-muted-foreground md:flex" aria-label="Primary">
+          <Link href="/tools" className="py-3 transition-colors hover:text-foreground">Tools</Link>
+          <Link href="/features" className="py-3 transition-colors hover:text-foreground">Features</Link>
+          <Link href="/how-it-works" className="py-3 transition-colors hover:text-foreground">How it works</Link>
+          <Link href="/pricing" className="py-3 transition-colors hover:text-foreground">Pricing</Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Link href="/tools" className="hidden md:inline-flex h-11 px-5 items-center rounded-md bg-accent text-accent-foreground text-sm font-medium">
-            Explore tools
+          <Link href="/signin" className="hidden px-3 py-3 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground md:inline-flex">
+            Sign in
           </Link>
-          <Link href="/account" className="hidden md:inline-flex h-11 px-4 items-center rounded-md border text-sm">Account</Link>
-          <Link href="/signin" className="hidden md:inline-flex h-11 px-4 items-center rounded-md border text-sm">Sign in</Link>
+          <Link href="/tools" className="premium-button premium-button-primary hidden min-h-10 px-4 text-xs md:inline-flex">
+            Open a tool <span aria-hidden>↗</span>
+          </Link>
           <MobileNav />
         </div>
       </div>
@@ -38,14 +38,14 @@ function MobileNav() {
       <summary className="list-none h-11 w-11 grid place-items-center rounded-md border hover:bg-muted cursor-pointer" aria-label="Open navigation">
         <span aria-hidden className="text-sm">≡</span>
       </summary>
-      <nav className="absolute right-4 top-14 rounded-lg border bg-surface p-4 space-y-2 text-sm shadow-lg md:right-6 md:py-4">
-        <Link href="/tools" className="block py-2">Tools</Link>
-        <Link href="/features" className="block py-2">Features</Link>
-        <Link href="/how-it-works" className="block py-2">How it works</Link>
-        <Link href="/pricing" className="block py-2">Pricing</Link>
-        <Link href="/help" className="block py-2">Help</Link>
-        <Link href="/signin" className="block py-2">Sign in</Link>
-        <Link href="/account" className="block py-2">Account</Link>
+      <nav className="absolute right-4 top-[4.25rem] min-w-48 space-y-1 rounded-lg border border-border-strong bg-surface p-3 text-sm shadow-2xl md:right-6 md:py-4">
+        <Link href="/tools" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Tools</Link>
+        <Link href="/features" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Features</Link>
+        <Link href="/how-it-works" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">How it works</Link>
+        <Link href="/pricing" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Pricing</Link>
+        <Link href="/help" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Help</Link>
+        <Link href="/signin" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Sign in</Link>
+        <Link href="/account" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Account</Link>
       </nav>
     </details>
   );
@@ -53,14 +53,14 @@ function MobileNav() {
 
 export function Footer() {
   return (
-    <footer className="border-t mt-24">
-      <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted-foreground">
-        <div className="flex flex-col gap-6 md:flex-row md:justify-between">
+    <footer className="mt-28 border-t border-border">
+      <div className="mx-auto max-w-7xl px-5 py-12 text-sm text-muted-foreground md:px-8 md:py-16">
+        <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div>
-            <p className="font-medium text-foreground">ZANCTA</p>
-            <p className="max-w-sm mt-2">Privacy-first file tools that run locally in your browser. No upload, no watermark.</p>
+            <p className="font-semibold tracking-[0.18em] text-foreground">ZANCTA<span className="text-accent">/</span></p>
+            <p className="mt-4 max-w-sm leading-7">A quiet workspace for documents and images. Local processing, considered tools, no upload.</p>
           </div>
-          <nav className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-3" aria-label="Footer">
+          <nav className="grid grid-cols-2 gap-x-10 gap-y-3 text-[0.8rem] md:grid-cols-3" aria-label="Footer">
             <Link href="/about" className="hover:text-foreground">About</Link>
             <Link href="/features" className="hover:text-foreground">Features</Link>
             <Link href="/how-it-works" className="hover:text-foreground">How it works</Link>
@@ -73,7 +73,10 @@ export function Footer() {
             <Link href="/contact" className="hover:text-foreground">Contact</Link>
           </nav>
         </div>
-        <p className="mt-8 text-xs">© {new Date().getFullYear()} ZANCTA. Local browser processing for the supported tools.</p>
+        <div className="mt-12 flex flex-col gap-2 border-t border-border pt-5 text-xs md:flex-row md:justify-between">
+          <p>© {new Date().getFullYear()} ZANCTA. Local browser processing for the supported tools.</p>
+          <p className="text-muted-foreground/70">Built for files that deserve a private room.</p>
+        </div>
       </div>
     </footer>
   );

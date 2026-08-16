@@ -42,8 +42,8 @@ export function UploadZone({
         setDragOver(false);
         handleFiles(e.dataTransfer.files);
       }}
-      className={`rounded-xl border-2 border-dashed p-10 text-center transition-colors focus-visible:ring-2 ring-accent cursor-pointer ${
-        dragOver ? "border-accent bg-muted" : "border-border bg-surface hover:bg-elevated"
+      className={`border-2 border-dashed p-10 text-center transition-colors focus-visible:ring-2 ring-accent cursor-pointer ${
+        dragOver ? "border-accent bg-accent/10" : "border-border-strong bg-surface hover:border-accent/50 hover:bg-elevated"
       }`}
     >
       <input
@@ -58,7 +58,8 @@ export function UploadZone({
         tabIndex={-1}
       />
       <div className="mx-auto max-w-md space-y-3">
-        <p className="text-sm font-medium">Drop files here or click to browse</p>
+        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center border border-accent/40 bg-accent/10 text-xl text-accent" aria-hidden>＋</div>
+        <p className="text-base font-medium tracking-tight">Drop files here or click to browse</p>
         <p className="text-xs text-muted-foreground">
           Max {maxFiles} files, 50 MB each. HEIC and SVG not supported in MVP.
         </p>
@@ -70,7 +71,7 @@ export function UploadZone({
 
 export function FileRow({ name, size, onRemove }: { name: string; size: number; onRemove?: () => void }) {
   return (
-    <li className="flex items-center justify-between rounded-md border bg-elevated px-3 py-2 text-sm">
+    <li className="flex items-center justify-between border border-border-strong bg-elevated px-3 py-3 text-sm">
       <span className="truncate pr-3">{name}</span>
       <span className="shrink-0 text-xs text-muted-foreground">{(size / 1024).toFixed(1)} KB</span>
       {onRemove && (
@@ -86,7 +87,7 @@ export function Progress({ value, label }: { value: number; label?: string }) {
   return (
     <div className="space-y-2" aria-live="polite">
       {label && <p className="text-sm">{label}</p>}
-      <div className="h-2 rounded-full bg-muted overflow-hidden">
+      <div className="h-1 overflow-hidden bg-muted">
         <div className="h-full bg-accent transition-all" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
       </div>
       <p className="text-xs text-muted-foreground">{Math.round(value)}%</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 const pdfTools = [
@@ -19,14 +19,12 @@ const imageTools = [
 ];
 
 export function ToolEcosystemSection() {
-  const reduce = useReducedMotion();
-
   return (
     <section className="border-t bg-[#0A0A0A]">
       <div className="mx-auto max-w-6xl px-6 py-20">
         {/* Section Header */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -34,7 +32,7 @@ export function ToolEcosystemSection() {
         >
           <p className="text-xs tracking-widest text-accent font-medium mb-3">LOCAL-FIRST TOOL SUITE</p>
           <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white">
-            10 powerful tools for documents and images
+            9 working tools for documents and images
           </h2>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
             Every tool runs entirely in your browser — zero uploads, zero server costs, instant performance.
@@ -43,7 +41,7 @@ export function ToolEcosystemSection() {
 
         {/* PDF Tools */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -62,7 +60,7 @@ export function ToolEcosystemSection() {
             {pdfTools.map((tool, idx) => (
               <motion.div
                 key={tool.slug}
-                initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
@@ -93,7 +91,7 @@ export function ToolEcosystemSection() {
 
         {/* Image Tools */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -111,7 +109,7 @@ export function ToolEcosystemSection() {
             {imageTools.map((tool, idx) => (
               <motion.div
                 key={tool.slug}
-                initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
@@ -142,7 +140,7 @@ export function ToolEcosystemSection() {
 
         {/* Bottom CTA */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}

@@ -1,10 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 
 export function PrivacyArchitectureSection() {
-  const reduce = useReducedMotion();
-
   const features = [
     {
       title: "Browser-only processing",
@@ -49,7 +47,7 @@ export function PrivacyArchitectureSection() {
       <div className="mx-auto max-w-6xl px-6 py-20">
         {/* Section Header */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -69,7 +67,7 @@ export function PrivacyArchitectureSection() {
           {features.map((feature, idx) => (
             <motion.div
               key={feature.title}
-              initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
@@ -88,7 +86,7 @@ export function PrivacyArchitectureSection() {
 
         {/* Technical diagram */}
         <motion.div
-          initial={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -118,7 +116,7 @@ export function PrivacyArchitectureSection() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-medium text-accent-foreground">Browser processing</p>
+                  <p className="text-sm font-medium text-accent-soft">Browser processing</p>
                   <p className="text-xs text-muted-foreground mt-1">Local processing boundary</p>
                 </div>
               </div>

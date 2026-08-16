@@ -11,15 +11,16 @@ export default function PricingPage() {
     <LayoutChrome showNav={true} showFooter={true}>
       <main>
       {/* ZANCTA Brand Header */}
-      <section className="border-b">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-center">
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
           <img 
             src="/assets/zancta-brand/logos/primary-wordmark.svg" 
             alt="ZANCTA" 
-            className="h-10 w-auto mx-auto mb-4"
+            className="mb-8 h-8 w-auto opacity-90"
           />
-          <h1 className="text-3xl font-semibold tracking-tight">Simple, honest pricing</h1>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="eyebrow">ACCESS / 02</p>
+          <h1 className="mt-5 max-w-2xl text-5xl font-medium tracking-[-0.05em] md:text-7xl">Simple, honest pricing.</h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
             All tools run locally — no uploads. Free forever for personal use. Premium adds convenience, not fake limits.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -29,20 +30,20 @@ export default function PricingPage() {
       </section>
 
       {/* ZANCTA Pricing Banner */}
-      <section className="bg-[#0A0A0A]">
+      <section className="border-b border-border bg-[#0b0b0c] px-5 py-5 md:px-8">
         <img 
           src="/assets/zancta-brand/og-images/zancta-pricing-banner.png" 
           alt="ZANCTA Pricing Plans" 
-          className="w-full h-auto rounded-xl border"
+          className="mx-auto h-auto w-full max-w-7xl border border-border opacity-80"
         />
       </section>
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
 
         <PricingClient />
 
-        <section className="mt-12 rounded-xl border bg-surface p-6">
-          <h2 className="text-sm font-medium">What Premium includes</h2>
+        <section className="section-rule mt-16 pt-8">
+          <h2 className="eyebrow">WHAT PREMIUM INCLUDES</h2>
           <ul className="mt-3 grid gap-2 text-sm text-muted-foreground list-disc pl-5">
             <li>No advertising on Premium surfaces; any future free-tier slots will be contextual and outside processing</li>
             <li>Higher limits: 100 MB / file, 100 files merge, 500 pages, 15 000 px</li>
