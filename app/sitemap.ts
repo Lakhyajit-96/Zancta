@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { TOOLS } from "@/lib/tools";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
   const now = new Date();
   // Private auth/account pages are excluded (noindex)
   const staticPaths = ["", "/tools", "/pricing", "/about", "/privacy", "/terms", "/security", "/help", "/docs", "/contact"];

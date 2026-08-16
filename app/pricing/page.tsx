@@ -2,13 +2,14 @@ import { LayoutChrome } from "@/components/layout/chrome";
 import { PricingClient } from "./pricing-client";
 
 export const metadata = {
-  title: "Pricing — ZANCTA",
+  title: "Pricing",
   description: "Free local tools forever. Premium: no ads, higher limits, advanced controls. Privacy-first.",
 };
 
 export default function PricingPage() {
   return (
     <LayoutChrome showNav={true} showFooter={true}>
+      <main>
       {/* ZANCTA Brand Header */}
       <section className="border-b">
         <div className="mx-auto max-w-6xl px-6 py-8 text-center">
@@ -36,27 +37,7 @@ export default function PricingPage() {
         />
       </section>
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <div className="max-w-3xl">
-          {/* Value prop comparison */}
-          <div className="rounded-lg border bg-surface p-6 mt-8">
-            <h2 className="text-sm font-medium mb-4 text-foreground">Value Comparison</h2>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex justify-between pb-2 border-b">
-                <span>Premium Annual:</span>
-                <span className="font-semibold text-accent-foreground">₹999/year ≈ $39/yr</span>
-              </div>
-              <div className="flex justify-between pb-2 border-b">
-                <span>iLovePDF Annual (estimate):</span>
-                <span>₹7,188/year ≈ ₹599/mo × 12 ≈ ₹283/mo converted</span>
-              </div>
-              <div className="flex justify-between items-center pt-1">
-                <span className="font-medium">You save:</span>
-                <span className="text-success font-semibold">58% off iLovePDF annual rate</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="mx-auto max-w-6xl px-6 py-12">
 
         <PricingClient />
 
@@ -79,6 +60,7 @@ export default function PricingPage() {
           <p>Billing via Dodo Payments (Merchant of Record) — invoices, VAT/GST and refunds handled by provider. You pay on a provider-hosted checkout. We never store card data.</p>
           <p className="mt-1">Prices shown in INR for India and USD for everyone else. Final charge converted by provider if needed. Need help? Contact support.</p>
         </section>
+      </div>
       </main>
     </LayoutChrome>
   );

@@ -1,6 +1,7 @@
 "use client";
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { LayoutChrome } from "@/components/layout/chrome";
 
 function ResetInner() {
@@ -22,7 +23,19 @@ function ResetInner() {
     else { setOk("Password updated. Sign in."); setTimeout(()=>router.push("/signin"), 1500); }
   };
 
-  if (!token) return <main className="mx-auto max-w-md px-6 py-12"><p role="alert" className="text-sm text-error">Missing token</p></main>;
+  if (!token) return (
+    <LayoutChrome showNav={false}>
+      <main className="mx-auto max-w-md px-6 py-12">
+        <h1 className="text-2xl font-semibold tracking-tight">Reset password</h1>
+        <p role="alert" className="mt-4 rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">
+          This reset link is missing or incomplete.
+        </p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Request a new link from <Link href="/forgot-password" className="underline">Forgot password</Link>.
+        </p>
+      </main>
+    </LayoutChrome>
+  );
 
   return (
     <LayoutChrome showNav={false}>

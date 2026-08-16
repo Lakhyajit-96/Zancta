@@ -57,7 +57,7 @@ export const TOOLS: ToolMeta[] = [
     available: true,
     related: ["pdf-split", "pdf-compress", "images-to-pdf"],
     faq: [
-      { q: "Do files leave my device?", a: "No. Merge runs entirely in your browser via Web Workers. Nothing is uploaded." },
+      { q: "Do files leave my device?", a: "No. Merge runs entirely in your browser. Nothing is uploaded." },
       { q: "How many PDFs can I merge?", a: "Up to 50 files or 400 total pages in the free tier." },
       { q: "Is there a watermark?", a: "No. Output is clean, no branding added." },
     ],

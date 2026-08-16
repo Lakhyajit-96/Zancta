@@ -162,7 +162,7 @@ export function ZanctaHero() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-accent-foreground">Web Worker Isolation</p>
-                  <p className="text-xs text-muted-foreground">Browser sandbox • Zero network requests</p>
+                <p className="text-xs text-muted-foreground">Local browser processing • Zero file uploads</p>
                 </div>
                 <div className="rounded-full bg-success/20 px-2 py-0.5 text-xs text-success border border-success/30">
                   ✅ Local

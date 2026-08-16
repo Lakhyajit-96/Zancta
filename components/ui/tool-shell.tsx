@@ -24,6 +24,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
   const [keepAspect, setKeepAspect] = React.useState(true);
   const workerRef = React.useRef<Worker | null>(null);
   const idRef = React.useRef<string>("");
+  const cancelledRef = React.useRef(false);
 
   const handleFiles = (incoming: File[]) => {
     const result = validateFiles(incoming, {
@@ -85,6 +86,7 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
 
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     idRef.current = id;
+    cancelledRef.current = false;
 
     // Map tool slug to op
     const opMap: Record<string, string> = {
@@ -118,13 +120,13 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
     try {
       workerRef.current?.terminate();
       try {
-        if (isPdfOp) {
-          workerRef.current = new Worker(new URL("../../workers/pdf.worker.ts", import.meta.url));
-        } else {
-          workerRef.current = new Worker(new URL("../../workers/image.worker.ts", import.meta.url));
-        }
+        // Next 16's production worker runtime currently does not deliver the
+        // first message reliably in the deployed build. Keep processing local
+        // and correct through the existing main-thread fallback until that
+        // bundling path can be isolated without risking a stuck UI.
+        throw new Error("Local worker runtime unavailable");
       } catch (e) {
-        console.error("Worker creation failed, falling back to main thread", e);
+        console.info("Local worker unavailable; using local main-thread fallback", e instanceof Error ? e.message : String(e));
         // Fallback: run directly on main thread (still local, no upload) for verification
         // Import engine dynamically and run without worker
         const { mergePdfs: _merge, splitPdf: _split, compressPdf: _compress, imagesToPdf: _img2pdf, pdfToImages: _pdf2img } = await import("@/lib/pdf-engine");
@@ -154,12 +156,17 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
           } else if (op === "EXIF_CLEAN") {
             const arr = await Promise.all(files.map(async (f)=>{ const b=await _exif(f); return {name: f.name.replace(/\.[^.]+$/, "")+`-clean.`+ (f.name.split(".").pop()||"jpg"), blob:b}; })); blobs=arr;
           }
+          if (cancelledRef.current || idRef.current !== id) {
+            clearTimeout(timeout);
+            return;
+          }
           const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
           setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed");
           clearTimeout(timeout);
         } catch (err) {
           setErrors([(err as Error).message]); setStatus("failed"); clearTimeout(timeout); return;
         }
+        return;
       }
     } catch {
       setErrors(["Browser does not support Workers — try a modern browser."]);
@@ -168,9 +175,6 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
     }
 
     const worker = workerRef.current!;
-    let completed = false;
-
-
     worker.onmessage = (e: MessageEvent<unknown>) => {
       const msg = e.data as { id: string; status: string; progress?: number; detail?: string; blobs?: { name: string; blob: Blob }[]; meta?: { originalSize?: number; outputSize?: number }; message?: string; hint?: string; errorCode?: string };
       if (msg.id !== id) return;
@@ -187,7 +191,6 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
           setResults(withUrls);
         }
         if (msg.meta) setMeta(msg.meta);
-        completed = true;
         clearTimeout(timeout);
         worker.terminate();
         workerRef.current = null;
@@ -199,7 +202,6 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
         } catch {}
       } else if (msg.status === "failed" || msg.status === "aborted") {
         clearTimeout(timeout);
-        completed = true;
         setStatus(msg.status as Status);
         setErrors([msg.message || "Processing failed", msg.hint || ""].filter(Boolean));
         worker.terminate();
@@ -232,11 +234,14 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
   };
 
   const cancel = () => {
-    if (workerRef.current && idRef.current) {
-      workerRef.current.postMessage({ id: idRef.current, op: "CANCEL" });
+    cancelledRef.current = true;
+    const activeId = idRef.current;
+    if (workerRef.current && activeId) {
+      workerRef.current.postMessage({ id: activeId, op: "CANCEL" });
       workerRef.current.terminate();
       workerRef.current = null;
     }
+    idRef.current = "";
     setStatus("aborted");
     setErrors(["Cancelled."]);
   };

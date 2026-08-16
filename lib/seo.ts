@@ -8,7 +8,7 @@ type SEOProps = {
 };
 
 export function buildMetadata({ title, description, path, canonical }: SEOProps): Metadata {
-  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
   const url = `${base}${path}`;
   const can = canonical || url;
   return {
@@ -22,7 +22,7 @@ export function buildMetadata({ title, description, path, canonical }: SEOProps)
 }
 
 export function jsonLdSoftwareApp(tool: { name: string; description: string; slug: string }): object {
-  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",

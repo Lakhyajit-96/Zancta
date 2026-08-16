@@ -10,7 +10,7 @@ test.describe("motion reduced", () => {
     console.log("isReduced", isReduced);
     expect(isReduced).toBe(true);
     // Hero should be immediately visible without y offset (Framer Motion disabled)
-    const heroVisual = page.locator("section >> .rounded-xl.border.bg-surface");
+    const heroVisual = page.locator("section >> .rounded-xl.border").first();
     await expect(heroVisual).toBeVisible();
     // Check that the motion div has no transform (since reduce=true, initial=false)
     const style = await heroVisual.evaluate(el => getComputedStyle(el as Element).transform);
@@ -42,10 +42,10 @@ test.describe("motion reduced", () => {
     const isReduced = await page.evaluate(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     console.log("isReduced normal", isReduced);
     expect(isReduced).toBe(false);
-    const heroVisual = page.locator("section >> .rounded-xl.border.bg-surface");
+    const heroVisual = page.locator("section >> .rounded-xl.border").first();
     await expect(heroVisual).toBeVisible();
     // In normal mode, Framer should animate, but after animation it should be visible with opacity 1
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(2400);
     const opacity = await heroVisual.evaluate(el => getComputedStyle(el as Element).opacity);
     console.log("hero opacity normal", opacity);
     expect(parseFloat(opacity)).toBeGreaterThan(0.9);

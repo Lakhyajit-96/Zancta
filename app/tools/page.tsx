@@ -1,10 +1,12 @@
 import { LayoutChrome } from "@/components/layout/chrome";
+import { ToolGrid } from "@/components/marketing/tool-grid";
 
-export const metadata = { title: "Tools — ZANCTA" };
+export const metadata = { title: "Tools" };
 
 export default function ToolsPage() {
   return (
     <LayoutChrome showNav={true} showFooter={true}>
+      <main>
       <section className="border-b">
         {/* ZANCTA Brand Header */}
         <div className="mx-auto max-w-6xl px-6 py-12 text-center">
@@ -19,10 +21,10 @@ export default function ToolsPage() {
       </section>
       <section className="mx-auto max-w-6xl px-6 pb-16">
         <div className="rounded-xl border bg-surface p-8 mt-8">
-          {/* Tool grid will be populated here - using existing tool-grid components but styled with metallic graphite aesthetic */}
-          <p className="text-center text-sm text-muted-foreground">Loading tools...</p>
+          <ToolGrid />
         </div>
       </section>
+      </main>
     </LayoutChrome>
   );
 }

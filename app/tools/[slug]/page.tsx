@@ -81,7 +81,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           <p className="mt-6 text-xs text-muted-foreground">
             {tool.slug === "background-remover"
               ? "Background removal is currently deferred — no model has been integrated. This page shows the validated UX contract and will process locally once a commercially verified model is approved."
-              : "Processing runs locally in your browser via Web Workers — no upload. Outputs are generated on-device and validated before download."}
+              : "Processing runs locally in your browser — no upload. Outputs are generated on-device and validated before download."}
           </p>
         </section>
 
