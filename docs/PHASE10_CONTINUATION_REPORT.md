@@ -79,11 +79,11 @@ All ten registered tools are present in the route matrix. Background removal rem
 | Chromium | Verified through Playwright and Codex in-app browser |
 | Firefox/WebKit | UNVERIFIED |
 | Formal Web Vitals | UNVERIFIED |
-| Post-push Vercel deployment | Pending commit/push |
+| Post-push Vercel deployment | Git push succeeded; live URL still served the pre-push pricing title at final check, so deployment propagation is pending/unverified |
 
 ## Deferred boundaries and blockers
 
-Resend, Dodo Payments, domain approval, Hostinger migration, and external production email/payment verification remain intentionally deferred per scope. Worker-isolated processing is the remaining technical quality caveat; the shipped fallback is private and functionally verified but can use more main-thread CPU than a working worker implementation.
+Resend, Dodo Payments, domain approval, Hostinger migration, and external production email/payment verification remain intentionally deferred per scope. Worker-isolated processing is the remaining technical quality caveat; the shipped fallback is private and functionally verified but can use more main-thread CPU than a working worker implementation. The final live check returned HTTP 200, but still showed the pre-push duplicate pricing title, confirming that Vercel had not propagated commit `2027edc` yet.
 
 ## Final handoff
 
