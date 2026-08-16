@@ -28,7 +28,7 @@ export default function SignupPage() {
 
   return (
     <AuthShell eyebrow="JOIN ZANCTA" title="A quieter way to work with files." description="Create an account for entitlements and account settings. The supported tools still process files in your browser." reassurance="Your account is separate from your file bytes; tool files are not uploaded for local processing.">
-      <h2 className="text-xl font-semibold">Create your account</h2>
+      <h2 className="text-xl font-semibold">Create account</h2>
       <p className="mt-2 text-sm text-muted-foreground">No account is required to try the local tools.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div><label htmlFor="name" className="text-sm font-medium">Name <span className="text-muted-foreground">(optional)</span></label><input id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 h-11 w-full rounded-md border bg-elevated px-3 text-sm" autoComplete="name" /></div>

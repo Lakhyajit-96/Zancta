@@ -156,6 +156,9 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
           } else if (op === "EXIF_CLEAN") {
             const arr = await Promise.all(files.map(async (f)=>{ const b=await _exif(f); return {name: f.name.replace(/\.[^.]+$/, "")+`-clean.`+ (f.name.split(".").pop()||"jpg"), blob:b}; })); blobs=arr;
           }
+          // Yield briefly before publishing a batch result so a user pressing
+          // Cancel has a deterministic chance to invalidate the work.
+          if (files.length > 1) await new Promise((resolve) => setTimeout(resolve, 100));
           if (cancelledRef.current || idRef.current !== id) {
             clearTimeout(timeout);
             return;
