@@ -1,90 +1,106 @@
-# Phase 10 Continuation / Final QA Report
+# Phase 10 Final Gate Report
 
 **Date:** 2026-08-16  
-**Branch:** `main`  
-**Production URL inspected:** https://toolsite-4q4w.vercel.app  
-**Scope:** Phase 10I–10N continuation. Phases 10A–10E were not redone. No Resend, Dodo, domain, Hostinger, or payment-chain changes were made.
+**Production:** https://toolsite-4q4w.vercel.app
+**Final commits:** `34b887f`, `99909ba`, `2027edc`
+**Scope:** final deployment, browser, performance, and regression gate. Resend, Dodo, domain, and Hostinger work remained out of scope.
 
-## Executive result
+## A. Git state
 
-**Status: PARTIALLY COMPLETE — application quality fixes are implemented and locally verified; cross-browser validation, formal Web Vitals, and post-push production deployment verification remain open.**
+PASS. Branch `main` tracks `origin/main`; working tree is clean. Remote is `https://github.com/lakhyajitchangmai77/Toolsite.git`. No force push or history rewrite was used.
 
-The most important product defect found was real-file processing stuck at 5% because the Next/Turbopack worker asset was emitted with an incorrect TypeScript media type and the attempted bundled worker path did not reliably receive messages. The app now uses the existing local engines through a deterministic in-browser main-thread fallback, with the same no-upload privacy boundary. Real PNG/image and PDF flows complete successfully. Worker-isolated execution and its performance benefit are **UNVERIFIED**, so the final classification is not “fully complete.”
+## B. Deployment verification
 
-## 10A–10E handoff evidence
+PASS. The latest commit propagated to Vercel. Evidence: production `/pricing` returned HTTP 200 and the corrected title `Pricing — ZANCTA`; the repaired pricing PNG returned `Content-Type: image/png` and the new 230,584-byte asset response. Browser rendering reported the banner at 1200×630.
 
-- 10A brand research: `docs/PHASE10_BRAND_RESEARCH.md` recommends ZANCTA.
-- 10B competitor research: `docs/PHASE10_COMPETITOR_RESEARCH.md`.
-- 10C UI/UX audit: `docs/PHASE10_UI_UX_AUDIT.md`.
-- 10D design tokens/shared components: `app/globals.css` and `components/ui`.
-- 10E assets: `docs/PHASE10_ASSET_MANIFEST.md` and `docs/ZANCTA_ASSET_USAGE_GUIDE.md`.
+## C. Chromium full suite
 
-## Completed fixes in this continuation
+PASS — **53/53** Playwright tests with one Chromium worker. This includes auth, a11y, mobile, motion, image/PDF output, cancellation, privacy network, SEO, and visual QA.
 
-- Added deterministic local Geist Sans/Mono loading through `next/font/local`; font files and font responses were verified locally with HTTP 200 and computed Geist families.
-- Replaced the `/tools` loading placeholder with the real `ToolGrid` and corrected `/tools`/`/pricing` metadata titles.
-- Removed nested `<main>` landmarks from the shared layout; inspected routes now expose one main landmark.
-- Added an honest no-token `/reset-password` state with heading, alert, navigation path, and footer.
-- Normalized trailing slashes in metadata, JSON-LD, sitemap, and robots URLs.
-- Updated stale E2E assertions to the current ZANCTA copy and corrected the normal-motion wait to cover the deliberate 2.1-second hero delay.
-- Removed visible LocalFile brand remnants and placeholder contact addresses from the public informational pages. Resend sender/subject code was intentionally untouched.
-- Removed unsupported competitor comparison/savings claims from pricing.
-- Corrected public privacy/architecture copy so it promises local browser processing and no file upload without claiming that every operation is worker-isolated.
+## D. Firefox
 
-## Responsive and visual QA
+**UNVERIFIED — ENVIRONMENT.** Playwright 1.62.1 detected Firefox 153 but the executable was not installed; no Firefox result is claimed.
 
-Production browser sweep covered `/`, `/pricing`, auth routes, `/account`, `/tools`, and all ten tool routes at 320, 375, 390, 430, 768, 1024, 1280, 1440, and 1920 px widths. **No horizontal overflow was observed.** Production images and Geist font assets loaded successfully. Homepage console inspection after settling showed no browser errors.
+## E. WebKit
 
-The current visual system uses the ZANCTA dark/accent tokens, local logo/hero assets, Framer Motion section entrances, and responsive grids. A pixel-diff baseline and formal LCP/CLS/INP measurements were not produced: **UNVERIFIED**.
+**UNVERIFIED — ENVIRONMENT.** Playwright detected WebKit in its install manifest but the executable was not available for launch; no Safari/WebKit result is claimed.
 
-## Accessibility and motion
+## F. Web Vitals
 
-- Form labels and upload controls are associated and keyboard reachable.
-- Upload dropzones support click, Enter, Space, and drag/drop.
-- Reduced-motion browser context removes motion transforms/Lenis behavior and processing still completes.
-- Axe suite reported one non-serious violation per sampled page and zero serious violations; keyboard focus/labels passed.
-- Framer Motion is present with `useReducedMotion`; no GSAP, ScrollTrigger, Lenis, Three.js, WebGL, or unnecessary 3D implementation was found.
-- Firefox, WebKit/Safari, VoiceOver, and NVDA were not available in this environment: **UNVERIFIED**.
+Measured against production with headless Chromium, 1440×900 viewport, normal network, three samples per route, 2.5 s settling time:
 
-## Tool-by-tool processing evidence
+| Route | TTFB ms | FCP ms | LCP ms | CLS |
+|---|---:|---:|---:|---:|
+| `/` samples | 62, 56, 122 | 448, 184, 252 | 1800, 1476, 1552 | 0, 0, 0 |
+| `/tools/image-compress` samples | 107, 115, 131 | 192, 200, 268 | 192, 200, 268 | 0, 0, 0 |
 
-Focused Playwright runs against a fresh production build passed:
+INP was **UNVERIFIED** because no reliable real-user interaction sample was available in the measurement harness. No Lighthouse score was invented.
 
-- Image output validation: **9 passed** — compress, PNG→JPG/WebP/PNG conversion, resize, EXIF cleaning, batch output, honesty, and transparency handling.
-- PDF processing: **6 passed** — merge, split/range, compress honesty, PDF-to-images, images-to-PDF, and invalid-range rejection.
-- Privacy network test: **1 passed** — no file upload POST requests.
+## G. Performance regression
 
-All ten registered tools are present in the route matrix. Background removal remains locally implemented but its model/runtime performance was not separately benchmarked in this continuation.
+Production Chromium inspection found approximately 198 KB transferred initial Next JavaScript, 1.46 MB image transfer on the cinematic homepage, two loaded Geist font files totaling approximately 60 KB, zero long-task entries in the sample, and no 3D/WebGL initialization. Benchmarks in the full suite reported approximately 60–61 FPS. Main-thread fallback processing is functionally correct but can consume more CPU than worker-isolated execution.
 
-## Auth, pricing, SEO, and security
+## H. Responsive
 
-- App/auth/tool navigation, reset-password no-token state, and account routes build successfully.
-- Pricing presents the approved free/monthly/annual tiers without fabricated savings or competitor facts.
-- SEO E2E passed: unique ZANCTA title, description, canonical URL, robots, sitemap, and JSON-LD URL normalization.
-- Production response headers inspected: CSP, HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, Permissions-Policy, and Referrer-Policy.
-- No user-facing `example.com`, Lorem ipsum, TODO, or FIXME content remains in the inspected app/components/lib surface. Historical research documents and test fixtures may still contain examples.
+PASS. Production browser rendering covered 320, 375, 390, 430, 768, 1024, 1280, 1440, and 1920 px across homepage, pricing, auth, account, tools, and all ten tool routes. No overflow, broken main landmark count, loading placeholder, or HTTP error was observed.
 
-## Verification matrix
+## I. Accessibility
 
-| Check | Result |
-|---|---|
-| `npm run typecheck` | PASS |
-| `npm run build` (`next build --webpack`) | PASS; 40 generated pages/routes |
-| Image E2E focused suite | PASS; 9/9 |
-| PDF + privacy E2E focused suite | PASS; 7/7 |
-| App + a11y + SEO + motion suite | PASS; 15/15 after correcting the deliberate hero animation wait |
-| `npm run lint` | PASS; existing warnings only, 0 errors |
-| `npm test` | PASS; 40/40 |
-| Full 53-test Playwright matrix | 52/53 on the first post-fix run; the only failure was cancellation publication in the fallback. Targeted cancellation rerun then passed 1/1 after the cancellation guard fix. |
-| Chromium | Verified through Playwright and Codex in-app browser |
-| Firefox/WebKit | UNVERIFIED |
-| Formal Web Vitals | UNVERIFIED |
-| Post-push Vercel deployment | Git push succeeded; live URL still served the pre-push pricing title at final check, so deployment propagation is pending/unverified |
+PASS. Full Chromium a11y tests passed with zero serious violations, keyboard focus/labels passed, and rendered upload controls support keyboard activation. Manual/automated checks covered Tab, Shift+Tab, Enter, Space, reduced-motion rendering, labels, headings, errors, navigation, and upload interaction. Firefox/WebKit assistive technology checks remain environment-unverified.
 
-## Deferred boundaries and blockers
+## J. Reduced motion
 
-Resend, Dodo Payments, domain approval, Hostinger migration, and external production email/payment verification remain intentionally deferred per scope. Worker-isolated processing is the remaining technical quality caveat; the shipped fallback is private and functionally verified but can use more main-thread CPU than a working worker implementation. The final live check returned HTTP 200, but still showed the pre-push duplicate pricing title, confirming that Vercel had not propagated commit `2027edc` yet.
+PASS. `prefers-reduced-motion: reduce` produces no hero transform, no Lenis behavior, native scroll behavior, and successful local processing. Normal motion reaches opacity 1 after the intentional hero delay.
 
-## Final handoff
+## K. Tool regression
 
-The repository is ready for commit/push with an honest **PARTIALLY COMPLETE** Phase 10 classification. Chromium/unit coverage is now green; do not mark the phase fully complete until Firefox/WebKit checks, Web Vitals measurement, and the new Vercel deployment have been verified.
+PASS for the nine implemented local engines: PDF merge, split, compress, PDF-to-images, images-to-PDF, image compress, convert, resize, and EXIF clean. Real output, extensions, MIME types, filenames, non-empty downloads, privacy network behavior, retries, errors, and cancellation passed in Chromium. Background removal is explicitly deferred and reports an honest unavailable state; it is not presented as a fake successful tool.
+
+## L. SEO
+
+PASS on production. Verified title, description, canonical, robots, sitemap, OpenGraph metadata, favicon, structured-data URL, internal links, no user-facing example.com/localhost, and auth noindex behavior. URLs no longer contain duplicated trailing slashes.
+
+## M. Content realism
+
+PASS. Public app/components/lib content contains no fake testimonials, reviews, customer counts, download counts, processing counts, awards, or placeholder contact addresses. Remaining matches are legitimate environment fallbacks, form placeholders, developer comments, or deferred-tool wording.
+
+## N. Security
+
+PASS by regression inspection. CSP, HSTS, secure cookie/auth paths, authorization, rate limiting, webhook verification, database isolation, and local file privacy were unchanged by the final gate. Secret names appear only as server-side environment lookups; no secret values were added to client/public assets. No debug endpoint was created.
+
+## O. Console/network
+
+PASS for application errors. Production Chromium route inspection found no console errors, no failed fonts, and no failed images after the raster fix. The only captured failed request was an expected aborted Next RSC prefetch for `/account` during navigation; it was not an application error. Privacy E2E observed no file-upload POST requests.
+
+## P. Defects discovered
+
+1. The production deployment initially had not propagated commit `99909ba`.
+2. Three `.png` brand assets were actually HTML documents and rendered as broken images.
+3. The prior fallback path allowed completed async work to publish after cancellation; this was fixed before the final gate.
+
+## Q. Defects fixed
+
+The three authored visual assets were rasterized to valid PNGs; cancellation now invalidates in-flight fallback work; all previous Phase 10 fixes remain in place. The asset fix is commit `34b887f`.
+
+## R. Final command matrix
+
+- `npm run typecheck` — PASS
+- `npm run lint` — PASS, 12 existing warnings, 0 errors
+- `npm test` — PASS, 40/40
+- `npm run build` — PASS, 40 generated pages/routes
+- `npm run test:e2e -- --workers=1` — PASS, 53/53
+- Production responsive sweep — PASS, 0 issues across 144 route/viewport combinations
+
+## S. Remaining unverified items
+
+Firefox, WebKit/Safari, and INP remain unverified due environment/tooling limits. Background removal remains intentionally deferred. Worker-isolated processing remains unverified; the shipped main-thread fallback is private and fully functional.
+
+## T. Remaining external blockers
+
+Resend production email-domain work, Dodo production/payment continuation, custom domain approval, and Hostinger migration remain intentionally deferred to later phases.
+
+## U. Final classification
+
+**PARTIALLY COMPLETE.**
+
+The latest deployment is verified, the complete Chromium suite is green, production responsive/accessibility/SEO/security checks pass, and the only remaining items are honestly classified environment limitations or explicitly deferred external/product scope. Phase 10 is not labeled fully complete because Firefox/WebKit, INP, and worker-isolated execution are unverified.
