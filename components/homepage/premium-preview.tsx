@@ -1,164 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { Reveal } from "@/components/marketing/reveal";
 
 export function PremiumPreviewSection() {
   return (
-    <section className="border-t bg-[#0A0A0A]">
-      <div className="mx-auto max-w-6xl px-6 py-20">
-        {/* Section Header */}
-        <motion.div
-          initial={false}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <p className="text-xs tracking-widest text-accent font-medium mb-3">FAIR PRICING</p>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white">
-            Power beyond free limits
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Free tools work without an account. Premium adds higher limits and advanced controls for pro workflows.
-          </p>
-        </motion.div>
-
-        {/* Preview Cards */}
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Free Plan */}
-          <motion.div
-            initial={false}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-xl border bg-surface/50 p-8"
-          >
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-semibold text-foreground">Free</h3>
-              <span className="text-sm text-success flex items-center gap-1">
-                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Forever
-              </span>
-            </div>
-
-            <p className="text-3xl font-semibold text-white">₹0 / $0</p>
-            <p className="text-sm text-muted-foreground mt-1">No account required</p>
-
-            <hr className="my-6 border-border" />
-
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                9 local-first PDF & image tools
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Up to 50 MB per file
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                50 files max merge
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                No watermarks • Privacy preserved
-              </li>
-            </ul>
-
-            <Link href="/tools" className="mt-8 block">
-              <button className="h-11 px-6 rounded-md border bg-surface font-medium hover:border-accent/40 hover:bg-surface/80 transition-all duration-300 w-full md:w-auto">
-                Start Free
-              </button>
-            </Link>
-          </motion.div>
-
-          {/* Premium Plan Teaser */}
-          <motion.div
-            initial={false}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative rounded-xl border-2 border-accent/30 bg-surface/70 backdrop-blur p-8 shadow-glow"
-          >
-            {/* Badge */}
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#E8E8E8] to-[#A8A8A8] px-4 py-1 text-xs font-semibold text-[#0A0A0A]">
-              Best Value
-            </div>
-
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-semibold text-foreground">Premium</h3>
-              <span className="text-sm text-accent">Upgrade Pro</span>
-            </div>
-
-            <p className="text-3xl font-semibold text-white">₹199/mo</p>
-            <p className="text-sm text-muted-foreground mt-1">Or ₹999/yr (save 58%)</p>
-
-            <hr className="my-6 border-border" />
-
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Everything in Free + no ads
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Up to 100 MB per file
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                100 files max merge
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Quality sliders • custom resize
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-accent mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Priority support
-              </li>
-            </ul>
-
-            <Link href="/pricing" className="mt-8 block">
-              <button className="h-11 px-6 rounded-md bg-accent text-accent-foreground font-semibold shadow-glow hover:bg-accent/90 transition-all duration-300 w-full md:w-auto">
-                View Pricing →
-              </button>
-            </Link>
-          </motion.div>
+    <section className="border-t border-border">
+      <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
+        <Reveal className="max-w-3xl"><p className="eyebrow">ACCESS</p><h2 className="mt-4 text-3xl font-medium tracking-[-0.04em] md:text-5xl">Start with the tools, not a paywall.</h2><p className="mt-5 text-lg leading-8 text-muted-foreground">Local workflows are available without an account within the limits shown on each tool. Account and Premium availability are presented plainly on the pricing page.</p></Reveal>
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
+          <Reveal><section className="h-full border border-border bg-surface p-6 md:p-8"><p className="eyebrow">FREE</p><h3 className="mt-8 text-2xl font-medium">Useful from the first file.</h3><ul className="mt-6 space-y-3 text-sm leading-6 text-muted-foreground"><li>Eleven local workflows within displayed limits.</li><li>No account required for local processing.</li><li>Outputs remain generated in the browser.</li></ul><Link href="/tools" className="premium-button premium-button-secondary mt-8">Explore tools <span aria-hidden>↗</span></Link></section></Reveal>
+          <Reveal delay={0.08}><section className="h-full border border-accent/35 bg-accent/5 p-6 md:p-8"><p className="eyebrow">PREMIUM</p><h3 className="mt-8 text-2xl font-medium">Availability is explicit.</h3><p className="mt-6 text-sm leading-6 text-muted-foreground">Premium benefits and provider-hosted checkout are only available when live payment configuration has been completed. Pricing never changes the local file-processing boundary.</p><Link href="/pricing" className="premium-button premium-button-primary mt-8">View pricing <span aria-hidden>↗</span></Link></section></Reveal>
         </div>
-
-        {/* Trust Note */}
-        <motion.div
-          initial={false}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-8 text-center"
-        >
-          <p className="text-xs text-muted-foreground">
-            Billing via Dodo Payments (Merchant of Record). We never store card data or see your files. Cancel anytime.
-          </p>
-        </motion.div>
       </div>
     </section>
   );

@@ -409,10 +409,19 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
   );
 }
 
+function DeferredToolShell() {
+  return <section className="border border-warning/30 bg-warning/10 p-5 shadow-2xl md:p-8" aria-labelledby="deferred-tool-title">
+    <p id="deferred-tool-title" className="text-sm font-medium text-warning">This tool is currently deferred</p>
+    <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Background removal is not available while local model licensing is verified. This page does not accept files, upload images, or create placeholder results.</p>
+  </section>;
+}
+
 export function ToolShell({ tool }: { tool: ToolMeta }) {
   return tool.slug === "ocr"
     ? <OcrTool />
     : tool.slug === "pdf-text-extractor"
       ? <PdfTextExtractor />
-      : <GenericToolShell tool={tool} />;
+      : tool.slug === "background-remover"
+        ? <DeferredToolShell />
+        : <GenericToolShell tool={tool} />;
 }

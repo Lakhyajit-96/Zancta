@@ -24,7 +24,7 @@ export default function PricingPage() {
             All tools run locally — no uploads. Free forever for personal use. Premium adds convenience, not fake limits.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Taxes handled by our Merchant of Record (Dodo Payments) where applicable. Cancel anytime.
+            Checkout availability, taxes, and cancellation terms are shown only when a live payment provider is configured.
           </p>
         </div>
       </section>
@@ -49,7 +49,7 @@ export default function PricingPage() {
             <li>Higher limits: 100 MB / file, 100 files merge, 500 pages, 15 000 px</li>
             <li>Advanced controls: quality sliders, custom resize, selective EXIF</li>
             <li>Saved preferences & recent metadata (never file bytes)</li>
-            <li>Priority support</li>
+            <li>Premium availability is shown when live checkout is configured</li>
             <li>Privacy remains local — payment never sees your files</li>
           </ul>
           <p className="mt-3 text-xs text-muted-foreground">
@@ -58,8 +58,8 @@ export default function PricingPage() {
         </section>
 
         <section className="mt-6 text-xs text-muted-foreground">
-          <p>Billing via Dodo Payments (Merchant of Record) — invoices, VAT/GST and refunds handled by provider. You pay on a provider-hosted checkout. We never store card data.</p>
-          <p className="mt-1">Prices shown in INR for India and USD for everyone else. Final charge converted by provider if needed. Need help? Contact support.</p>
+          <p>When enabled, checkout is hosted by the configured payment provider. ZANCTA does not store card data. Provider terms, taxes, and refund terms are shown during checkout.</p>
+          <p className="mt-1">Prices and availability are confirmed at checkout. A monitored support channel must be published before a paid launch.</p>
         </section>
       </div>
       </main>

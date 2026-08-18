@@ -21,7 +21,7 @@ export function AuthShell({
         <section className="max-w-md">
           <Link href="/" className="inline-flex items-center gap-3 text-sm font-semibold tracking-tight">
             <img src="/assets/zancta-brand/logos/compact-mark.svg" alt="ZANCTA" className="h-10 w-10" />
-            <span className="tracking-[0.18em]">ZANCTA<span className="text-accent">/</span></span>
+            <span className="tracking-[0.18em]">ZANCTA</span>
           </Link>
           <p className="eyebrow mt-12">{eyebrow}</p>
           <h1 className="mt-5 text-4xl font-medium tracking-[-0.04em] md:text-6xl">{title}</h1>

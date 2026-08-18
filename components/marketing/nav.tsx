@@ -10,7 +10,7 @@ export function Navigation() {
             alt="ZANCTA" 
             className="h-7 w-7 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
           />
-          <span className="text-sm font-semibold tracking-[0.18em]">ZANCTA<span className="text-accent">/</span></span>
+          <span className="text-sm font-semibold tracking-[0.18em]">ZANCTA</span>
         </Link>
         <nav className="hidden items-center gap-7 text-[0.8rem] text-muted-foreground md:flex" aria-label="Primary">
           <Link href="/tools" className="py-3 transition-colors hover:text-foreground">Tools</Link>
@@ -57,7 +57,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-5 py-12 text-sm text-muted-foreground md:px-8 md:py-16">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div>
-            <p className="font-semibold tracking-[0.18em] text-foreground">ZANCTA<span className="text-accent">/</span></p>
+            <p className="font-semibold tracking-[0.18em] text-foreground">ZANCTA</p>
             <p className="mt-4 max-w-sm leading-7">A quiet workspace for documents and images. Local processing, considered tools, no upload.</p>
           </div>
           <nav className="grid grid-cols-2 gap-x-10 gap-y-3 text-[0.8rem] md:grid-cols-3" aria-label="Footer">

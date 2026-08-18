@@ -40,7 +40,7 @@ export function PricingClient() {
           </div>
           <p className="text-[28px] font-semibold mt-3 leading-none">₹0 <span className="text-sm font-normal text-muted-foreground">/ $0</span></p>
           <ul className="mt-5 space-y-1.5 text-sm text-muted-foreground leading-relaxed">
-            <li>9 local tools · 50 MB / file · 50 files</li>
+            <li>11 local tools · 50 MB / file · 50 files</li>
             <li>No watermark · privacy: local only</li>
           </ul>
           <Link href="/tools" className="mt-6 h-9 grid place-items-center rounded-md border text-sm font-medium hover:bg-muted">
@@ -81,7 +81,7 @@ export function PricingClient() {
           <p className="text-[28px] font-semibold mt-3 leading-none">₹999 <span className="text-sm font-normal text-muted-foreground">/ $39<span className="font-normal"> / yr</span></span></p>
           <p className="text-xs text-muted-foreground mt-1.5">₹83 / $3.25 per month · 58% off monthly</p>
           <ul className="mt-5 space-y-1.5 text-sm text-muted-foreground leading-relaxed">
-            <li>Everything in Monthly + priority support</li>
+            <li>Everything in Monthly when live checkout is available</li>
             <li>Billed yearly · 2 months free</li>
           </ul>
           <button
@@ -99,7 +99,7 @@ export function PricingClient() {
       {error && (
         <div role="alert" className="mt-4 rounded-md border border-error bg-error/10 p-3 text-sm">
           {error}
-          {error.includes("not configured") && <span> — Set DODO_PRODUCT_MONTHLY_ID/ANNUAL_ID (test mode) to enable checkout. See docs/PHASE9A_REPORT.md §AJ.</span>}
+          {error.includes("not configured") && <span> — Premium checkout is not available yet.</span>}
         </div>
       )}
 

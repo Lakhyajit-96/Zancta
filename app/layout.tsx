@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s — ZANCTA",
   },
   description:
-    "Merge, split, compress PDFs and images privately in your browser. No upload, no watermark, no signup. 9 working local tools.",
+    "Process supported PDFs and images locally in your browser. No file upload for implemented local workflows.",
   icons: {
     icon: "/favicon-zancta.svg",
     apple: "/favicon-zancta.svg",
