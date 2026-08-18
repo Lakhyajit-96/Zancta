@@ -108,10 +108,9 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
     const isPdfOp = ["MERGE", "SPLIT", "COMPRESS", "PDF_TO_IMAGES", "IMAGES_TO_PDF"].includes(op);
     const isImageOp = ["IMAGE_COMPRESS", "IMAGE_CONVERT", "IMAGE_RESIZE", "EXIF_CLEAN"].includes(op);
     if (!isPdfOp && !isImageOp) {
-      // Background removal is DEFERRED per Phase 6C — honest, no fake progress
       setStatus("failed");
       setErrors([
-        "Background removal is deferred — no commercially verified model is integrated. See docs/PHASE6C_REPORT.md for verification details.",
+        "Background removal is not available. No local model or cloud fallback is used.",
       ]);
       return;
     }
@@ -392,7 +391,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No file output — this tool&apos;s image engine ships in Phase 5.</p>
+            <p className="text-sm text-muted-foreground">No file output was generated for this operation.</p>
           )}
           <div className="flex gap-2">
             <button onClick={again} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Process another</button>

@@ -1,6 +1,11 @@
-import { ContentPage } from "@/components/marketing/content-page";
+import { FAQAccordion } from "@/components/marketing/faq-accordion";
+import { Footer, Navigation } from "@/components/marketing/nav";
+import { Reveal } from "@/components/marketing/reveal";
 
-export const metadata = { title: "FAQ", description: "Practical answers about ZANCTA tools, local processing, accounts, limits, and billing availability." };
+export const metadata = {
+  title: "FAQ",
+  description: "Practical answers about ZANCTA tools, local processing, accounts, limits, and billing availability.",
+};
 
 const faqs = [
   ["Does ZANCTA upload my files?", "For implemented local tools, selected file bytes are processed in the browser and are not uploaded to ZANCTA for processing. The page itself still makes normal requests for application code and assets."],
@@ -9,17 +14,52 @@ const faqs = [
   ["What are the file-size limits?", "Limits are shown on each tool page. Most local PDF and image workflows currently use a 50 MB per-file limit; OCR has a 20 MB image limit. Batch limits vary by tool."],
   ["Does OCR run locally?", "Yes. The implemented OCR workflow uses bundled English assets in a browser Worker. The selected image and recognized text are not sent to an OCR API."],
   ["Can scanned PDFs be converted to text?", "No. PDF Text Extractor reads existing embedded text from text-native PDFs. It clearly reports when a PDF is image-only or scanned instead of fabricating text."],
-  ["What happens if processing fails?", "The tool should show a readable error without producing a fake result. Check the format, file size, page count, browser memory, and whether the PDF is password-protected or malformed."],
+  ["What happens if processing fails?", "The tool shows a readable error without producing a fake result. Check the format, file size, page count, browser memory, and whether the PDF is password-protected or malformed."],
   ["Can I use ZANCTA without an account?", "Yes. The implemented local workflows do not require sign-in. Accounts are used for authentication and entitlement management."],
   ["What does Premium provide?", "The pricing page describes the intended plan differences. Premium checkout and paid entitlement availability are only real when the live payment provider configuration is complete."],
   ["What happens after cancellation?", "Cancellation behavior depends on the configured payment provider and subscription state. It is not presented as available until the payment flow has been verified."],
   ["Are files stored?", "Tool outputs are held in the active browser session for review or download. ZANCTA does not store selected file bytes for implemented local processing."],
-  ["Does ZANCTA work on mobile?", "The interface is responsive and has Chromium checks at common mobile widths. Large or memory-heavy files may still exceed the capabilities of a particular device or browser."],
-  ["Which browsers are supported?", "Current automated browser verification is Chromium-based. Browser support can vary by file format, memory availability, and platform APIs; Firefox and WebKit require separate verification."],
+  ["Does ZANCTA work on mobile?", "The interface adapts to common phone and tablet widths. Large or memory-heavy files may still exceed the capabilities of a particular device or browser."],
+  ["Which browsers are supported?", "Support can vary by file format, memory availability, and platform APIs. Use a current desktop or mobile browser; a tool will report when the selected file or browser cannot complete an operation."],
   ["How do I contact support?", "A monitored public support channel is not configured yet. Help, Docs, and individual tool pages provide the current self-service guidance. A real support contact is required before a paid public launch."],
   ["How does account deletion work?", "Authenticated account deletion is available through the account flow. It removes associated application account records; it does not need to delete local tool files because those files are not uploaded for processing."],
 ] as const;
 
+const categories = ["Local processing", "Files and formats", "Accounts and access", "Browser support"];
+
 export default function FAQPage() {
-  return <ContentPage eyebrow="ANSWERS" title="Clear answers before you hand over a file." intro="Product-specific guidance on local processing, formats, limits, accounts, and the boundaries of the current service."><dl className="space-y-3">{faqs.map(([question, answer], index) => <div key={question} className="border border-border bg-surface p-5"><dt className="flex gap-4 font-medium"><span className="font-mono text-xs text-accent">{String(index + 1).padStart(2, "0")}</span>{question}</dt><dd className="mt-3 pl-8 text-sm leading-7 text-muted-foreground">{answer}</dd></div>)}</dl></ContentPage>;
+  return (
+    <>
+      <Navigation />
+      <main className="relative overflow-hidden">
+        <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-35" />
+        <section className="relative mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
+          <Reveal className="grid gap-10 border-b border-border pb-12 md:grid-cols-[5fr_7fr] md:items-end">
+            <div>
+              <p className="eyebrow">ANSWERS</p>
+              <h1 className="mt-5 max-w-2xl text-4xl font-medium tracking-[-0.045em] md:text-6xl">Clear answers before you hand over a file.</h1>
+            </div>
+            <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:pb-1">Product-specific guidance on local processing, formats, limits, accounts, and the boundaries of the current service.</p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-12 lg:grid-cols-[4fr_8fr] lg:gap-16">
+            <Reveal className="lg:sticky lg:top-28 lg:self-start">
+              <p className="max-w-sm text-xl leading-8 tracking-[-0.025em] text-foreground">Start with the boundary, then choose the tool that fits the job.</p>
+              <p className="mt-4 max-w-sm leading-7 text-muted-foreground">Every answer reflects the product as it exists today. Tool-specific limits remain the source of truth when they differ.</p>
+              <nav className="mt-10 border-l border-border pl-4" aria-label="FAQ topics">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">On this page</p>
+                <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                  {categories.map((category) => <li key={category}>{category}</li>)}
+                </ul>
+              </nav>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <FAQAccordion items={faqs} />
+            </Reveal>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
+  );
 }
