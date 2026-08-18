@@ -17,6 +17,8 @@ npm run lint
 npm test
 npm run build
 npm run test:e2e -- --project=chromium
+# Optional cross-browser smoke (requires `npx playwright install firefox webkit`):
+npx playwright test -c playwright.browsers.config.ts
 ```
 
 ## Product scope
@@ -28,4 +30,4 @@ npm run test:e2e -- --project=chromium
 
 ## Repository and third-party software
 
-This repository is private and its application code is currently declared `UNLICENSED` in `package.json`. That is not an open-source license grant. Third-party package and OCR asset notices remain governed by their respective licenses; see `docs/OCR_LICENSE_AUDIT.md` for the shipped local OCR assets.
+This repository's application code is proprietary; see `LICENSE`. Third-party packages and OCR assets remain governed by their respective licenses; see `docs/OCR_LICENSE_AUDIT.md` for the shipped local OCR assets.

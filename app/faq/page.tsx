@@ -1,6 +1,6 @@
 import { FAQAccordion } from "@/components/marketing/faq-accordion";
 import { Footer, Navigation } from "@/components/marketing/nav";
-import { Reveal } from "@/components/marketing/reveal";
+import { MaskLines, Reveal } from "@/components/marketing/motion";
 
 export const metadata = {
   title: "FAQ",
@@ -34,14 +34,14 @@ export default function FAQPage() {
       <Navigation />
       <main className="relative overflow-hidden">
         <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-35" />
-        <section className="relative mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-          <Reveal className="grid gap-10 border-b border-border pb-12 md:grid-cols-[5fr_7fr] md:items-end">
+        <section className="relative mx-auto max-w-[80rem] px-5 py-16 md:px-8 md:py-24">
+          <header className="grid gap-10 border-b border-border pb-12 lg:grid-cols-[7fr_5fr] lg:items-end">
             <div>
-              <p className="eyebrow">ANSWERS</p>
-              <h1 className="mt-5 max-w-2xl text-4xl font-medium tracking-[-0.045em] md:text-6xl">Clear answers before you hand over a file.</h1>
+              <p className="eyebrow-path">/faq</p>
+              <MaskLines as="h1" className="display-title mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>Frequently asked questions</>]} />
             </div>
-            <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:pb-1">Product-specific guidance on local processing, formats, limits, accounts, and the boundaries of the current service.</p>
-          </Reveal>
+            <p className="max-w-xl text-base leading-8 text-muted-foreground lg:pb-1">Product-specific guidance on local processing, formats, limits, accounts, and the boundaries of the current service.</p>
+          </header>
 
           <div className="mt-12 grid gap-12 lg:grid-cols-[4fr_8fr] lg:gap-16">
             <Reveal className="lg:sticky lg:top-28 lg:self-start">

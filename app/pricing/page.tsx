@@ -1,4 +1,5 @@
 import { LayoutChrome } from "@/components/layout/chrome";
+import { MaskLines, Reveal } from "@/components/marketing/motion";
 import { PricingClient } from "./pricing-client";
 
 export const metadata = {
@@ -11,40 +12,41 @@ export default function PricingPage() {
   return (
     <LayoutChrome showNav={true} showFooter={true}>
       <main>
-      {/* ZANCTA Brand Header */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-          <img 
-            src="/assets/zancta-brand/logos/primary-wordmark.svg" 
-            alt="ZANCTA" 
-            className="mb-8 h-8 w-auto opacity-90"
-          />
-          <p className="eyebrow">ACCESS / 02</p>
-          <h1 className="mt-5 max-w-2xl text-5xl font-medium tracking-[-0.05em] md:text-7xl">Simple, honest pricing.</h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-            The implemented local tools are available within their displayed limits. Paid checkout remains unavailable until its live provider and subscription lifecycle are verified.
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Checkout availability, taxes, and cancellation terms are shown only when a live payment provider is configured.
-          </p>
+        <section className="relative overflow-hidden border-b border-border">
+          <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 h-full opacity-35" />
+          <div className="relative mx-auto max-w-[80rem] px-5 py-20 md:px-8 md:py-28">
+            <p className="eyebrow-path">/pricing</p>
+            <MaskLines
+              as="h1"
+              className="display-title mt-5 max-w-3xl text-4xl md:text-6xl"
+              lines={[<>Start free.</>, <>Upgrade when you&apos;re ready.</>]}
+            />
+            <Reveal delay={0.2}>
+              <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
+                The implemented local tools are available within their displayed limits. Paid checkout remains
+                unavailable until its live provider and subscription lifecycle are verified.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-20">
+          <PricingClient />
+
+          <Reveal className="section-rule mt-16 pt-8">
+            <h2 className="eyebrow">Paid access status</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+              Premium is not currently purchasable. Before paid access is offered, ZANCTA must verify live product
+              mapping, checkout, webhooks, entitlements, cancellation, refunds, support, and the final commercial
+              terms. This page will show only benefits that are active and verifiable.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.06} className="mt-6 text-xs text-muted-foreground">
+            <p>When enabled, checkout is hosted by the configured payment provider. ZANCTA does not store card data. Provider terms, taxes, and refund terms are shown during checkout.</p>
+            <p className="mt-1">Prices and availability are confirmed at checkout. A monitored support channel must be published before a paid launch.</p>
+          </Reveal>
         </div>
-      </section>
-
-
-      <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-
-        <PricingClient />
-
-        <section className="section-rule mt-16 pt-8">
-          <h2 className="eyebrow">PAID ACCESS STATUS</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">Premium is not currently purchasable. Before paid access is offered, ZANCTA must verify live product mapping, checkout, webhooks, entitlements, cancellation, refunds, support, and the final commercial terms. This page will show only benefits that are active and verifiable.</p>
-        </section>
-
-        <section className="mt-6 text-xs text-muted-foreground">
-          <p>When enabled, checkout is hosted by the configured payment provider. ZANCTA does not store card data. Provider terms, taxes, and refund terms are shown during checkout.</p>
-          <p className="mt-1">Prices and availability are confirmed at checkout. A monitored support channel must be published before a paid launch.</p>
-        </section>
-      </div>
       </main>
     </LayoutChrome>
   );

@@ -1,81 +1,186 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+const PRIMARY_LINKS = [
+  { href: "/tools", label: "Tools" },
+  { href: "/features", label: "Features" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/docs", label: "Docs" },
+  { href: "/about", label: "About" },
+];
 
 export function Navigation() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-5 md:px-8">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-[4.5rem] max-w-[80rem] items-center justify-between px-5 md:px-8">
         <Link href="/" className="group flex items-center gap-3" aria-label="ZANCTA home">
-          <img 
-            src="/assets/zancta-brand/logos/compact-mark.svg" 
-            alt="ZANCTA" 
-            className="h-7 w-7 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105"
+          <img
+            src="/assets/zancta-brand/logos/compact-mark.svg"
+            alt=""
+            width={28}
+            height={28}
+            className="h-7 w-7 transition-transform duration-300 group-hover:scale-[1.04]"
           />
-          <span className="text-sm font-semibold tracking-[0.18em]">ZANCTA</span>
+          <span className="text-sm font-semibold tracking-[0.22em]">ZANCTA</span>
         </Link>
-        <nav className="hidden items-center gap-7 text-[0.8rem] text-muted-foreground md:flex" aria-label="Primary">
-          <Link href="/tools" className="py-3 transition-colors hover:text-foreground">Tools</Link>
-          <Link href="/features" className="py-3 transition-colors hover:text-foreground">Features</Link>
-          <Link href="/how-it-works" className="py-3 transition-colors hover:text-foreground">How it works</Link>
-          <Link href="/pricing" className="py-3 transition-colors hover:text-foreground">Pricing</Link>
+
+        <nav className="hidden items-center gap-7 text-[0.8rem] text-muted-foreground lg:flex" aria-label="Primary">
+          {PRIMARY_LINKS.map((link) => (
+            <Link key={link.href} href={link.href} className="nav-link py-3 transition-colors hover:text-foreground">
+              {link.label}
+            </Link>
+          ))}
         </nav>
+
         <div className="flex items-center gap-2">
-          <Link href="/signin" className="hidden px-3 py-3 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground md:inline-flex">
+          <Link
+            href="/signin"
+            className="hidden px-3 py-3 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+          >
             Sign in
           </Link>
           <Link href="/tools" className="premium-button premium-button-primary hidden min-h-10 px-4 text-xs md:inline-flex">
-            Open a tool <span aria-hidden>↗</span>
+            Open a tool <span aria-hidden>→</span>
           </Link>
-          <MobileNav />
+          <button
+            type="button"
+            className="grid h-11 w-11 place-items-center rounded-md border border-border-strong bg-surface text-sm transition-colors hover:bg-surface-hover lg:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
+            aria-label={open ? "Close navigation" : "Open navigation"}
+            onClick={() => setOpen((value) => !value)}
+          >
+            <span aria-hidden className="text-base leading-none">{open ? "✕" : "≡"}</span>
+          </button>
         </div>
       </div>
+
+      {open && (
+        <nav
+          id="mobile-navigation"
+          aria-label="Primary"
+          className="absolute inset-x-4 top-[4.25rem] rounded-xl border border-border-strong bg-surface p-3 text-sm shadow-2xl lg:hidden"
+        >
+          <ul className="space-y-1">
+            {PRIMARY_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+            <li className="border-t border-border pt-2">
+              <Link
+                href="/signin"
+                onClick={() => setOpen(false)}
+                className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
+              >
+                Sign in
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/account"
+                onClick={() => setOpen(false)}
+                className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
+              >
+                Account
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }
 
-function MobileNav() {
-  return (
-    <details className="md:hidden group">
-      <summary className="list-none h-11 w-11 grid place-items-center rounded-md border hover:bg-muted cursor-pointer" aria-label="Open navigation">
-        <span aria-hidden className="text-sm">≡</span>
-      </summary>
-      <nav className="absolute right-4 top-[4.25rem] min-w-48 space-y-1 rounded-lg border border-border-strong bg-surface p-3 text-sm shadow-2xl md:right-6 md:py-4">
-        <Link href="/tools" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Tools</Link>
-        <Link href="/features" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Features</Link>
-        <Link href="/how-it-works" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">How it works</Link>
-        <Link href="/pricing" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Pricing</Link>
-        <Link href="/help" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Help</Link>
-        <Link href="/signin" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Sign in</Link>
-        <Link href="/account" className="block rounded-md px-3 py-2 transition-colors hover:bg-muted">Account</Link>
-      </nav>
-    </details>
-  );
-}
+const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
+  {
+    title: "Product",
+    links: [
+      { href: "/tools", label: "Tools" },
+      { href: "/features", label: "Features" },
+      { href: "/how-it-works", label: "How it works" },
+      { href: "/pricing", label: "Pricing" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { href: "/docs", label: "Docs" },
+      { href: "/help", label: "Help" },
+      { href: "/faq", label: "FAQ" },
+      { href: "/security", label: "Security" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/contact", label: "Contact" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
+    ],
+  },
+];
 
 export function Footer() {
   return (
     <footer className="mt-28 border-t border-border">
-      <div className="mx-auto max-w-7xl px-5 py-12 text-sm text-muted-foreground md:px-8 md:py-16">
-        <div className="flex flex-col gap-10 md:flex-row md:justify-between">
+      <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-20">
+        <div className="grid gap-12 md:grid-cols-[1.2fr_2fr]">
           <div>
-            <p className="font-semibold tracking-[0.18em] text-foreground">ZANCTA</p>
-            <p className="mt-4 max-w-sm leading-7">A quiet workspace for documents and images. Local processing, considered tools, no upload.</p>
+            <Link href="/" className="flex items-center gap-3" aria-label="ZANCTA home">
+              <img src="/assets/zancta-brand/logos/compact-mark.svg" alt="" width={28} height={28} className="h-7 w-7" />
+              <span className="text-sm font-semibold tracking-[0.22em]">ZANCTA</span>
+            </Link>
+            <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
+              Powerful file tools. Always local. Always private. Supported workflows process your files in your browser — never uploaded.
+            </p>
           </div>
-          <nav className="grid grid-cols-2 gap-x-10 gap-y-3 text-[0.8rem] md:grid-cols-3" aria-label="Footer">
-            <Link href="/about" className="hover:text-foreground">About</Link>
-            <Link href="/features" className="hover:text-foreground">Features</Link>
-            <Link href="/how-it-works" className="hover:text-foreground">How it works</Link>
-            <Link href="/faq" className="hover:text-foreground">FAQ</Link>
-            <Link href="/help" className="hover:text-foreground">Help</Link>
-            <Link href="/docs" className="hover:text-foreground">Docs</Link>
-            <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link href="/terms" className="hover:text-foreground">Terms</Link>
-            <Link href="/security" className="hover:text-foreground">Security</Link>
-            <Link href="/contact" className="hover:text-foreground">Contact</Link>
+          <nav className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4" aria-label="Footer">
+            {FOOTER_COLUMNS.map((column) => (
+              <div key={column.title}>
+                <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-muted-foreground">{column.title}</p>
+                <ul className="mt-4 space-y-2.5 text-[0.8rem] text-muted-foreground">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="transition-colors hover:text-foreground">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </nav>
         </div>
-        <div className="mt-12 flex flex-col gap-2 border-t border-border pt-5 text-xs md:flex-row md:justify-between">
-          <p>© {new Date().getFullYear()} ZANCTA. Local browser processing for the supported tools.</p>
-          <p className="text-muted-foreground/70">Built for files that deserve a private room.</p>
+        <div className="mt-14 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
+          <p>© {new Date().getFullYear()} ZANCTA. All rights reserved.</p>
+          <p className="text-muted-foreground/80">Local browser processing for the supported tools.</p>
         </div>
       </div>
     </footer>

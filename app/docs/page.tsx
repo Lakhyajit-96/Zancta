@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Footer, Navigation } from "@/components/marketing/nav";
-import { Reveal } from "@/components/marketing/reveal";
+import { MaskLines, Reveal } from "@/components/marketing/motion";
 
 export const metadata = {
   title: "Docs",
@@ -47,14 +47,14 @@ export default function DocsPage() {
       <Navigation />
       <main className="relative overflow-hidden">
         <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-35" />
-        <section className="relative mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-          <Reveal className="grid gap-10 border-b border-border pb-12 md:grid-cols-[5fr_7fr] md:items-end">
+        <section className="relative mx-auto max-w-[80rem] px-5 py-16 md:px-8 md:py-24">
+          <header className="grid gap-10 border-b border-border pb-12 lg:grid-cols-[7fr_5fr] lg:items-end">
             <div>
-              <p className="eyebrow">DOCUMENTATION</p>
-              <h1 className="mt-5 max-w-2xl text-4xl font-medium tracking-[-0.045em] md:text-6xl">Know the boundary before you begin.</h1>
+              <p className="eyebrow-path">/docs</p>
+              <MaskLines as="h1" className="display-title mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>ZANCTA documentation</>]} />
             </div>
-            <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:pb-1">What a tool accepts, what it produces, and how supported local processing behaves — written for the product you can use today.</p>
-          </Reveal>
+            <p className="max-w-xl text-base leading-8 text-muted-foreground lg:pb-1">Everything you need to know: what a tool accepts, what it produces, and how supported local processing behaves — written for the product you can use today.</p>
+          </header>
 
           <div className="mt-12 grid gap-12 xl:grid-cols-[3fr_6fr_3fr] xl:gap-16">
             <Reveal className="xl:sticky xl:top-28 xl:self-start">

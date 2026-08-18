@@ -25,22 +25,17 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
 
   return (
     <LayoutChrome showNav={true} showFooter={true}>
-      {/* ZANCTA Brand Header */}
+      {/* ZANCTA tool header */}
       <section className="border-b border-border">
-        <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-          <img 
-            src="/assets/zancta-brand/logos/compact-mark.svg" 
-            alt="ZANCTA" 
-            className="mb-8 h-8 w-auto opacity-90"
-          />
+        <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-20">
           <nav aria-label="Breadcrumb" className="text-left text-xs text-muted-foreground">
             <Link href="/" className="hover:text-foreground">Home</Link> <span aria-hidden> / </span>
             <Link href="/tools" className="hover:text-foreground">Tools</Link> <span aria-hidden> / </span>
             <span aria-current="page" className="text-foreground">{tool.name}</span>
           </nav>
 
-          <p className="eyebrow mt-10">LOCAL TOOL / {tool.category.toUpperCase()}</p>
-          <h1 className="mt-4 max-w-4xl text-5xl font-medium tracking-[-0.05em] md:text-7xl">{tool.h1}</h1>
+          <p className="eyebrow-path mt-10">/tools/{tool.category}</p>
+          <h1 className="display-title mt-4 max-w-4xl text-4xl md:text-6xl">{tool.h1}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{tool.longDescription}</p>
           <div className="mt-8 flex flex-wrap gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tool.processingType === "bg" ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success"}`}>
@@ -51,7 +46,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
         </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-5 pb-20 pt-10 md:px-8 md:pt-14">
+      <main className="mx-auto max-w-[80rem] px-5 pb-20 pt-10 md:px-8 md:pt-14">
         {/* Tool interface section */}
         <ToolShell tool={tool} />
 

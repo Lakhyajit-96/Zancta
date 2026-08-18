@@ -1,9 +1,10 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
+import { ShieldVisual } from "@/components/marketing/visuals";
 
 export const metadata = { title: "Privacy", description: "How ZANCTA handles local files, accounts, cookies, payments, email, and future advertising.", alternates: { canonical: "/privacy" } };
 
 export default function PrivacyPage() {
-  return <ContentPage eyebrow="PRIVACY" title="A clear boundary around your files." intro="This page describes current product behavior. It is not a final legal privacy policy and requires review by the responsible legal owner before a commercial launch.">
+  return <ContentPage eyebrow="/privacy" title="Your privacy is our product." intro="We believe privacy isn't just a policy — it is the way we build. This page describes current product behavior and requires review by the responsible legal owner before a commercial launch." visual={<ShieldVisual />}>
     <ContentSection title="Local file processing"><p>For implemented local PDF and image tools, selected file bytes are read and processed in the browser. ZANCTA does not receive those bytes for processing. Background removal is deferred rather than sending an image to an undisclosed cloud fallback.</p><p>This boundary does not control browser extensions, malware, operating-system backups, device sharing, or future features that are explicitly offered as optional cloud services.</p></ContentSection>
     <ContentSection title="Account information"><p>If you create an account, the application stores information needed for authentication and entitlements, such as email address, optional name, password hash, sessions, verification tokens, and password-reset tokens. Passwords are not stored in plain text.</p></ContentSection>
     <ContentSection title="Cookies and browser storage"><p>Authentication uses session mechanisms needed to keep an account signed in. Local tool results are held in the browser session for preview, copy, or download. Closing or clearing the workspace releases the active local result state.</p></ContentSection>

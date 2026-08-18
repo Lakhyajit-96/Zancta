@@ -116,7 +116,7 @@ export function OcrTool() {
   const working = status === "validating" || status === "loading" || status === "processing";
 
   return (
-    <section className="border border-border-strong bg-surface p-5 shadow-2xl md:p-8" aria-labelledby="ocr-workspace-title">
+    <section className="card-surface rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8" aria-labelledby="ocr-workspace-title">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <div>
           <p id="ocr-workspace-title" className="text-sm font-medium">Local OCR workspace</p>
@@ -131,7 +131,7 @@ export function OcrTool() {
       <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <label className="block">
           <span className="text-sm font-medium">Image</span>
-          <span className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-border-strong bg-elevated px-5 text-center transition-colors hover:border-accent/50 focus-within:ring-2 focus-within:ring-accent">
+          <span className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border-strong bg-elevated px-5 text-center transition-colors hover:border-accent/50 focus-within:ring-2 focus-within:ring-accent">
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -146,7 +146,7 @@ export function OcrTool() {
         </label>
         <label className="flex min-w-40 flex-col gap-2 text-sm font-medium">
           Language
-          <select className="rounded-md border border-border-strong bg-elevated px-3 py-2 text-sm" defaultValue="eng" disabled={working}>
+          <select className="field-input w-auto py-1.5" defaultValue="eng" disabled={working}>
             {OCR_LANGUAGE_PACKS.map((language) => <option key={language.code} value={language.code}>{language.name}</option>)}
           </select>
         </label>
@@ -182,7 +182,7 @@ export function OcrTool() {
             </div>
           </div>
           <label className="mt-4 block text-sm font-medium" htmlFor="ocr-result">Extracted text</label>
-          <textarea id="ocr-result" readOnly value={text} className="mt-2 h-56 w-full border border-border-strong bg-elevated p-3 font-mono text-sm leading-6" aria-label="Extracted OCR text" />
+          <textarea id="ocr-result" readOnly value={text} className="field-input mt-2 h-56 p-3 font-mono text-sm leading-6" aria-label="Extracted OCR text" />
         </div>
       )}
 

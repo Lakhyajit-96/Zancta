@@ -1,34 +1,15 @@
 <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Metallic gradient for premium feel -->
-    <linearGradient id="fav-metallic" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#F5F5F5;stop-opacity:1" />
-      <stop offset="30%" style="stop-color:#C8C8C8;stop-opacity:1" />
-      <stop offset="70%" style="stop-color:#969696;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#707070;stop-opacity:1" />
+    <linearGradient id="fav-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1C1C20"/>
+      <stop offset="1" stop-color="#0E0E10"/>
     </linearGradient>
-    
-    <!-- Subtle luminous glow -->
-    <filter id="fav-glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="0.3" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <linearGradient id="fav-rose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2B6C6"/>
+      <stop offset="0.52" stop-color="#E8A0B4"/>
+      <stop offset="1" stop-color="#B76E80"/>
+    </linearGradient>
   </defs>
-  
-  <!-- Deep black background -->
-  <rect width="48" height="48" fill="#0A0A0A"/>
-  
-  <!-- Precision Z icon (simplified from compact mark) -->
-  <path d="M 36 6 L 12 6 L 12 16 L 30 16 L 18 28 L 18 20 L 10 20 L 10 38 L 38 38 L 38 30 L 24 30 L 36 18 L 36 26 L 42 26 L 42 6 Z" 
-        fill="url(#fav-metallic)"
-        filter="url(#fav-glow)"/>
-  
-  <!-- Micro technical dot accents -->
-  <circle cx="10" cy="6" r="0.5" fill="#404040"/>
-  <circle cx="42" cy="6" r="0.5" fill="#404040"/>
-  <circle cx="10" cy="38" r="0.5" fill="#404040"/>
-  <circle cx="42" cy="38" r="0.5" fill="#404040"/>
+  <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="11" fill="url(#fav-tile)" stroke="#3A383C" stroke-width="1"/>
+  <path d="M13 12 H35 V18 L21.5 30 H35 V36 H13 V30 L26.5 18 H13 Z" fill="url(#fav-rose)"/>
 </svg>

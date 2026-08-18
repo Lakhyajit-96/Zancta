@@ -7,6 +7,10 @@ import { signinSchema } from "@/lib/validators";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  // Local e2e runs over http://localhost, where WebKit rejects Secure/__Host-
+  // cookies (Chromium/Firefox accept them on localhost). Production keeps the
+  // secure default because the variable is unset there.
+  useSecureCookies: process.env.AUTH_USE_SECURE_COOKIES === "false" ? false : undefined,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: {

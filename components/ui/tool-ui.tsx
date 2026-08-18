@@ -42,10 +42,11 @@ export function UploadZone({
         setDragOver(false);
         handleFiles(e.dataTransfer.files);
       }}
-      className={`border-2 border-dashed p-10 text-center transition-colors focus-visible:ring-2 ring-accent cursor-pointer ${
+      className={`relative overflow-hidden rounded-lg border border-dashed p-10 text-center transition-colors focus-visible:ring-2 ring-accent cursor-pointer md:p-14 ${
         dragOver ? "border-accent bg-accent/10" : "border-border-strong bg-surface hover:border-accent/50 hover:bg-elevated"
       }`}
     >
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 perspective-floor opacity-40" />
       <input
         ref={inputRef}
         type="file"
@@ -57,13 +58,16 @@ export function UploadZone({
         aria-hidden
         tabIndex={-1}
       />
-      <div className="mx-auto max-w-md space-y-3">
-        <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center border border-accent/40 bg-accent/10 text-xl text-accent" aria-hidden>＋</div>
-        <p className="text-base font-medium tracking-tight">Drop files here or click to browse</p>
+      <div className="relative mx-auto max-w-md space-y-3">
+        <div className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-lg border border-accent/40 bg-accent/10 text-xl text-accent" aria-hidden>＋</div>
+        <p className="text-base font-semibold tracking-tight">Drop files here or click to browse</p>
         <p className="text-xs text-muted-foreground">
           Max {maxFiles} files, 50 MB each. HEIC and SVG not supported in MVP.
         </p>
-        <p className="text-xs text-muted-foreground">Your files stay on your device — no upload.</p>
+        <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
+          Your files stay on your device — no upload.
+        </p>
       </div>
     </div>
   );
@@ -71,11 +75,11 @@ export function UploadZone({
 
 export function FileRow({ name, size, onRemove }: { name: string; size: number; onRemove?: () => void }) {
   return (
-    <li className="flex items-center justify-between border border-border-strong bg-elevated px-3 py-3 text-sm">
+    <li className="flex items-center justify-between rounded-md border border-border bg-elevated px-3.5 py-3 text-sm transition-colors hover:border-border-strong">
       <span className="truncate pr-3">{name}</span>
-      <span className="shrink-0 text-xs text-muted-foreground">{(size / 1024).toFixed(1)} KB</span>
+      <span className="shrink-0 font-mono text-xs text-muted-foreground">{(size / 1024).toFixed(1)} KB</span>
       {onRemove && (
-        <button onClick={onRemove} className="ml-3 text-xs underline hover:no-underline" aria-label={`Remove ${name}`}>
+        <button onClick={onRemove} className="ml-3 text-xs text-muted-foreground underline underline-offset-4 hover:text-error" aria-label={`Remove ${name}`}>
           Remove
         </button>
       )}
@@ -87,10 +91,10 @@ export function Progress({ value, label }: { value: number; label?: string }) {
   return (
     <div className="space-y-2" aria-live="polite">
       {label && <p className="text-sm">{label}</p>}
-      <div className="h-1 overflow-hidden bg-muted">
-        <div className="h-full bg-accent transition-all" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+      <div className="h-1 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
       </div>
-      <p className="text-xs text-muted-foreground">{Math.round(value)}%</p>
+      <p className="font-mono text-xs text-muted-foreground">{Math.round(value)}%</p>
     </div>
   );
 }

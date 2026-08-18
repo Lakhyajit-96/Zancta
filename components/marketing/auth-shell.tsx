@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal } from "./motion";
 
 export function AuthShell({
   eyebrow,
@@ -14,26 +15,39 @@ export function AuthShell({
   reassurance: string;
 }) {
   return (
-    <main className="relative isolate min-h-[calc(100vh-4.5rem)] overflow-hidden px-5 py-12 md:px-8 md:py-20">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_18%,rgba(233,168,184,0.12),transparent_30rem),linear-gradient(135deg,var(--background),var(--surface))]" />
-      <div aria-hidden className="editorial-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
-      <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[0.85fr_1.15fr] md:items-center">
-        <section className="max-w-md">
-          <Link href="/" className="inline-flex items-center gap-3 text-sm font-semibold tracking-tight">
-            <img src="/assets/zancta-brand/logos/compact-mark.svg" alt="ZANCTA" className="h-10 w-10" />
-            <span className="tracking-[0.18em]">ZANCTA</span>
+    <main className="relative isolate flex min-h-screen flex-col overflow-hidden px-5 py-12 md:px-8 md:py-16">
+      {/* Quiet cinematic backdrop: one rose glow, fading grid, perspective floor. */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-12%,rgba(232,160,180,0.1),transparent_34rem)]" />
+      <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 -z-10 h-[26rem] opacity-40" />
+      <div aria-hidden className="perspective-floor pointer-events-none absolute inset-x-0 top-44 -z-10 h-44 opacity-25" />
+
+      <div className="mx-auto w-full max-w-[26.5rem]">
+        <Reveal>
+          <Link href="/" aria-label="ZANCTA home" className="mx-auto flex w-fit items-center gap-3">
+            <img src="/assets/zancta-brand/logos/compact-mark.svg" alt="" className="h-9 w-9" />
+            <span className="text-sm font-semibold tracking-[0.24em]">ZANCTA</span>
           </Link>
-          <p className="eyebrow mt-12">{eyebrow}</p>
-          <h1 className="mt-5 text-4xl font-medium tracking-[-0.04em] md:text-6xl">{title}</h1>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">{description}</p>
-          <div className="mt-8 border-l border-accent/60 bg-surface/50 p-4 text-sm text-muted-foreground">
-            <span className="mr-2 text-success" aria-hidden>✓</span>{reassurance}
-          </div>
-        </section>
-        <section className="border border-border-strong bg-surface/90 p-6 shadow-2xl backdrop-blur md:p-10">
+        </Reveal>
+
+        <Reveal delay={0.08} className="mt-10 text-center">
+          <p className="eyebrow">{eyebrow}</p>
+          <h1 className="display-title mt-4 text-3xl md:text-4xl">{title}</h1>
+          <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
+        </Reveal>
+
+        <Reveal delay={0.16} className="card-surface mt-8 p-6 shadow-[0_28px_70px_rgba(0,0,0,0.42)] md:p-8">
           {children}
-        </section>
+        </Reveal>
+
+        <Reveal delay={0.22} className="mt-6 border-l border-accent/50 bg-surface/40 px-4 py-3 text-xs leading-5 text-muted-foreground">
+          <span className="mr-2 text-success" aria-hidden>✓</span>
+          {reassurance}
+        </Reveal>
       </div>
+
+      <p className="mx-auto mt-auto pt-12 text-center text-xs text-muted-foreground/80">
+        Local processing by design — your tool files never leave the browser for supported workflows.
+      </p>
     </main>
   );
 }

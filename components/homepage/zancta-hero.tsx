@@ -2,34 +2,123 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { MaskLines, EASE } from "@/components/marketing/motion";
 
-const reveal = (reduce: boolean | null, delay = 0) => ({
-  initial: reduce ? false : { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: reduce ? { duration: 0 } : { duration: 0.56, delay, ease: [0.22, 1, 0.36, 1] as const },
-});
+function PipelineNode({
+  icon,
+  label,
+  highlight,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <div
+        className={`grid h-16 w-16 place-items-center rounded-full border md:h-20 md:w-20 ${
+          highlight
+            ? "border-accent/60 bg-accent/10 shadow-[0_0_44px_rgba(232,160,180,0.25)]"
+            : "border-border-strong bg-elevated"
+        }`}
+      >
+        {icon}
+      </div>
+      <p className="max-w-[7.5rem] text-xs leading-5 text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function Connector() {
+  return (
+    <svg aria-hidden viewBox="0 0 80 12" className="mt-6 h-3 w-full min-w-6 max-w-20 md:mt-8" fill="none">
+      <line x1="0" y1="6" x2="68" y2="6" stroke="var(--accent)" strokeOpacity="0.5" strokeWidth="1" strokeDasharray="4 4" className="anim-dash-flow" />
+      <path d="M70 2 L78 6 L70 10" stroke="var(--accent)" strokeOpacity="0.7" strokeWidth="1" fill="none" />
+    </svg>
+  );
+}
 
 export function ZanctaHero() {
   const reduceMotion = useReducedMotion();
+  const fade = (delay: number) => ({
+    initial: reduceMotion ? false : { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: reduceMotion ? { duration: 0 } : { duration: 0.6, delay, ease: EASE },
+  });
 
   return (
     <section className="relative overflow-hidden border-b border-border">
-      <div aria-hidden className="absolute inset-0 bg-[linear-gradient(130deg,rgba(233,168,184,0.11),transparent_42%),url('/assets/zancta-brand/hero/zancta-hero-bg.png')] bg-cover bg-center opacity-75" />
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/88 to-background" />
       <div aria-hidden className="editorial-grid pointer-events-none absolute inset-0 opacity-30" />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-24 md:grid-cols-[1.05fr_0.95fr] md:px-8 md:py-32">
-        <div className="space-y-6">
-          <motion.div {...reveal(reduceMotion, 0)} className="flex items-center gap-3"><img src="/assets/zancta-brand/logos/compact-mark.svg" alt="ZANCTA" className="h-11 w-11" /><span className="eyebrow">LOCAL-FIRST FILE TOOLS</span></motion.div>
-          <motion.h1 {...reveal(reduceMotion, 0.08)} className="max-w-3xl text-5xl font-medium leading-[0.98] tracking-[-0.055em] text-white md:text-7xl">Your files stay local. <span className="text-accent-soft">Keep the control.</span></motion.h1>
-          <motion.p {...reveal(reduceMotion, 0.16)} className="max-w-xl text-lg leading-8 text-muted-foreground">PDF, image, OCR, and text-extraction tools that process supported files locally in your browser. No file upload for the implemented local workflows.</motion.p>
-          <motion.div {...reveal(reduceMotion, 0.24)} className="flex flex-wrap gap-3"><Link href="/tools"><Button className="px-6">Explore tools <span aria-hidden>↗</span></Button></Link><Link href="/how-it-works"><Button variant="outline" className="px-6">How it works</Button></Link></motion.div>
-          <motion.ul {...reveal(reduceMotion, 0.32)} className="grid gap-3 border-t border-border pt-5 text-sm text-muted-foreground md:max-w-lg"><li>Supported workflows process selected file bytes locally.</li><li>Tool pages state formats, limits, and honest failure cases.</li><li>Downloads are generated in the browser when a tool produces output.</li></motion.ul>
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-56 perspective-floor opacity-40" />
+      <div className="relative mx-auto grid max-w-[80rem] items-center gap-14 px-5 py-20 md:grid-cols-[1.05fr_0.95fr] md:px-8 md:py-28">
+        <div className="space-y-7">
+          <motion.p {...fade(0)} className="eyebrow">Local-first file tools</motion.p>
+          <MaskLines
+            className="display-title max-w-3xl text-5xl text-white md:text-7xl"
+            lines={[
+              <>Powerful file tools.</>,
+              <>Always local.</>,
+              <span key="rose" className="text-accent">Always private.</span>,
+            ]}
+          />
+          <motion.p {...fade(0.28)} className="max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
+            ZANCTA runs supported file processing entirely in your browser. Your files stay in your control — always.
+          </motion.p>
+          <motion.div {...fade(0.36)} className="flex flex-wrap gap-3">
+            <Link href="/tools" className="premium-button premium-button-primary px-6">
+              Choose a tool <span aria-hidden>→</span>
+            </Link>
+            <Link href="/how-it-works" className="premium-button premium-button-secondary px-6">
+              <span aria-hidden>▷</span> How it works
+            </Link>
+          </motion.div>
+          <motion.ul {...fade(0.44)} className="grid gap-2.5 border-t border-border pt-5 text-sm text-muted-foreground md:max-w-lg">
+            <li>Supported workflows process selected file bytes locally.</li>
+            <li>Tool pages state formats, limits, and honest failure cases.</li>
+            <li>Downloads are generated in the browser when a tool produces output.</li>
+          </motion.ul>
         </div>
-        <motion.div {...reveal(reduceMotion, 0.28)} className="rounded-xl border border-border-strong bg-surface/80 p-6 shadow-2xl backdrop-blur md:p-8">
-          <div className="flex items-center justify-between border-b border-border pb-4"><p className="eyebrow">LOCAL PROCESSING</p><span className="font-mono text-[0.65rem] text-muted-foreground">Z / 01</span></div>
-          <ol className="mt-6 space-y-4">{[["01", "Your file", "Selected from your device"], ["02", "Your browser", "Validation and local engine"], ["03", "Your output", "Review, copy, or download"]].map(([number, title, detail], index) => <li key={title} className="flex items-center gap-4"><span className="grid h-10 w-10 place-items-center border border-border bg-elevated font-mono text-xs text-accent">{number}</span><div><p className="text-sm font-medium">{title}</p><p className="text-xs text-muted-foreground">{detail}</p></div>{index < 2 && <span aria-hidden className="ml-auto text-muted-foreground">↓</span>}</li>)}</ol>
-          <p className="mt-7 border border-success/30 bg-success/10 p-3 text-center text-xs text-success">No file upload for implemented local tools</p>
+
+        <motion.div
+          {...fade(0.3)}
+          className="relative overflow-hidden rounded-xl border border-border-strong bg-surface/80 p-6 shadow-2xl backdrop-blur md:p-9"
+        >
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <p className="eyebrow">Local processing</p>
+            <span className="font-mono text-[0.65rem] text-muted-foreground">Z / 01</span>
+          </div>
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-32 perspective-floor opacity-70" />
+          <div className="relative mt-8 flex items-start justify-center gap-2 md:gap-3">
+            <PipelineNode
+              label="Selected locally"
+              icon={
+                <svg aria-hidden viewBox="0 0 24 24" className="h-6 w-6 md:h-7 md:w-7" fill="none" stroke="currentColor" strokeWidth="1.4">
+                  <path d="M7 3h7l4 4v14H7z" />
+                  <path d="M14 3v4h4" />
+                  <path d="M10 12h5M10 16h5" />
+                </svg>
+              }
+            />
+            <Connector />
+            <PipelineNode
+              highlight
+              label="Processed in this browser"
+              icon={<img src="/assets/zancta-brand/logos/compact-mark.svg" alt="" className="h-8 w-8 md:h-9 md:w-9" />}
+            />
+            <Connector />
+            <PipelineNode
+              label="Result available locally"
+              icon={
+                <svg aria-hidden viewBox="0 0 24 24" className="h-6 w-6 text-success md:h-7 md:w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="m8.5 12.2 2.4 2.4 4.8-5" />
+                </svg>
+              }
+            />
+          </div>
+          <p className="relative mt-8 border border-success/30 bg-success/10 p-3 text-center text-xs text-success">
+            No file upload for implemented local tools
+          </p>
         </motion.div>
       </div>
     </section>

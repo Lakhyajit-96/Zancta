@@ -144,7 +144,7 @@ export function PdfTextExtractor() {
   };
 
   return (
-    <section className="border border-border-strong bg-surface p-5 shadow-2xl md:p-8" aria-labelledby="pdf-text-workspace-title">
+    <section className="card-surface rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8" aria-labelledby="pdf-text-workspace-title">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <div>
           <p id="pdf-text-workspace-title" className="text-sm font-medium">Local PDF text workspace</p>
@@ -197,7 +197,7 @@ export function PdfTextExtractor() {
           <div className="mt-5 border-y border-border py-4">
             <label htmlFor="pdf-text-search" className="text-sm font-medium">Search extracted text</label>
             <div className="mt-2 flex flex-wrap gap-2">
-              <input id="pdf-text-search" value={query} onChange={(event) => setQuery(event.target.value)} className="min-w-0 flex-1 border border-border-strong bg-elevated px-3 py-2 text-sm" placeholder="Find text across pages" />
+              <input id="pdf-text-search" value={query} onChange={(event) => setQuery(event.target.value)} className="field-input min-w-0 flex-1" placeholder="Find text across pages" />
               {query && <button type="button" onClick={() => setQuery("")} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Clear search</button>}
             </div>
             {query && <p role="status" className="mt-2 text-xs text-muted-foreground">{matches.length} {matches.length === 1 ? "match" : "matches"} found.</p>}

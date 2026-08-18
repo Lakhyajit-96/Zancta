@@ -1,9 +1,10 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
+import { LayersVisual } from "@/components/marketing/visuals";
 
 export const metadata = { title: "Security", description: "The security controls implemented in the current ZANCTA application.", alternates: { canonical: "/security" } };
 
 export default function SecurityPage() {
-  return <ContentPage eyebrow="SECURITY" title="Specific controls, stated without theatre." intro="ZANCTA uses practical application protections. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified.">
+  return <ContentPage eyebrow="/security" title="Security by design." intro="ZANCTA is built with security at every layer — and without theatre. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified." visual={<LayersVisual />}>
     <ContentSection title="Local processing boundary"><p>Implemented local tools process selected file bytes in the browser and do not upload those bytes to ZANCTA for processing. This reduces the need to transmit routine documents and images, but it is not a formal certification or a guarantee about unrelated software on a device.</p></ContentSection>
     <ContentSection title="Transport and browser protections"><p>The deployed application uses HTTPS and security headers including Content Security Policy, frame protection, content-type protection, referrer policy, permissions policy, and HSTS in production. CSP restricts script, connection, and worker origins to support local browser processing.</p></ContentSection>
     <ContentSection title="Accounts and secrets"><p>Authentication uses credential handling, password hashing, session controls, verification and reset tokens, and authenticated account actions. Sensitive provider configuration is intended to remain server-side rather than in browser code.</p></ContentSection>

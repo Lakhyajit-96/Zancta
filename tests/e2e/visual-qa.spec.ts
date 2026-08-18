@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 test("visual qa — homepage and tools", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", {name:/Your files stay local/i})).toBeVisible();
+  await expect(page.getByRole("heading", {name:/Powerful file tools/i})).toBeVisible();
   await page.screenshot({ path: "test-screenshots/home.png", fullPage: true });
   console.log("home screenshot ok");
   await page.goto("/tools");

@@ -4,7 +4,7 @@ import { ContentPage, ContentSection } from "@/components/marketing/content-page
 export const metadata = { title: "Help", description: "Practical guidance for ZANCTA tools, files, local processing, downloads, accounts, and troubleshooting.", alternates: { canonical: "/help" } };
 
 export default function HelpPage() {
-  return <ContentPage eyebrow="HELP" title="Practical guidance, without the runaround." intro="Start with the tool page in front of you. It is the source of truth for its accepted formats, limits, and local processing behavior.">
+  return <ContentPage eyebrow="/help" title="How can we help?" intro="Start with the tool page in front of you. It is the source of truth for its accepted formats, limits, and local processing behavior.">
     <ContentSection title="Getting started"><p>Choose the task first, then select a supported file. Read the visible limit before processing. A local tool should either complete with a real output or explain why the selected file cannot be processed.</p></ContentSection>
     <ContentSection title="PDF and image files"><p>PDF tools accept PDFs; image tools accept the formats shown on their pages. Password-protected or malformed PDFs may fail. HEIC and SVG are not supported by the current image workflows. For very large files, close other tabs and try a smaller input if the browser reports a memory-related failure.</p></ContentSection>
     <ContentSection title="OCR and PDF text"><p>Image OCR supports the bundled English language assets and processes the selected image locally. PDF Text Extractor reads existing embedded text from text-native PDFs; it does not OCR scanned or image-only PDFs.</p></ContentSection>

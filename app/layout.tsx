@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import "@fontsource-variable/instrument-sans";
 import "./globals.css";
 import { PUBLIC_SITE_URL } from "@/lib/seo";
-
-const geistSans = localFont({
-  variable: "--font-geist-sans",
-  src: "./fonts/geist-latin.woff2",
-  display: "swap",
-});
 
 const geistMono = localFont({
   variable: "--font-geist-mono",
@@ -18,7 +13,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    default: "ZANCTA — Privacy-first file tools. Your files never leave your device.",
+    default: "ZANCTA — Powerful file tools. Always local. Always private.",
     template: "%s — ZANCTA",
   },
   description:
@@ -54,7 +49,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistMono.variable}`}>
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   );

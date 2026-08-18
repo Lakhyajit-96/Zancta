@@ -261,7 +261,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
   };
 
   return (
-    <div className="border border-border-strong bg-surface p-5 shadow-2xl md:p-8">
+    <div className="card-surface space-y-6 rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <PrivacyIndicator />
         <span className="max-w-xl text-right text-xs leading-5 text-muted-foreground">Your files are processed locally in your browser. Your file bytes are not uploaded for processing.</span>
@@ -276,7 +276,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
             value={range}
             onChange={(e) => setRange(e.target.value)}
             placeholder="e.g. 1, 1-3, 2,5,8, 1-3,7,10-12"
-            className="w-full border border-border-strong bg-elevated px-3 py-2 text-sm"
+            className="field-input"
             aria-describedby="range-hint"
           />
           <p id="range-hint" className="text-xs text-muted-foreground">Examples: 1 · 1-3 · 2,5,8 · 1-3,7,10-12 — we validate against the document&apos;s page count.</p>
@@ -287,7 +287,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         <div className="flex gap-3">
           <label className="text-sm font-medium flex items-center gap-2">
             Format
-            <select value={imageFormat} onChange={(e) => setImageFormat(e.target.value as typeof imageFormat)} className="rounded-md border bg-elevated px-2 py-1 text-sm">
+            <select value={imageFormat} onChange={(e) => setImageFormat(e.target.value as typeof imageFormat)} className="field-input w-auto py-1.5">
               <option value="png">PNG</option>
               <option value="jpeg">JPEG</option>
               <option value="webp">WebP</option>
@@ -310,7 +310,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         <div className="flex gap-3">
           <label className="text-sm font-medium flex items-center gap-2">
             Target
-            <select value={convertTarget} onChange={(e)=> setConvertTarget(e.target.value as typeof convertTarget)} className="rounded-md border bg-elevated px-2 py-1 text-sm">
+            <select value={convertTarget} onChange={(e)=> setConvertTarget(e.target.value as typeof convertTarget)} className="field-input w-auto py-1.5">
               <option value="image/jpeg">JPG</option>
               <option value="image/png">PNG</option>
               <option value="image/webp">WebP</option>
@@ -321,8 +321,8 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
       {tool.slug === "image-resize" && (
         <div className="flex flex-wrap gap-4 items-center">
-          <label className="text-sm flex items-center gap-2">W <input type="number" value={resizeWidth} onChange={(e)=> setResizeWidth(Math.max(1, parseInt(e.target.value)||1))} className="w-20 rounded-md border bg-elevated px-2 py-1 text-sm" min={1} max={12000} aria-label="Width" /></label>
-          <label className="text-sm flex items-center gap-2">H <input type="number" value={resizeHeight} onChange={(e)=> setResizeHeight(Math.max(1, parseInt(e.target.value)||1))} className="w-20 rounded-md border bg-elevated px-2 py-1 text-sm" min={1} max={12000} aria-label="Height" /></label>
+          <label className="text-sm flex items-center gap-2">W <input type="number" value={resizeWidth} onChange={(e)=> setResizeWidth(Math.max(1, parseInt(e.target.value)||1))} className="field-input w-20 py-1.5" min={1} max={12000} aria-label="Width" /></label>
+          <label className="text-sm flex items-center gap-2">H <input type="number" value={resizeHeight} onChange={(e)=> setResizeHeight(Math.max(1, parseInt(e.target.value)||1))} className="field-input w-20 py-1.5" min={1} max={12000} aria-label="Height" /></label>
           <label className="text-sm flex items-center gap-2"><input type="checkbox" checked={keepAspect} onChange={(e)=> setKeepAspect(e.target.checked)} aria-label="Keep aspect" /> Keep aspect</label>
         </div>
       )}
@@ -368,7 +368,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       )}
 
       {status === "completed" && (
-        <div className="border border-success/30 bg-success/10 p-4 space-y-3">
+        <div className="rounded-lg border border-success/30 bg-success/10 p-4 space-y-3">
           <p className="text-sm font-medium text-success">Completed — processed locally</p>
           {meta?.originalSize !== undefined && meta?.outputSize !== undefined && (
             <p className="text-sm text-muted-foreground">
@@ -379,7 +379,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           {results.length > 0 ? (
             <ul className="space-y-2">
               {results.map((r, i) => (
-                <li key={i} className="flex items-center justify-between rounded-md border bg-elevated px-3 py-2">
+                <li key={i} className="flex items-center justify-between rounded-md border border-border bg-elevated px-3.5 py-2.5">
                   <span className="text-sm truncate pr-3">{r.name} — {(r.blob.size / 1024).toFixed(1)} KB</span>
                   <button
                     onClick={() => downloadBlob(r.blob, r.name)}
@@ -409,7 +409,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 }
 
 function DeferredToolShell() {
-  return <section className="border border-warning/30 bg-warning/10 p-5 shadow-2xl md:p-8" aria-labelledby="deferred-tool-title">
+  return <section className="rounded-lg border border-warning/30 bg-warning/10 p-5 md:p-8" aria-labelledby="deferred-tool-title">
     <p id="deferred-tool-title" className="text-sm font-medium text-warning">This tool is currently deferred</p>
     <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Background removal is not available while local model licensing is verified. This page does not accept files, upload images, or create placeholder results.</p>
   </section>;

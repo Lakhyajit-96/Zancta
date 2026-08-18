@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Navigation, Footer } from "@/components/marketing/nav";
-import { Reveal } from "@/components/marketing/reveal";
+import { MaskLines, Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
 export const metadata = {
   title: "Features",
@@ -32,16 +32,20 @@ export default function FeaturesPage() {
       <main>
         <section className="relative overflow-hidden border-b border-border">
           <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 h-full opacity-35" />
-          <div className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-            <Reveal className="max-w-4xl">
-              <p className="eyebrow">PRODUCT FEATURES</p>
-              <h1 className="mt-5 max-w-3xl text-4xl font-medium tracking-[-0.045em] md:text-6xl">Private tools for the files you actually work with.</h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">ZANCTA makes the boundary visible: choose a supported file, process it in the browser, review the result, and download it without sending file bytes to a processing API.</p>
+          <div className="relative mx-auto max-w-[80rem] px-5 py-20 md:px-8 md:py-28">
+            <p className="eyebrow-path">/features</p>
+            <MaskLines
+              as="h1"
+              className="display-title mt-5 max-w-4xl text-4xl md:text-6xl"
+              lines={[<>Everything you need.</>, <>Nothing you don&apos;t.</>]}
+            />
+            <Reveal delay={0.2}>
+              <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">ZANCTA makes the boundary visible: choose a supported file, process it in the browser, review the result, and download it without sending file bytes to a processing API.</p>
             </Reveal>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
+        <section className="mx-auto max-w-[80rem] px-5 py-16 md:px-8 md:py-24">
           <Reveal className="grid gap-8 border-y border-border py-8 md:grid-cols-[0.8fr_1.2fr] md:items-center">
             <div>
               <p className="eyebrow">LOCAL-FIRST PROCESSING</p>
@@ -54,14 +58,18 @@ export default function FeaturesPage() {
           </Reveal>
 
           <div className="mt-16 grid gap-5 lg:grid-cols-2">
-            {workflows.map((workflow, index) => <Reveal key={workflow.title} delay={index * 0.08} className="h-full">
-              <article className="flex h-full flex-col border border-border-strong bg-surface p-6 transition-colors hover:border-accent/45 md:p-8">
+            {workflows.map((workflow) => (
+              <StaggerGroup key={workflow.title} className="h-full">
+                <StaggerItem className="h-full">
+              <article className="card-surface card-lift flex h-full flex-col p-6 md:p-8">
                 <div className="flex items-baseline justify-between gap-4"><span className="font-mono text-xs text-accent">{workflow.number}</span><Link href={workflow.href} className="text-xs text-muted-foreground transition-colors hover:text-foreground">Open a tool ↗</Link></div>
                 <h2 className="mt-10 text-2xl font-medium tracking-[-0.03em]">{workflow.title}</h2>
                 <p className="mt-4 max-w-xl leading-7 text-muted-foreground">{workflow.description}</p>
                 <ul className="mt-8 flex flex-wrap gap-2">{workflow.tools.map((tool) => <li key={tool} className="border border-border bg-elevated px-2.5 py-1 text-xs text-muted-foreground">{tool}</li>)}</ul>
               </article>
-            </Reveal>)}
+                </StaggerItem>
+              </StaggerGroup>
+            ))}
           </div>
 
           <div className="mt-16 grid gap-5 md:grid-cols-[1.1fr_0.9fr]">
