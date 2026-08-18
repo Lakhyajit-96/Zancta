@@ -152,7 +152,7 @@ export function ToolEcosystemSection() {
             </button>
           </Link>
           <p className="mt-4 text-sm text-muted-foreground">
-            Need background removal? Available soon with verified local models.
+            Background removal is listed honestly as deferred until a verified local model is integrated.
           </p>
         </motion.div>
       </div>

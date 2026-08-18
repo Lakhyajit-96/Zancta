@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { PUBLIC_SITE_URL } from "@/lib/seo";
 
 const geistSans = localFont({
   variable: "--font-geist-sans",
@@ -15,13 +16,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
     default: "ZANCTA — Privacy-first file tools. Your files never leave your device.",
     template: "%s — ZANCTA",
   },
   description:
-    "Merge, split, compress PDFs and images privately in your browser. No upload, no watermark, no signup. 10 local-first tools.",
+    "Merge, split, compress PDFs and images privately in your browser. No upload, no watermark, no signup. 9 working local tools.",
   icons: {
     icon: "/favicon-zancta.svg",
     apple: "/favicon-zancta.svg",
