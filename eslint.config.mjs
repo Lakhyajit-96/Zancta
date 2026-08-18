@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Versioned third-party OCR worker/WASM loaders are served verbatim from this path.
+    "public/ocr/**",
   ]),
 ]);
 

@@ -12,7 +12,8 @@ export type ToolSlug =
   | "image-convert"
   | "image-resize"
   | "background-remover"
-  | "exif-cleaner";
+  | "exif-cleaner"
+  | "ocr";
 
 export interface ToolMeta {
   slug: ToolSlug;
@@ -256,6 +257,31 @@ export const TOOLS: ToolMeta[] = [
     available: true,
     related: ["background-remover", "image-compress", "image-convert"],
     faq: [{ q: "What is removed?", a: "Common image metadata is removed by re-encoding. EXIF, GPS, and camera data do not survive canvas re-encode." }],
+  },
+  {
+    slug: "ocr",
+    name: "Image OCR",
+    shortName: "OCR",
+    description: "Extract text from JPG, PNG, and WebP images locally.",
+    longDescription: "Extract English text from images in your browser. The OCR engine, language data, image, and result stay on your device.",
+    category: "image",
+    icon: "text",
+    supportedFormats: ["jpg", "png", "webp"],
+    acceptMime: ["image/jpeg", "image/png", "image/webp"],
+    maxFileSize: 20 * 1024 * 1024,
+    maxFiles: 1,
+    privacy: "local",
+    processingType: "image",
+    seoTitle: "Image OCR — Extract Text Locally in Your Browser",
+    seoDescription: "Extract English text from JPG, PNG, and WebP images locally in your browser. No OCR API or file upload.",
+    h1: "Extract text from images — locally",
+    available: true,
+    related: ["image-compress", "image-convert", "exif-cleaner"],
+    faq: [
+      { q: "Do images leave my device?", a: "No. The OCR engine and English language data are served with this site, and recognition runs in a browser Web Worker." },
+      { q: "Which language is available?", a: "English is currently bundled and available." },
+      { q: "Which image formats can I use?", a: "JPG, PNG, and WebP images are supported." },
+    ],
   },
 ];
 

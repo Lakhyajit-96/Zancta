@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       // Production: no unsafe-eval. Dev needs unsafe-eval for Turbopack HMR and Next dev overlay.
       isDev
         ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-        : "script-src 'self' 'unsafe-inline'",
+        : "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'", // Required for the self-hosted Tesseract WebAssembly worker; does not permit JavaScript eval.
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",

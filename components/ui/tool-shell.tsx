@@ -4,10 +4,11 @@ import Link from "next/link";
 import { validateFiles } from "@/lib/file-safety";
 import { UploadZone, Progress, PrivacyIndicator, FileRow } from "@/components/ui/tool-ui";
 import { downloadBlob } from "@/lib/download";
+import { OcrTool } from "@/components/ui/ocr-tool";
 import type { ToolMeta } from "@/lib/tools";
 type Status = "idle" | "validating" | "loading" | "processing" | "completed" | "failed" | "aborted";
 
-export function ToolShell({ tool }: { tool: ToolMeta }) {
+function GenericToolShell({ tool }: { tool: ToolMeta }) {
   const [files, setFiles] = React.useState<File[]>([]);
   const [errors, setErrors] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<Status>("idle");
@@ -405,4 +406,8 @@ export function ToolShell({ tool }: { tool: ToolMeta }) {
       </p>
     </div>
   );
+}
+
+export function ToolShell({ tool }: { tool: ToolMeta }) {
+  return tool.slug === "ocr" ? <OcrTool /> : <GenericToolShell tool={tool} />;
 }
