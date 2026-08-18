@@ -1,13 +1,14 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Security", description: "Implemented security controls in the ZANCTA MVP." };
+export const metadata = { title: "Security", description: "The security controls implemented in the current ZANCTA application." };
 
 export default function SecurityPage() {
-  return <ContentPage eyebrow="SECURITY" title="Implemented controls, stated without certification language." intro="ZANCTA uses several practical controls, but this page does not claim SOC 2, ISO 27001, GDPR, HIPAA, or PCI certification.">
-    <ContentSection title="Application and transport"><p>The deployed application is served over HTTPS and uses security headers including CSP, HSTS, frame protection, content-type protection, and a permissions policy. Header behavior should be rechecked whenever the deployment configuration changes.</p></ContentSection>
-    <ContentSection title="Authentication and authorization"><p>Auth.js credentials flow, hashed passwords, verification/reset tokens, secure session handling, authenticated account operations, and entitlement checks are implemented in the application. Sensitive configuration remains server-side.</p></ContentSection>
-    <ContentSection title="Abuse and integrations"><p>Rate limiting is present for relevant routes. Payment webhooks verify provider signatures and use idempotency records. The database layer keeps account and entitlement operations on the server.</p></ContentSection>
-    <ContentSection title="Local file boundary"><p>Implemented local tools do not upload selected file bytes for processing. This is an architectural behavior, not a formal certification. Background removal remains deferred and does not claim a cloud fallback.</p></ContentSection>
-    <ContentSection title="Reporting"><p>A public security inbox is not configured yet. Until a real reporting channel exists, do not publish a placeholder address or imply a monitored response commitment.</p></ContentSection>
+  return <ContentPage eyebrow="SECURITY" title="Specific controls, stated without theatre." intro="ZANCTA uses practical application protections. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified.">
+    <ContentSection title="Local processing boundary"><p>Implemented local tools process selected file bytes in the browser and do not upload those bytes to ZANCTA for processing. This reduces the need to transmit routine documents and images, but it is not a formal certification or a guarantee about unrelated software on a device.</p></ContentSection>
+    <ContentSection title="Transport and browser protections"><p>The deployed application uses HTTPS and security headers including Content Security Policy, frame protection, content-type protection, referrer policy, permissions policy, and HSTS in production. CSP restricts script, connection, and worker origins to support local browser processing.</p></ContentSection>
+    <ContentSection title="Accounts and secrets"><p>Authentication uses credential handling, password hashing, session controls, verification and reset tokens, and authenticated account actions. Sensitive provider configuration is intended to remain server-side rather than in browser code.</p></ContentSection>
+    <ContentSection title="Payments and abuse controls"><p>Payment webhook handling verifies provider signatures and records idempotent events. Relevant server routes use rate limiting. These controls require live-provider and production-environment verification before they are represented as an operational payment service.</p></ContentSection>
+    <ContentSection title="Errors and data handling"><p>Tool failures are designed to return honest error states rather than fabricated output. Local file content is not logged by the local tool workflows. Account deletion is available through the authenticated account experience where supported.</p></ContentSection>
+    <ContentSection title="Reporting"><p>A monitored public security contact is not configured yet. Do not send private files, passwords, tokens, or payment information through an unconfigured channel. Publishing a monitored reporting method is a required launch step.</p></ContentSection>
   </ContentPage>;
 }

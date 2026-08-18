@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Contact", description: "Current contact and support path for ZANCTA." };
+export const metadata = { title: "Contact", description: "Current contact guidance for ZANCTA." };
 
 export default function ContactPage() {
-  return <ContentPage eyebrow="CONTACT" title="A truthful contact page." intro="ZANCTA does not currently have a public support inbox or staffed response channel configured. We will publish one here when it is real and monitored.">
-    <ContentSection title="For product questions"><p>Start with <Link href="/help" className="underline">Help</Link>, <Link href="/faq" className="underline">FAQ</Link>, and the relevant tool page. They describe the current limits and failure states without asking you to send a file to support.</p></ContentSection>
-    <ContentSection title="For security concerns"><p>Read the <Link href="/security" className="underline">Security</Link> page for the controls currently implemented. Do not send private files, passwords, tokens, or payment information through an unconfigured channel.</p></ContentSection>
-    <ContentSection title="Before launch"><p>A real support and security contact method, response ownership, and retention policy must be configured before public launch claims are made.</p></ContentSection>
+  return <ContentPage eyebrow="CONTACT" title="Clear guidance before a public inbox exists." intro="ZANCTA does not currently have a monitored public support or security contact channel. We will not publish a placeholder address or imply a response commitment that does not exist.">
+    <ContentSection title="Product guidance"><p>For current self-service help, start with the relevant tool page, then review <Link href="/help" className="underline">Help</Link>, <Link href="/faq" className="underline">FAQ</Link>, and <Link href="/docs" className="underline">Docs</Link>. They describe formats, limits, local processing, outputs, and known limitations without asking you to send a file.</p></ContentSection>
+    <ContentSection title="Security concerns"><p>Read <Link href="/security" className="underline">Security</Link> for the controls currently implemented. Until a real reporting channel is published, do not send files, passwords, account tokens, or payment information through an unconfigured contact method.</p></ContentSection>
+    <ContentSection title="Launch requirement"><p>Before a paid or broadly promoted public launch, ZANCTA needs a monitored support and security channel, clear ownership, a response process, and appropriate retention guidance. That work is intentionally not replaced with a fake contact address.</p></ContentSection>
   </ContentPage>;
 }

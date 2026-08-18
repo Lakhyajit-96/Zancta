@@ -1,13 +1,13 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
-import { AdSlot } from "@/components/marketing/ad-slot";
 
-export const metadata = { title: "About", description: "Why ZANCTA exists and what its local-first file tools are designed to do." };
+export const metadata = { title: "About", description: "Why ZANCTA builds local-first tools for practical document and image work." };
 
 export default function AboutPage() {
-  return <ContentPage eyebrow="ABOUT ZANCTA" title="File tools with a smaller trust boundary." intro="ZANCTA is a product for people who need practical PDF and image utilities without automatically sending the files to a remote service.">
-    <ContentSection title="Why it exists"><p>Many file utilities begin with an upload. ZANCTA starts with a different question: can this operation happen in the browser on the device that already has the file? For the supported tools, the answer is yes.</p><p>This is a product, not a claim of perfect privacy. Browser extensions, malware, device backups, and future features are outside the promise made by a local tool. We describe the boundary plainly so people can decide whether it fits their work.</p></ContentSection>
-    <ContentSection title="Product principles"><ul className="list-disc space-y-2 pl-5"><li>Local by default for the implemented PDF and image operations.</li><li>Useful limits and supported formats shown before a file is selected.</li><li>Honest failure states when a capability is not ready.</li><li>No invented customer numbers, reviews, certifications, or company history.</li></ul></ContentSection>
-    <ContentSection title="Current scope"><p>The current product includes eleven working local tool routes. Background removal is visible as a deferred capability and does not pretend to produce an output.</p></ContentSection>
-    <AdSlot id="about-content" className="mt-4" />
+  return <ContentPage eyebrow="ABOUT ZANCTA" title="Useful file tools, with a smaller trust boundary." intro="ZANCTA is a local-first workspace for people who need to work with documents and images without treating an upload as the default.">
+    <ContentSection title="Why it exists"><p>Many file utilities start by asking for a document. ZANCTA starts with a narrower question: can a supported task happen in the browser on the device that already holds the file? When it can, that is where the work should stay.</p><p>The result is a collection of focused utilities for routine PDF and image work: clear inputs, visible limits, local output, and no invented success state when a task cannot be completed.</p></ContentSection>
+    <ContentSection title="What you can use today"><p>The current workspace includes PDF merge, split, compression, page rendering, image-to-PDF, image compression, conversion, resizing, metadata cleaning, local English OCR, and text extraction from text-native PDFs. Background removal remains deferred rather than silently switching to a cloud service.</p></ContentSection>
+    <ContentSection title="A practical privacy philosophy"><p>For implemented local tools, selected file bytes are processed in the browser and are not uploaded to ZANCTA for processing. That is a specific product boundary, not a claim that a device, browser extension, backup service, or future opt-in feature is risk-free.</p></ContentSection>
+    <ContentSection title="Designed for clarity"><p>Good utility software should make its limits legible. ZANCTA shows supported formats, size limits, progress where an engine can report it, and honest error states. The visual system is deliberately restrained so the task, not the interface, remains in focus.</p></ContentSection>
+    <ContentSection title="Responsible scope"><p>ZANCTA does not manufacture customer stories, usage numbers, awards, or certifications. Product claims are limited to the workflows that are implemented and tested, and deferred work stays labelled as deferred.</p></ContentSection>
   </ContentPage>;
 }

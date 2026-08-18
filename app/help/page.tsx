@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
-import { AdSlot } from "@/components/marketing/ad-slot";
 
-export const metadata = { title: "Help", description: "Practical help for using ZANCTA file tools, accounts, limits, and failures." };
+export const metadata = { title: "Help", description: "Practical guidance for ZANCTA tools, files, local processing, downloads, accounts, and troubleshooting." };
 
 export default function HelpPage() {
-  return <ContentPage eyebrow="HELP CENTER" title="Get unstuck without guessing." intro="Every tool shows its own supported formats, limits, privacy boundary, and output state. These are the common questions across the product.">
-    <ContentSection title="How do I use a tool?"><p>Open a tool, read the supported formats and limit, then select or drop a file. Choose the tool action, wait for the completion state, and use the generated download link. You can return to the picker with Process another.</p></ContentSection>
-    <ContentSection title="What happens when processing fails?"><p>The tool should show a readable error and keep the file on your device. Try a supported format, a smaller file, or a simpler PDF. Password-protected PDFs and unsupported HEIC/SVG image files are not supported in this MVP.</p></ContentSection>
-    <ContentSection title="Browser and device support"><p>The interface is tested in Chromium, including mobile-sized viewports. Firefox and WebKit have not been validated in the current environment. Memory-heavy files can still fail on constrained devices.</p></ContentSection>
-    <ContentSection title="Accounts and Premium"><p>You can use local tools without an account. Sign up only when you need account settings or entitlement handling. Premium pricing is on <Link href="/pricing" className="underline">Pricing</Link>; cancellation and provider behavior depend on the configured payment flow.</p></ContentSection>
-    <ContentSection title="Still stuck?"><p>There is not yet a staffed public support inbox. Check the <Link href="/faq" className="underline">FAQ</Link>, <Link href="/docs" className="underline">Docs</Link>, and the individual tool page before retrying.</p></ContentSection>
-    <AdSlot id="help-content" />
+  return <ContentPage eyebrow="HELP" title="Practical guidance, without the runaround." intro="Start with the tool page in front of you. It is the source of truth for its accepted formats, limits, and local processing behavior.">
+    <ContentSection title="Getting started"><p>Choose the task first, then select a supported file. Read the visible limit before processing. A local tool should either complete with a real output or explain why the selected file cannot be processed.</p></ContentSection>
+    <ContentSection title="PDF and image files"><p>PDF tools accept PDFs; image tools accept the formats shown on their pages. Password-protected or malformed PDFs may fail. HEIC and SVG are not supported by the current image workflows. For very large files, close other tabs and try a smaller input if the browser reports a memory-related failure.</p></ContentSection>
+    <ContentSection title="OCR and PDF text"><p>Image OCR supports the bundled English language assets and processes the selected image locally. PDF Text Extractor reads existing embedded text from text-native PDFs; it does not OCR scanned or image-only PDFs.</p></ContentSection>
+    <ContentSection title="Downloads and results"><p>Wait for the completed state before downloading. Generated files are created in the browser. If a download does not begin, check the browser&apos;s download permissions and pop-up settings, then try again with the same supported input.</p></ContentSection>
+    <ContentSection title="Privacy"><p>For implemented local workflows, selected file bytes are not uploaded to ZANCTA for processing. The browser still loads the application and its assets normally. See <Link href="/privacy" className="underline">Privacy</Link> for the current data boundary.</p></ContentSection>
+    <ContentSection title="Accounts and Premium"><p>Local tools do not require an account. Accounts are for authentication and entitlement management. Payment checkout, paid subscription changes, and cancellation are only available when the configured payment provider is live and verified.</p></ContentSection>
+    <ContentSection title="Browser compatibility"><p>Chromium is the browser family covered by the current automated checks. Mobile layouts are tested at common viewport widths, but large files can remain demanding on lower-memory devices. Firefox and WebKit need separate verification before they are described as supported.</p></ContentSection>
+    <ContentSection title="Contact"><p>A monitored public support or security inbox is not configured yet. Use <Link href="/faq" className="underline">FAQ</Link>, <Link href="/docs" className="underline">Docs</Link>, and the relevant tool page for current guidance. Publishing a real contact channel is a launch requirement.</p></ContentSection>
   </ContentPage>;
 }
