@@ -29,7 +29,7 @@ export function ToolEcosystemSection() {
         <div className="grid gap-10 md:grid-cols-[7fr_5fr] md:items-end">
           <MaskLines
             as="h2"
-            className="display-title text-4xl md:text-6xl"
+            className="display-serif text-4xl md:text-6xl"
             lines={[<>A focused suite</>, <>for file work.</>]}
           />
           <Reveal delay={0.15}>

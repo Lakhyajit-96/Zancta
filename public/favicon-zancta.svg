@@ -11,5 +11,7 @@
     </linearGradient>
   </defs>
   <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="11" fill="url(#fav-tile)" stroke="#3A383C" stroke-width="1"/>
+  <path d="M21.5 8 H14.5 Q8 8 8 14.5 V21.5" fill="none" stroke="#C9C4C0" stroke-opacity="0.8" stroke-width="2" stroke-linecap="round"/>
+  <path d="M26.5 40 H33.5 Q40 40 40 33.5 V26.5" fill="none" stroke="#C9C4C0" stroke-opacity="0.8" stroke-width="2" stroke-linecap="round"/>
   <path d="M13 12 H35 V18 L21.5 30 H35 V36 H13 V30 L26.5 18 H13 Z" fill="url(#fav-rose)"/>
 </svg>

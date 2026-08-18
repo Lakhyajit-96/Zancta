@@ -38,7 +38,7 @@ export default function FAQPage() {
           <header className="grid gap-10 border-b border-border pb-12 lg:grid-cols-[7fr_5fr] lg:items-end">
             <div>
               <p className="eyebrow-path">/faq</p>
-              <MaskLines as="h1" className="display-title mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>Frequently asked questions</>]} />
+              <MaskLines as="h1" className="display-serif mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>Frequently asked questions</>]} />
             </div>
             <p className="max-w-xl text-base leading-8 text-muted-foreground lg:pb-1">Product-specific guidance on local processing, formats, limits, accounts, and the boundaries of the current service.</p>
           </header>

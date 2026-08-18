@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MaskLines, Reveal } from "@/components/marketing/motion";
+import { CornerTicks, MaskLines, Reveal } from "@/components/marketing/motion";
 
 export function PremiumPreviewSection() {
   return (
@@ -10,7 +10,7 @@ export function PremiumPreviewSection() {
           <p className="eyebrow">Pricing</p>
           <MaskLines
             as="h2"
-            className="display-title mt-5 text-4xl md:text-6xl"
+            className="display-serif mt-5 text-4xl md:text-6xl"
             lines={[<>Start free.</>, <>Upgrade when you&apos;re ready.</>]}
           />
           <Reveal delay={0.2}>
@@ -20,12 +20,13 @@ export function PremiumPreviewSection() {
             </p>
           </Reveal>
         </div>
-        <Reveal delay={0.25} className="card-surface relative overflow-hidden p-6 md:p-8">
+        <Reveal delay={0.25} className="aperture card-surface relative overflow-hidden p-6 md:p-8">
+          <CornerTicks />
           <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-accent/60" />
           <ul className="space-y-4 text-sm text-muted-foreground">
-            <li className="flex gap-3"><span aria-hidden className="text-accent">—</span> Free: all implemented local workflows, no account required.</li>
-            <li className="flex gap-3"><span aria-hidden className="text-accent">—</span> Premium monthly and annual tiers are published on the pricing page.</li>
-            <li className="flex gap-3"><span aria-hidden className="text-accent">—</span> Premium checkout is not available at the moment — we say so plainly.</li>
+            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">01</span> Free: all implemented local workflows, no account required.</li>
+            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">02</span> Premium monthly and annual tiers are published on the pricing page.</li>
+            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">03</span> Premium checkout is not available at the moment — we say so plainly.</li>
           </ul>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/pricing" className="premium-button premium-button-primary">

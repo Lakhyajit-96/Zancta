@@ -18,7 +18,7 @@ export default function PricingPage() {
             <p className="eyebrow-path">/pricing</p>
             <MaskLines
               as="h1"
-              className="display-title mt-5 max-w-3xl text-4xl md:text-6xl"
+              className="display-serif mt-5 max-w-3xl text-4xl md:text-6xl"
               lines={[<>Start free.</>, <>Upgrade when you&apos;re ready.</>]}
             />
             <Reveal delay={0.2}>

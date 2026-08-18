@@ -35,7 +35,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           </nav>
 
           <p className="eyebrow-path mt-10">/tools/{tool.category}</p>
-          <h1 className="display-title mt-4 max-w-4xl text-4xl md:text-6xl">{tool.h1}</h1>
+          <h1 className="display-serif mt-4 max-w-4xl text-4xl md:text-6xl">{tool.h1}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{tool.longDescription}</p>
           <div className="mt-8 flex flex-wrap gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tool.processingType === "bg" ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success"}`}>

@@ -27,7 +27,7 @@ export default function AboutPage() {
               <p className="eyebrow-path">/about</p>
               <MaskLines
                 as="h1"
-                className="display-title mt-5 text-4xl md:text-6xl"
+                className="display-serif mt-5 text-4xl md:text-6xl"
                 lines={[<>Built for privacy.</>, <>Built for everyone.</>]}
               />
               <Reveal delay={0.2}>
@@ -66,7 +66,7 @@ export default function AboutPage() {
           <div className="mt-20 border-t border-border pt-14">
             <MaskLines
               as="h2"
-              className="display-title max-w-2xl text-3xl md:text-5xl"
+              className="display-serif max-w-2xl text-3xl md:text-5xl"
               lines={[<>Why ZANCTA exists</>]}
             />
             <div className="content-sections mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">

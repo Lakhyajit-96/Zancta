@@ -26,7 +26,7 @@ export default function HowItWorksPage() {
             <p className="eyebrow-path">/how-it-works</p>
             <MaskLines
               as="h1"
-              className="display-title mt-5 max-w-4xl text-4xl md:text-6xl"
+              className="display-serif mt-5 max-w-4xl text-4xl md:text-6xl"
               lines={[<>Simple by design.</>, <>Private by default.</>]}
             />
             <Reveal delay={0.2}>

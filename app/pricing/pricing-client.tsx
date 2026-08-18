@@ -35,13 +35,13 @@ export function PricingClient() {
               <h3 className="text-sm font-semibold">Free</h3>
               <span className="text-xs text-muted-foreground">No account needed</span>
             </div>
-            <p className="mt-6 text-5xl font-semibold tracking-[-0.03em]">$0</p>
+            <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">$0</p>
             <p className="mt-1 text-xs text-muted-foreground">forever</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> All implemented local tools</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> No sign-up required</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Works offline once loaded</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> No watermark, no upload</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> All implemented local tools</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> No sign-up required</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Works offline once loaded</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> No watermark, no upload</li>
             </ul>
             <Link href="/tools" className="premium-button premium-button-primary mt-8">
               Get started <span aria-hidden>→</span>
@@ -57,12 +57,12 @@ export function PricingClient() {
               <h3 className="text-sm font-semibold">Premium Monthly</h3>
               <span className="text-xs text-warning">Not available yet</span>
             </div>
-            <p className="mt-6 text-5xl font-semibold tracking-[-0.03em]">₹199</p>
+            <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹199</p>
             <p className="mt-1 text-xs text-muted-foreground">/month</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Everything in Free</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Higher batch limits (when live)</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Priority feature updates</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Higher batch limits (when live)</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Priority feature updates</li>
             </ul>
             <button type="button" disabled className="premium-button premium-button-secondary mt-8">
               Not available
@@ -79,12 +79,12 @@ export function PricingClient() {
               <h3 className="text-sm font-semibold">Premium Annual</h3>
               <span className="rounded-full border border-accent/50 bg-accent/10 px-2.5 py-0.5 text-[0.65rem] font-medium text-accent">Best value</span>
             </div>
-            <p className="mt-6 text-5xl font-semibold tracking-[-0.03em]">₹999</p>
+            <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹999</p>
             <p className="mt-1 text-xs text-muted-foreground">/year</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Everything in Free</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Seven months free vs monthly</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-accent">✓</span> Priority feature updates</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Seven months free vs monthly</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Priority feature updates</li>
             </ul>
             <button type="button" disabled className="premium-button premium-button-secondary mt-8">
               Not available

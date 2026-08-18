@@ -18,7 +18,7 @@ export default async function AccountPage() {
   return (
     <main className="mx-auto max-w-3xl px-5 py-14 md:px-8 md:py-20">
       <p className="eyebrow-path">/account</p>
-      <h1 className="display-title mt-4 text-3xl md:text-4xl">Account</h1>
+      <h1 className="display-serif mt-4 text-3xl md:text-4xl">Account</h1>
       <p className="mt-3 text-sm text-muted-foreground">Your profile and plan. Tool files are never part of it.</p>
       <div className="card-surface mt-8 space-y-7 p-6 md:p-8">
         <div>

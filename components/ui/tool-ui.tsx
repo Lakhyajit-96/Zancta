@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { CornerTicks } from "@/components/marketing/motion";
 
 export function UploadZone({
   onFiles,
@@ -42,10 +43,11 @@ export function UploadZone({
         setDragOver(false);
         handleFiles(e.dataTransfer.files);
       }}
-      className={`relative overflow-hidden rounded-lg border border-dashed p-10 text-center transition-colors focus-visible:ring-2 ring-accent cursor-pointer md:p-14 ${
-        dragOver ? "border-accent bg-accent/10" : "border-border-strong bg-surface hover:border-accent/50 hover:bg-elevated"
+      className={`aperture relative overflow-hidden rounded-lg border border-dashed p-10 text-center transition-colors focus-visible:ring-2 ring-accent cursor-pointer md:p-14 ${
+        dragOver ? "aperture-open border-accent bg-accent/10" : "border-border-strong bg-surface hover:border-accent/50 hover:bg-elevated"
       }`}
     >
+      <CornerTicks />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 perspective-floor opacity-40" />
       <input
         ref={inputRef}
@@ -59,7 +61,11 @@ export function UploadZone({
         tabIndex={-1}
       />
       <div className="relative mx-auto max-w-md space-y-3">
-        <div className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-lg border border-accent/40 bg-accent/10 text-xl text-accent" aria-hidden>＋</div>
+        <div className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-lg border border-border-strong bg-elevated text-platinum" aria-hidden>
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </div>
         <p className="text-base font-semibold tracking-tight">Drop files here or click to browse</p>
         <p className="text-xs text-muted-foreground">
           Max {maxFiles} files, 50 MB each. HEIC and SVG not supported in MVP.

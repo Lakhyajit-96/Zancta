@@ -11,7 +11,7 @@ export default function ToolsPage() {
       <section className="border-b border-border">
         <div className="mx-auto max-w-[80rem] px-5 py-20 md:px-8 md:py-28">
           <p className="eyebrow-path">/tools</p>
-          <MaskLines as="h1" className="display-title mt-5 max-w-2xl text-5xl md:text-7xl" lines={[<>Tool Suite</>]} />
+          <MaskLines as="h1" className="display-serif mt-5 max-w-2xl text-5xl md:text-7xl" lines={[<>Tool Suite</>]} />
           <Reveal delay={0.12}>
             <p className="mt-4 max-w-2xl text-2xl font-light tracking-[-0.03em] text-foreground md:text-3xl">Small tools. Serious privacy.</p>
             <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">Eleven working local PDF and image tools, plus one clearly marked deferred capability. Choose a task and keep the file where it belongs.</p>

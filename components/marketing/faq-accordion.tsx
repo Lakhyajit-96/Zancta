@@ -26,7 +26,7 @@ export function FAQAccordion({ items }: { items: readonly FAQItem[] }) {
                 aria-controls={panelId}
                 onClick={() => setOpenIndex(isOpen ? null : index)}
               >
-                <span className="mt-1 font-mono text-xs text-accent">{String(index + 1).padStart(2, "0")}</span>
+                <span className="mt-1 font-mono text-xs text-platinum">{String(index + 1).padStart(2, "0")}</span>
                 <span className="flex-1 text-base font-medium tracking-[-0.015em]">{question}</span>
                 <span aria-hidden className="mt-0.5 text-lg leading-none text-muted-foreground transition-transform duration-300 group-aria-expanded:rotate-45">+</span>
               </button>

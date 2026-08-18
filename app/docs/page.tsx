@@ -51,7 +51,7 @@ export default function DocsPage() {
           <header className="grid gap-10 border-b border-border pb-12 lg:grid-cols-[7fr_5fr] lg:items-end">
             <div>
               <p className="eyebrow-path">/docs</p>
-              <MaskLines as="h1" className="display-title mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>ZANCTA documentation</>]} />
+              <MaskLines as="h1" className="display-serif mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>ZANCTA documentation</>]} />
             </div>
             <p className="max-w-xl text-base leading-8 text-muted-foreground lg:pb-1">Everything you need to know: what a tool accepts, what it produces, and how supported local processing behaves — written for the product you can use today.</p>
           </header>

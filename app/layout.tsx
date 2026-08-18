@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@fontsource-variable/instrument-sans";
+import "@fontsource-variable/fraunces";
 import "./globals.css";
 import { PUBLIC_SITE_URL } from "@/lib/seo";
 

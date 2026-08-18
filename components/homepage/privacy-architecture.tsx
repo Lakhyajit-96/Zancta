@@ -1,4 +1,4 @@
-import { Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
+import { CornerTicks, Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
 const PROMISE_STEPS = [
   {
@@ -36,7 +36,9 @@ const PROMISE_STEPS = [
     detail: "The file never leaves your device.",
     icon: (
       <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M12 3 5 6v6c0 4.4 3 7.4 7 9 4-1.6 7-4.6 7-9V6z" />
+        <path d="M9 4.5H6A1.5 1.5 0 0 0 4.5 6v3" />
+        <path d="M15 19.5h3a1.5 1.5 0 0 0 1.5-1.5v-3" />
+        <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
       </svg>
     ),
   },
@@ -52,13 +54,14 @@ const TRUST_ROW = [
 export function PrivacyArchitectureSection() {
   return (
     <section className="mx-auto max-w-[80rem] px-5 py-16 md:px-8 md:py-24">
-      <Reveal className="card-surface p-6 md:p-10">
+      <Reveal className="aperture card-surface relative p-6 md:p-10">
+        <CornerTicks />
         <p className="eyebrow">The ZANCTA promise</p>
         <StaggerGroup className="mt-8 grid gap-8 md:grid-cols-4">
           {PROMISE_STEPS.map((step, index) => (
             <StaggerItem key={step.title} className="relative">
               <div className="flex items-start gap-4">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-accent/40 bg-accent/10 text-accent">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-border-strong bg-elevated text-platinum">
                   {step.icon}
                 </span>
                 <div>

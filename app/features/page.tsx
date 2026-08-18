@@ -36,7 +36,7 @@ export default function FeaturesPage() {
             <p className="eyebrow-path">/features</p>
             <MaskLines
               as="h1"
-              className="display-title mt-5 max-w-4xl text-4xl md:text-6xl"
+              className="display-serif mt-5 max-w-4xl text-4xl md:text-6xl"
               lines={[<>Everything you need.</>, <>Nothing you don&apos;t.</>]}
             />
             <Reveal delay={0.2}>

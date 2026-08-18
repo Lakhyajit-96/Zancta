@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Reveal } from "./motion";
+import { CornerTicks, Reveal } from "./motion";
 
 export function AuthShell({
   eyebrow,
@@ -16,9 +16,9 @@ export function AuthShell({
 }) {
   return (
     <main className="relative isolate flex min-h-screen flex-col overflow-hidden px-5 py-12 md:px-8 md:py-16">
-      {/* Quiet cinematic backdrop: one rose glow, fading grid, perspective floor. */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-12%,rgba(232,160,180,0.1),transparent_34rem)]" />
-      <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 -z-10 h-[26rem] opacity-40" />
+      {/* Quiet backdrop: one neutral atmosphere, a fading grid, platinum floor. */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-12%,rgba(201,196,192,0.06),transparent_34rem)]" />
+      <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 -z-10 h-[26rem] opacity-25" />
       <div aria-hidden className="perspective-floor pointer-events-none absolute inset-x-0 top-44 -z-10 h-44 opacity-25" />
 
       <div className="mx-auto w-full max-w-[26.5rem]">
@@ -31,11 +31,12 @@ export function AuthShell({
 
         <Reveal delay={0.08} className="mt-10 text-center">
           <p className="eyebrow">{eyebrow}</p>
-          <h1 className="display-title mt-4 text-3xl md:text-4xl">{title}</h1>
+          <h1 className="display-serif mt-4 text-3xl md:text-4xl">{title}</h1>
           <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
         </Reveal>
 
-        <Reveal delay={0.16} className="card-surface mt-8 p-6 shadow-[0_28px_70px_rgba(0,0,0,0.42)] md:p-8">
+        <Reveal delay={0.16} className="aperture card-surface relative mt-8 p-6 shadow-[0_28px_70px_rgba(0,0,0,0.42)] md:p-8">
+          <CornerTicks />
           {children}
         </Reveal>
 
