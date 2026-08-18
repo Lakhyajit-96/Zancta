@@ -13,7 +13,8 @@ export type ToolSlug =
   | "image-resize"
   | "background-remover"
   | "exif-cleaner"
-  | "ocr";
+  | "ocr"
+  | "pdf-text-extractor";
 
 export interface ToolMeta {
   slug: ToolSlug;
@@ -257,6 +258,31 @@ export const TOOLS: ToolMeta[] = [
     available: true,
     related: ["background-remover", "image-compress", "image-convert"],
     faq: [{ q: "What is removed?", a: "Common image metadata is removed by re-encoding. EXIF, GPS, and camera data do not survive canvas re-encode." }],
+  },
+  {
+    slug: "pdf-text-extractor",
+    name: "PDF Text Extractor",
+    shortName: "Extract Text",
+    description: "Extract embedded PDF text locally and search it.",
+    longDescription: "Read existing text from text-based PDFs in your browser. The PDF and extracted text stay on your device.",
+    category: "pdf",
+    icon: "text",
+    supportedFormats: ["pdf"],
+    acceptMime: ["application/pdf"],
+    maxFileSize: 50 * 1024 * 1024,
+    maxFiles: 1,
+    privacy: "local",
+    processingType: "pdf",
+    seoTitle: "PDF Text Extractor — Extract Text Locally",
+    seoDescription: "Extract embedded text from text-based PDFs locally in your browser. No PDF upload or OCR.",
+    h1: "Extract text from PDFs — locally",
+    available: true,
+    related: ["pdf-split", "pdf-merge", "pdf-to-images"],
+    faq: [
+      { q: "Do PDFs leave my device?", a: "No. The PDF and extracted text are processed locally in your browser." },
+      { q: "Can it read scanned PDFs?", a: "No. This tool extracts existing embedded PDF text and does not OCR scanned or image-only PDFs." },
+      { q: "Can I search the extracted text?", a: "Yes. Search runs against the extracted text in this browser." },
+    ],
   },
   {
     slug: "ocr",

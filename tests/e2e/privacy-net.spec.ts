@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import path from "node:path";
 
 const fixture = path.resolve("tests/fixtures/local-ocr-test-123.png");
+const pdfFixture = path.resolve("tests/fixtures/pdf-text-single.pdf");
 
 test("privacy — local OCR makes no document upload or third-party request", async ({ page }) => {
   test.setTimeout(90_000);
@@ -28,4 +29,24 @@ test("privacy — local OCR makes no document upload or third-party request", as
   expect(requests.some((request) => request.postData?.includes(documentText))).toBe(false);
   expect(processingRequests.some((request) => request.url.includes("/ocr/worker.min.js"))).toBe(true);
   expect(processingRequests.some((request) => request.url.includes("/ocr/eng.traineddata.gz"))).toBe(true);
+});
+
+test("privacy — local PDF extraction makes no document upload or third-party request", async ({ page }) => {
+  const requests: { url: string; method: string; postData: string | null }[] = [];
+  page.on("request", (request) => {
+    requests.push({ url: request.url(), method: request.method(), postData: request.postData() });
+  });
+
+  await page.goto("/tools/pdf-text-extractor");
+  const appOrigin = new URL(page.url()).origin;
+  await page.locator('input[type="file"]').setInputFiles(pdfFixture);
+  await page.getByRole("button", { name: "Extract text locally" }).click();
+  await expect(page.getByText("Local PDF Text Test 123")).toBeVisible();
+
+  const sameOrigin = requests.filter((request) => request.url.startsWith(appOrigin));
+  const externalRequests = requests.filter((request) => !request.url.startsWith(appOrigin) && !request.url.startsWith("blob:"));
+  const unsafeMethods = sameOrigin.filter((request) => !["GET", "HEAD"].includes(request.method));
+  expect(externalRequests).toEqual([]);
+  expect(unsafeMethods).toEqual([]);
+  expect(requests.some((request) => request.postData?.includes("Local PDF Text Test 123"))).toBe(false);
 });

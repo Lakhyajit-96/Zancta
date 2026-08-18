@@ -5,6 +5,7 @@ import { validateFiles } from "@/lib/file-safety";
 import { UploadZone, Progress, PrivacyIndicator, FileRow } from "@/components/ui/tool-ui";
 import { downloadBlob } from "@/lib/download";
 import { OcrTool } from "@/components/ui/ocr-tool";
+import { PdfTextExtractor } from "@/components/ui/pdf-text-extractor";
 import type { ToolMeta } from "@/lib/tools";
 type Status = "idle" | "validating" | "loading" | "processing" | "completed" | "failed" | "aborted";
 
@@ -409,5 +410,9 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 }
 
 export function ToolShell({ tool }: { tool: ToolMeta }) {
-  return tool.slug === "ocr" ? <OcrTool /> : <GenericToolShell tool={tool} />;
+  return tool.slug === "ocr"
+    ? <OcrTool />
+    : tool.slug === "pdf-text-extractor"
+      ? <PdfTextExtractor />
+      : <GenericToolShell tool={tool} />;
 }
