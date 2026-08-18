@@ -4,6 +4,7 @@ import { PricingClient } from "./pricing-client";
 export const metadata = {
   title: "Pricing",
   description: "Current access and Premium checkout availability for ZANCTA's local-first tools.",
+  alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {

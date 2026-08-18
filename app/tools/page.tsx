@@ -1,7 +1,7 @@
 import { LayoutChrome } from "@/components/layout/chrome";
 import { ToolGrid } from "@/components/marketing/tool-grid";
 
-export const metadata = { title: "Tools" };
+export const metadata = { title: "Tools", alternates: { canonical: "/tools" } };
 
 export default function ToolsPage() {
   return (

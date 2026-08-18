@@ -1,6 +1,6 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Terms", description: "Plain-language terms for ZANCTA's browser-based file tools and account services." };
+export const metadata = { title: "Terms", description: "Plain-language terms for ZANCTA's browser-based file tools and account services.", alternates: { canonical: "/terms" } };
 
 export default function TermsPage() {
   return <ContentPage eyebrow="TERMS" title="Straightforward terms for a practical tool." intro="These are product terms for the current service, not final legal terms. A responsible legal owner must complete entity, jurisdiction, liability, refund, and dispute provisions before commercial launch.">

@@ -5,6 +5,7 @@ import { Reveal } from "@/components/marketing/reveal";
 export const metadata = {
   title: "FAQ",
   description: "Practical answers about ZANCTA tools, local processing, accounts, limits, and billing availability.",
+  alternates: { canonical: "/faq" },
 };
 
 const faqs = [

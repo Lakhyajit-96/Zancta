@@ -4,6 +4,7 @@ import { Reveal } from "@/components/marketing/reveal";
 export const metadata = {
   title: "How it works",
   description: "How ZANCTA validates, processes, and returns supported files in the browser.",
+  alternates: { canonical: "/how-it-works" },
 };
 
 const steps = [

@@ -5,6 +5,7 @@ import { Reveal } from "@/components/marketing/reveal";
 export const metadata = {
   title: "Features",
   description: "Explore ZANCTA's local-first PDF, image, OCR, and text-extraction tools.",
+  alternates: { canonical: "/features" },
 };
 
 const workflows = [

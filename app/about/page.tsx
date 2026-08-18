@@ -1,6 +1,6 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "About", description: "Why ZANCTA builds local-first tools for practical document and image work." };
+export const metadata = { title: "About", description: "Why ZANCTA builds local-first tools for practical document and image work.", alternates: { canonical: "/about" } };
 
 export default function AboutPage() {
   return <ContentPage eyebrow="ABOUT ZANCTA" title="Useful file tools, with a smaller trust boundary." intro="ZANCTA is a local-first workspace for people who need to work with documents and images without treating an upload as the default.">

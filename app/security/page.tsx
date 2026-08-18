@@ -1,6 +1,6 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Security", description: "The security controls implemented in the current ZANCTA application." };
+export const metadata = { title: "Security", description: "The security controls implemented in the current ZANCTA application.", alternates: { canonical: "/security" } };
 
 export default function SecurityPage() {
   return <ContentPage eyebrow="SECURITY" title="Specific controls, stated without theatre." intro="ZANCTA uses practical application protections. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified.">

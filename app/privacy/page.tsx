@@ -1,6 +1,6 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Privacy", description: "How ZANCTA handles local files, accounts, cookies, payments, email, and future advertising." };
+export const metadata = { title: "Privacy", description: "How ZANCTA handles local files, accounts, cookies, payments, email, and future advertising.", alternates: { canonical: "/privacy" } };
 
 export default function PrivacyPage() {
   return <ContentPage eyebrow="PRIVACY" title="A clear boundary around your files." intro="This page describes current product behavior. It is not a final legal privacy policy and requires review by the responsible legal owner before a commercial launch.">

@@ -46,6 +46,7 @@ export const metadata: Metadata = {
     title: "ZANCTA — Privacy-first file tools",
     description: "Local processing. No upload. No watermark.",
   },
+  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
 };
 

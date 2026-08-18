@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Contact", description: "Current contact guidance for ZANCTA." };
+export const metadata = { title: "Contact", description: "Current contact guidance for ZANCTA.", alternates: { canonical: "/contact" } };
 
 export default function ContactPage() {
   return <ContentPage eyebrow="CONTACT" title="Clear guidance before a public inbox exists." intro="ZANCTA does not currently have a monitored public support or security contact channel. We will not publish a placeholder address or imply a response commitment that does not exist.">
