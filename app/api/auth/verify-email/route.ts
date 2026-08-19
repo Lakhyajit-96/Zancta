@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken } from "@/lib/token";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const rl = rateLimit(`verify:${ip}`, 10, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`verify:${ip}`, 10, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
 
   const { token } = await req.json().catch(() => ({}));

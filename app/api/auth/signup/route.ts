@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { signupSchema } from "@/lib/validators";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const rl = rateLimit(`signup:${ip}`, 5, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`signup:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
 
   const body = await req.json().catch(() => null);
@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
     stage = "audit";
     await auditEvent({ userId: user.id, action: "signup", targetId: user.id, ip, userAgent: req.headers.get("user-agent") });
 
-    const isDev = process.env.NODE_ENV !== "production" || process.env.VERCEL_ENV !== "production";
+    // Dev token exposure only outside any Vercel environment (local E2E without Resend).
+    const isDev = process.env.NODE_ENV !== "production" || !process.env.VERCEL_ENV;
     const allowDevToken = (isDev || req.headers.get("host")?.includes("localhost")) && !process.env.RESEND_API_KEY;
     return NextResponse.json({ ok: true, message: "Account created. Check your email to verify.", ...(allowDevToken ? { devToken: plainToken } : {}) });
   } catch (err) {

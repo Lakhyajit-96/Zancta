@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getPaymentProvider } from "@/lib/payments";
 import type { PlanId } from "@/lib/payments/types";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 
 // POST /api/payments/checkout  { planId, currency? }
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Rate limit checkout creation 10/15m per user
-  const rl = rateLimit(`checkout:${session.user.id}`, 10, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`checkout:${session.user.id}`, 10, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many checkout attempts. Try again later." }, { status: 429 });
 
   const body = await req.json().catch(() => null) as { planId?: string; currency?: string } | null;

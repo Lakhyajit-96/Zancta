@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { resetSchema } from "@/lib/validators";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken } from "@/lib/token";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const rl = rateLimit(`reset:${ip}`, 5, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`reset:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
 
   const body = await req.json().catch(() => null);

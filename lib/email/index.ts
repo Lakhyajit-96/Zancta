@@ -10,7 +10,7 @@ class ResendAdapter implements EmailAdapter {
   private from: string;
   constructor() {
     const key = process.env.RESEND_API_KEY;
-    const from = process.env.EMAIL_FROM || "noreply@localfile.app";
+    const from = process.env.EMAIL_FROM || "noreply@zancta.app";
     if (!key) throw new Error("RESEND_API_KEY missing");
     this.resend = new Resend(key);
     this.from = from;
@@ -28,7 +28,7 @@ class ResendAdapter implements EmailAdapter {
     await this.sendEmail({
       from: this.from,
       to,
-      subject: "Verify your email — LocalFile",
+      subject: "Verify your email — ZANCTA",
       html: `<p>Verify your email by clicking <a href="${url}">${url}</a>. This link expires in 24 hours and is one-time use.</p><p>If you didn't request this, ignore.</p>`,
     });
   }
@@ -36,7 +36,7 @@ class ResendAdapter implements EmailAdapter {
     await this.sendEmail({
       from: this.from,
       to,
-      subject: "Reset your password — LocalFile",
+      subject: "Reset your password — ZANCTA",
       html: `<p>Reset your password by clicking <a href="${url}">${url}</a>. This link expires in 60 minutes and is one-time use.</p><p>If you didn't request this, ignore — no password was changed.</p>`,
     });
   }
