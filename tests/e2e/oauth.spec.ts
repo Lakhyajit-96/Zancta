@@ -12,6 +12,31 @@ test.describe("OAuth — real provider wiring", () => {
     await expect(page.getByRole("button", { name: /Continue with GitHub/i })).toBeVisible();
   });
 
+  test("provider buttons carry the official brand marks (visible, decorative)", async ({ page }) => {
+    await page.goto("/signin");
+    const googleButton = page.getByRole("button", { name: /Continue with Google/i });
+    const githubButton = page.getByRole("button", { name: /Continue with GitHub/i });
+
+    // Google: the official four-color G — all four brand fills present.
+    const googleMark = googleButton.locator("svg[data-testid='google-mark']");
+    await expect(googleMark).toBeVisible();
+    for (const fill of ["#EA4335", "#4285F4", "#FBBC05", "#34A853"]) {
+      await expect(googleMark.locator(`path[fill='${fill}']`)).toHaveCount(1);
+    }
+    // Decorative: the mark is aria-hidden, the label is the text.
+    await expect(googleMark).toHaveAttribute("aria-hidden", "true");
+    await expect(googleButton.locator("svg[data-testid='google-mark'] path").first()).not.toHaveAttribute("aria-label", /.+/);
+
+    // GitHub: the official monochrome Octocat mark, rendered with nonzero size.
+    const githubMark = githubButton.locator("svg[data-testid='github-mark']");
+    await expect(githubMark).toBeVisible();
+    await expect(githubMark).toHaveAttribute("aria-hidden", "true");
+    const box = await githubMark.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThan(10);
+    expect(box!.height).toBeGreaterThan(10);
+  });
+
   test("signup renders provider buttons when configured", async ({ page }) => {
     await page.goto("/signup");
     await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
