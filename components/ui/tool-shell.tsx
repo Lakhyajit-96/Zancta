@@ -28,6 +28,14 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
   const workerRef = React.useRef<Worker | null>(null);
   const idRef = React.useRef<string>("");
   const cancelledRef = React.useRef(false);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearJobTimeout = React.useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
 
   const handleFiles = (incoming: File[]) => {
     const result = validateFiles(incoming, {
@@ -55,13 +63,16 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
   React.useEffect(() => {
     return () => {
       cleanup();
+      clearJobTimeout();
       workerRef.current?.terminate();
     };
-  }, [cleanup]);
+  }, [cleanup, clearJobTimeout]);
 
-  const handleProcessingTimeout = (worker: Worker | null, setProgress: (p: number) => void, setStatus: (s: Status) => void) => {
-    return setTimeout(() => {
-      worker?.terminate();
+  const startJobTimeout = () => {
+    clearJobTimeout();
+    timeoutRef.current = setTimeout(() => {
+      workerRef.current?.terminate();
+      workerRef.current = null;
       setErrors(["Processing timed out (30s) — try fewer or smaller files."]);
       setStatus("failed");
     }, 30_000);
@@ -116,7 +127,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       return;
     }
 
-    const timeout = handleProcessingTimeout(workerRef.current, setProgress, setStatus);
+    startJobTimeout();
 
     // Create worker - try with fallback to main thread if worker fails
     try {
@@ -162,14 +173,15 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           // Cancel has a deterministic chance to invalidate the work.
           if (files.length > 1) await new Promise((resolve) => setTimeout(resolve, 100));
           if (cancelledRef.current || idRef.current !== id) {
-            clearTimeout(timeout);
+            clearJobTimeout();
             return;
           }
           const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
           setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed");
-          clearTimeout(timeout);
+          clearJobTimeout();
         } catch (err) {
-          setErrors([(err as Error).message]); setStatus("failed"); clearTimeout(timeout); return;
+          if (cancelledRef.current || idRef.current !== id) { clearJobTimeout(); return; }
+          setErrors([(err as Error).message]); setStatus("failed"); clearJobTimeout(); return;
         }
         return;
       }
@@ -188,7 +200,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         if (typeof msg.progress === "number") setProgress(msg.progress);
         if (msg.detail) setDetail(msg.detail);
       } else if (msg.status === "completed") {
-        clearTimeout(timeout);
+        clearJobTimeout();
         setProgress(100);
         setStatus("completed");
         if (msg.blobs) {
@@ -196,7 +208,6 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           setResults(withUrls);
         }
         if (msg.meta) setMeta(msg.meta);
-        clearTimeout(timeout);
         worker.terminate();
         workerRef.current = null;
         // Analytics (privacy-safe, coarse bucket)
@@ -206,7 +217,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag?.("event", "processing_completed", { tool: tool.slug, bucket });
         } catch {}
       } else if (msg.status === "failed" || msg.status === "aborted") {
-        clearTimeout(timeout);
+        clearJobTimeout();
         setStatus(msg.status as Status);
         setErrors([msg.message || "Processing failed", msg.hint || ""].filter(Boolean));
         worker.terminate();
@@ -214,7 +225,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       }
     };
     worker.onerror = () => {
-      clearTimeout(timeout);
+      clearJobTimeout();
       setErrors(["Worker crashed — try fewer pages or a different file."]);
       setStatus("failed");
       worker.terminate();
@@ -240,6 +251,9 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
   const cancel = () => {
     cancelledRef.current = true;
+    // Stop the fail-safe timeout FIRST so it can never overwrite the
+    // aborted state with a fake "timed out" failure later.
+    clearJobTimeout();
     const activeId = idRef.current;
     if (workerRef.current && activeId) {
       workerRef.current.postMessage({ id: activeId, op: "CANCEL" });
@@ -247,11 +261,17 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       workerRef.current = null;
     }
     idRef.current = "";
+    // A cancellation is not an error: clear stale results/errors so the
+    // Process button is immediately available again for the same files.
+    setResults([]);
+    setMeta(null);
+    setErrors([]);
+    setProgress(0);
     setStatus("aborted");
-    setErrors(["Cancelled."]);
   };
 
   const again = () => {
+    clearJobTimeout();
     cleanup();
     setFiles([]);
     setResults([]);
@@ -369,6 +389,12 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           <Progress value={progress} label={detail || (status === "validating" ? "Validating…" : status === "loading" ? "Loading…" : "Processing locally — not uploaded")} />
           <button onClick={cancel} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
         </div>
+      )}
+
+      {status === "aborted" && (
+        <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
+          Cancelled — nothing was saved. You can run the same files again right away.
+        </p>
       )}
 
       {status === "completed" && (

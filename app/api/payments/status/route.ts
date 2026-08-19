@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { refreshSubscriptionFromProvider } from "@/lib/payments/subscription-sync";
 
 // GET /api/payments/status — authoritative entitlement + subscription
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+  // Throttled provider reconciliation (closes the no-webhook cancel gap).
+  // Best-effort: on any failure the local DB stays authoritative.
+  try {
+    await refreshSubscriptionFromProvider(session.user.id);
+  } catch (e) {
+    console.warn("[payments/status] provider refresh skipped", e instanceof Error ? e.message : String(e));
+  }
 
   const [ent, sub] = await Promise.all([
     prisma.entitlement.findUnique({ where: { userId: session.user.id } }),

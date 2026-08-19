@@ -31,6 +31,17 @@ function isPdf(bytes: Uint8Array): boolean {
   return MAGIC_PDF.every((b, i) => bytes[i] === b);
 }
 
+// Errors we deliberately throw are already user-safe; anything else is a
+// parser/library internal and must be converted before reaching the UI.
+const SAFE_PATTERNS = [/too many pages/i, /file too large/i, /password/i, /couldn't be read/i, /not a pdf/i, /no files/i, /no images/i, /webp images must/i, /range/i];
+
+function safePdfError(e: unknown, filename: string, what: string): Error {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (SAFE_PATTERNS.some((p) => p.test(msg))) return e instanceof Error ? e : new Error(msg);
+  console.warn(`[pdf-engine] unexpected error while ${what} "${filename}": ${msg}`);
+  return new Error(`That PDF couldn't be read. It may be corrupted, malformed, or unsupported (${filename}).`);
+}
+
 async function loadPdf(bytes: Uint8Array, filename: string): Promise<PDFDocument> {
   if (!isPdf(bytes)) throw new Error(`Not a PDF: ${filename}`);
   try {
@@ -40,55 +51,106 @@ async function loadPdf(bytes: Uint8Array, filename: string): Promise<PDFDocument
     if (msg.toLowerCase().includes("encrypted") || msg.toLowerCase().includes("password")) {
       throw new Error("Password-protected PDFs aren't currently supported — please unlock it first.");
     }
-    throw new Error(`Corrupted or unsupported PDF (${filename}): ${msg}`);
+    // Never surface raw parser internals to the user — keep the detail
+    // on the console for debugging and show one safe message instead.
+    console.warn(`[pdf-engine] Failed to parse "${filename}": ${msg}`);
+    throw new Error(`That PDF couldn't be read. It may be corrupted, malformed, or unsupported (${filename}).`);
   }
 }
 
 export async function mergePdfs(files: File[], onProgress?: (p: number, detail: string) => void): Promise<Blob> {
   if (files.length === 0) throw new Error("No files to merge");
-  if (files.length === 1) {
+  const MAX_TOTAL_PAGES = 200;
+  const MAX_FILE_BYTES = 50 * 1024 * 1024;
+
+  // Uniform path for 1..n files: load every input, enforce the per-file
+  // size cap and the AGGREGATE page cap (sum of all input pages) before
+  // any output is produced. This closes the single-large-file bypass.
+  const docs: PDFDocument[] = [];
+  let totalPages = 0;
+  for (let i = 0; i < files.length; i++) {
+    onProgress?.(Math.round((i / files.length) * 45), `Checking ${i + 1}/${files.length}`);
+    const bytes = await fileToBytes(files[i]);
+    if (bytes.length > MAX_FILE_BYTES) throw new Error(`File too large: ${files[i].name}`);
+    let doc: PDFDocument;
+    let pages: number;
+    try {
+      doc = await loadPdf(bytes, files[i].name);
+      pages = doc.getPageCount();
+    } catch (e) {
+      throw safePdfError(e, files[i].name, "reading");
+    }
+    if (totalPages + pages > MAX_TOTAL_PAGES) {
+      throw new Error(
+        `Too many pages: ${totalPages + pages} total across ${files.length} file${files.length === 1 ? "" : "s"} — free tier allows ${MAX_TOTAL_PAGES} total pages.`
+      );
+    }
+    totalPages += pages;
+    docs.push(doc);
+  }
+
+  if (docs.length === 1) {
+    onProgress?.(90, "Finalizing");
     const b = await fileToBytes(files[0]);
-    await loadPdf(b, files[0].name);
     return new Blob([b as unknown as BlobPart], { type: "application/pdf" });
   }
-  const out = await PDFDocument.create();
-  for (let i = 0; i < files.length; i++) {
-    onProgress?.(Math.round((i / files.length) * 90), `Merging ${i + 1}/${files.length}`);
-    const bytes = await fileToBytes(files[i]);
-    if (bytes.length > 50 * 1024 * 1024) throw new Error(`File too large: ${files[i].name}`);
-    const doc = await loadPdf(bytes, files[i].name);
-    if (doc.getPageCount() > 200) throw new Error(`Too many pages in ${files[i].name} — max 200`);
-    const pages = await out.copyPages(doc, doc.getPageIndices());
-    pages.forEach((p) => out.addPage(p));
+
+  try {
+    const out = await PDFDocument.create();
+    for (let i = 0; i < docs.length; i++) {
+      onProgress?.(Math.round(45 + (i / docs.length) * 45), `Merging ${i + 1}/${docs.length}`);
+      const pages = await out.copyPages(docs[i], docs[i].getPageIndices());
+      pages.forEach((p) => out.addPage(p));
+    }
+    const saved = await out.save();
+    return new Blob([saved as unknown as BlobPart], { type: "application/pdf" });
+  } catch (e) {
+    throw safePdfError(e, "selected files", "merging");
   }
-  const saved = await out.save();
-  return new Blob([saved as unknown as BlobPart], { type: "application/pdf" });
 }
 
 export async function splitPdf(file: File, rangesStr: string, onProgress?: (p: number) => void): Promise<Blob[]> {
   const bytes = await fileToBytes(file);
-  const doc = await loadPdf(bytes, file.name);
+  let doc: PDFDocument;
+  try {
+    doc = await loadPdf(bytes, file.name);
+  } catch (e) {
+    throw safePdfError(e, file.name, "reading");
+  }
   const total = doc.getPageCount();
   const { pages, error } = parseRanges(rangesStr, total);
   if (error) throw new Error(error);
   onProgress?.(30);
-  const out = await PDFDocument.create();
-  const copied = await out.copyPages(doc, pages.map((p) => p - 1));
-  copied.forEach((p) => out.addPage(p));
-  onProgress?.(80);
-  const saved = await out.save();
-  return [new Blob([saved as unknown as BlobPart], { type: "application/pdf" })];
+  try {
+    const out = await PDFDocument.create();
+    const copied = await out.copyPages(doc, pages.map((p) => p - 1));
+    copied.forEach((p) => out.addPage(p));
+    onProgress?.(80);
+    const saved = await out.save();
+    return [new Blob([saved as unknown as BlobPart], { type: "application/pdf" })];
+  } catch (e) {
+    throw safePdfError(e, file.name, "splitting");
+  }
 }
 
 export async function compressPdf(file: File): Promise<{ blob: Blob; original: number; output: number }> {
   const bytes = await fileToBytes(file);
   const original = bytes.length;
-  const doc = await loadPdf(bytes, file.name);
+  let doc: PDFDocument;
+  try {
+    doc = await loadPdf(bytes, file.name);
+  } catch (e) {
+    throw safePdfError(e, file.name, "reading");
+  }
   // Honest strategy: pdf-lib save with object streams / cleanup. This does not transcode images, but removes unused objects.
   // We save with default (which already uses object streams). We cannot guarantee reduction — we measure and report honestly.
-  const saved = await doc.save({ useObjectStreams: true, addDefaultPage: false });
-  const blob = new Blob([saved as unknown as BlobPart], { type: "application/pdf" });
-  return { blob, original, output: blob.size };
+  try {
+    const saved = await doc.save({ useObjectStreams: true, addDefaultPage: false });
+    const blob = new Blob([saved as unknown as BlobPart], { type: "application/pdf" });
+    return { blob, original, output: blob.size };
+  } catch (e) {
+    throw safePdfError(e, file.name, "compressing");
+  }
 }
 
 export async function imagesToPdf(files: File[], onProgress?: (p: number) => void): Promise<Blob> {
@@ -147,7 +209,12 @@ export async function pdfToImages(
     isEvalSupported: false,
     ...(isWorkerContext ? { disableWorker: true } : {}),
   });
-  const pdf = await loadingTask.promise;
+  let pdf;
+  try {
+    pdf = await loadingTask.promise;
+  } catch (e) {
+    throw safePdfError(e, file.name, "reading");
+  }
   if (pdf.numPages > 200) throw new Error(`Too many pages (${pdf.numPages}) — max 200 for PDF→Images`);
   if (pdf.numPages > 50) {
     // Honest warning for large page counts — still try but may be slow

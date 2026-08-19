@@ -137,7 +137,12 @@ export function OcrTool() {
               accept="image/jpeg,image/png,image/webp"
               className="sr-only"
               disabled={working}
-              onChange={(event) => selectFile(event.currentTarget.files?.[0] ?? null)}
+              onChange={(event) => {
+                const picked = event.currentTarget.files?.[0] ?? null;
+                selectFile(picked);
+                // Reset so re-selecting the SAME file fires change again after Clear.
+                event.currentTarget.value = "";
+              }}
               aria-describedby="ocr-file-hint"
             />
             <span className="text-sm font-medium">Choose a JPG, PNG, or WebP image</span>

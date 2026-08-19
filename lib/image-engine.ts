@@ -15,7 +15,19 @@ async function fileToBytes(file: File): Promise<Uint8Array> {
 }
 
 async function blobToImageBitmap(blob: Blob): Promise<ImageBitmap> {
-  return await createImageBitmap(blob);
+  let bmp: ImageBitmap;
+  try {
+    bmp = await createImageBitmap(blob);
+  } catch {
+    // Never surface browser decode internals (or cosmetic "0×0" output) —
+    // one honest, safe message for undecodable images.
+    throw new Error("That image couldn't be read. It may be corrupted, truncated, or in an unsupported format.");
+  }
+  if (!bmp.width || !bmp.height) {
+    bmp.close?.();
+    throw new Error("That image couldn't be read. It may be corrupted, truncated, or in an unsupported format.");
+  }
+  return bmp;
 }
 
 function getCanvas(width: number, height: number): OffscreenCanvas | HTMLCanvasElement {
@@ -67,12 +79,13 @@ export async function compressImage(file: File, quality = 0.8, maxWidth?: number
 
 export async function convertImage(file: File, targetMime: string, quality = 0.92): Promise<Blob> {
   const bmp = await blobToImageBitmap(file as unknown as Blob);
-  // Dimensions check 12k
-  if (bmp.width > 12000 || bmp.height > 12000) {
+  // Dimensions check 12k — capture dims before close(): a closed ImageBitmap reports 0×0
+  const { width, height } = bmp;
+  if (width > 12000 || height > 12000) {
     bmp.close?.();
-    throw new Error(`Image too large (${bmp.width}×${bmp.height}) — max 12,000px`);
+    throw new Error(`This image is ${width.toLocaleString()}×${height.toLocaleString()}px — the maximum supported size is 12,000×12,000px. Please resize it first.`);
   }
-  const canvas = getCanvas(bmp.width, bmp.height);
+  const canvas = getCanvas(width, height);
   const ctx = (canvas as unknown as HTMLCanvasElement).getContext("2d");
   if (!ctx) {
     bmp.close?.();
@@ -111,11 +124,13 @@ export async function resizeImage(file: File, width: number, height: number, mim
 export async function exifClean(file: File): Promise<Blob> {
   // Strip metadata by re-encoding via canvas (EXIF automatically removed)
   const bmp = await blobToImageBitmap(file as unknown as Blob);
-  if (bmp.width > 12000 || bmp.height > 12000) {
+  // Capture dims before close(): a closed ImageBitmap reports 0×0
+  const { width, height } = bmp;
+  if (width > 12000 || height > 12000) {
     bmp.close?.();
-    throw new Error(`Image too large (${bmp.width}×${bmp.height})`);
+    throw new Error(`This image is ${width.toLocaleString()}×${height.toLocaleString()}px — the maximum supported size is 12,000×12,000px. Please resize it first.`);
   }
-  const canvas = getCanvas(bmp.width, bmp.height);
+  const canvas = getCanvas(width, height);
   const ctx = (canvas as unknown as HTMLCanvasElement).getContext("2d");
   if (!ctx) {
     bmp.close?.();

@@ -78,4 +78,72 @@ describe("pdf-engine", () => {
     const bad = new File([new Uint8Array([1, 2, 3])], "bad.pdf", { type: "application/pdf" });
     await expect(mergePdfs([bad])).rejects.toThrow();
   });
+
+  it("corrupt PDF errors never leak parser internals", async () => {
+    // Valid magic bytes, garbage body — forces pdf-lib deep parse failure
+    const head = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34]);
+    const junk = new Uint8Array(64).fill(0xab);
+    const both = new Uint8Array(head.length + junk.length);
+    both.set(head, 0);
+    both.set(junk, head.length);
+    const bad = new File([both], "halfpdf.pdf", { type: "application/pdf" });
+    let message = "";
+    try {
+      await mergePdfs([bad]);
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toBeTruthy();
+    expect(message).toMatch(/couldn't be read/i);
+    expect(message).not.toMatch(/Cannot read properties|undefined.*Pages|stack/i);
+  });
+
+  describe("merge aggregate page limit (200 total, every combination)", () => {
+    it("single file at exactly 200 pages is allowed", async () => {
+      const bytes = await makePdf(200);
+      const f = fileFromBytes(bytes, "exact200.pdf", "application/pdf");
+      const blob = await mergePdfs([f]);
+      const doc = await PDFDocument.load(await blobToBytes(blob));
+      expect(doc.getPageCount()).toBe(200);
+    });
+
+    it("single file at 199 pages is allowed", async () => {
+      const bytes = await makePdf(199);
+      const f = fileFromBytes(bytes, "p199.pdf", "application/pdf");
+      const blob = await mergePdfs([f]);
+      expect(blob.size).toBeGreaterThan(0);
+    });
+
+    it("single file at 201 pages is rejected (previous bypass)", async () => {
+      const bytes = await makePdf(201);
+      const f = fileFromBytes(bytes, "p201.pdf", "application/pdf");
+      await expect(mergePdfs([f])).rejects.toThrow(/200 total pages/);
+    });
+
+    it("2 x 100 pages (total 200) is allowed", async () => {
+      const a = fileFromBytes(await makePdf(100), "a.pdf", "application/pdf");
+      const b = fileFromBytes(await makePdf(100), "b.pdf", "application/pdf");
+      const blob = await mergePdfs([a, b]);
+      const doc = await PDFDocument.load(await blobToBytes(blob));
+      expect(doc.getPageCount()).toBe(200);
+    });
+
+    it("2 x 101 pages (total 202) is rejected", async () => {
+      const a = fileFromBytes(await makePdf(101), "a.pdf", "application/pdf");
+      const b = fileFromBytes(await makePdf(101), "b.pdf", "application/pdf");
+      await expect(mergePdfs([a, b])).rejects.toThrow(/200 total pages/);
+    });
+
+    it("3 x 67 pages (total 201) is rejected", async () => {
+      const files = await Promise.all([1, 2, 3].map(async (i) => fileFromBytes(await makePdf(67), `f${i}.pdf`, "application/pdf")));
+      await expect(mergePdfs(files)).rejects.toThrow(/200 total pages/);
+    });
+
+    it("3 x 66 pages (total 198) is allowed", async () => {
+      const files = await Promise.all([1, 2, 3].map(async (i) => fileFromBytes(await makePdf(66), `f${i}.pdf`, "application/pdf")));
+      const blob = await mergePdfs(files);
+      const doc = await PDFDocument.load(await blobToBytes(blob));
+      expect(doc.getPageCount()).toBe(198);
+    });
+  });
 });

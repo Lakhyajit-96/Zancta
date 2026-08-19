@@ -36,7 +36,14 @@ export async function POST(req: NextRequest) {
     const url = `${base}/reset-password?token=${plainToken}`;
     const { getEmailAdapter } = await import("@/lib/email/index");
     const emailer = getEmailAdapter();
-    await emailer.sendPasswordReset(email, url);
+    try {
+      await emailer.sendPasswordReset(email, url);
+    } catch (sendErr) {
+      // Token exists; only delivery failed. Return a generic, truthful retry
+      // message instead of a raw 500. No existence information is leaked.
+      console.error("[auth/forgot-password] reset email send failed", sendErr instanceof Error ? sendErr.message : String(sendErr));
+      return NextResponse.json({ ok: true, message: "We couldn't send the email right now. Please try again in a few minutes." });
+    }
 
     stage = "audit";
     await auditEvent({ userId: user.id, action: "password_reset_requested", targetId: user.id, ip });

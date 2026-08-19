@@ -2,10 +2,9 @@ export const LIMITS = {
   MAX_FILE_SIZE: 50 * 1024 * 1024,
   MAX_BG_SIZE: 30 * 1024 * 1024,
   MAX_FILES_FREE: 5,
-  MAX_FILES_PDF_MERGE_FREE: 20,
-  MAX_FILES_PDF_MERGE_PREMIUM: 50,
+  // Authoritative Free-tier PDF page limit — applies to every input
+  // combination (1 file, 2 files, many files): sum(all input pages).
   MAX_PDF_PAGES: 200,
-  MAX_PDF_PAGES_MERGE_TOTAL: 400,
   MAX_IMAGE_DIM: 12000,
   MAX_TOTAL_BYTES: 100 * 1024 * 1024,
   WORKER_TIMEOUT_MS: 30_000,

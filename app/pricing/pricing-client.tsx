@@ -60,9 +60,9 @@ export function PricingClient() {
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹199</p>
             <p className="mt-1 text-xs text-muted-foreground">/month</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Higher batch limits (when live)</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Priority feature updates</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free — same tools, same local processing</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Reserved ad-free when ads are introduced</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Supports the product ahead of larger limits</li>
             </ul>
             <button type="button" disabled className="premium-button premium-button-secondary mt-8">
               Not available
@@ -82,9 +82,9 @@ export function PricingClient() {
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹999</p>
             <p className="mt-1 text-xs text-muted-foreground">/year</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free — same tools, same local processing</li>
               <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Seven months free vs monthly</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Priority feature updates</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Reserved ad-free when ads are introduced</li>
             </ul>
             <button type="button" disabled className="premium-button premium-button-secondary mt-8">
               Not available
@@ -93,7 +93,7 @@ export function PricingClient() {
         </StaggerItem>
       </StaggerGroup>
 
-      <p className="mt-8 text-center text-xs text-muted-foreground">Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium checkout is not available at the moment.</p>
+      <p className="mt-8 text-center text-xs text-muted-foreground">Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium currently includes the same local tools as Free plus a reserved ad-free experience once ads launch; higher limits are not part of Premium yet. Premium checkout is not available at the moment.</p>
     </div>
   );
 }

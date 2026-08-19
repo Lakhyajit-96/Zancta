@@ -44,7 +44,7 @@ export const TOOLS: ToolMeta[] = [
     name: "Merge PDF",
     shortName: "Merge",
     description: "Combine multiple PDFs into one — locally, no upload.",
-    longDescription: "Merge 2–200 PDFs in your browser. Files never leave your device. No watermark.",
+    longDescription: "Merge up to 50 PDFs (200 total pages) in your browser. Files never leave your device. No watermark.",
     category: "pdf",
     icon: "merge",
     supportedFormats: ["pdf"],
@@ -60,7 +60,7 @@ export const TOOLS: ToolMeta[] = [
     related: ["pdf-split", "pdf-compress", "images-to-pdf"],
     faq: [
       { q: "Do files leave my device?", a: "No. Merge runs entirely in your browser. Nothing is uploaded." },
-      { q: "How many PDFs can I merge?", a: "Up to 50 files or 400 total pages in the free tier." },
+      { q: "How many PDFs can I merge?", a: "Up to 50 files and 200 total pages per merge in the free tier — counted across all selected files together." },
       { q: "Is there a watermark?", a: "No. Output is clean, no branding added." },
     ],
   },

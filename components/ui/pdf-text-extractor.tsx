@@ -159,7 +159,7 @@ export function PdfTextExtractor() {
       <label className="mt-6 block">
         <span className="text-sm font-medium">PDF document</span>
         <span className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-border-strong bg-elevated px-5 text-center transition-colors hover:border-accent/50 focus-within:ring-2 focus-within:ring-accent">
-          <input type="file" accept="application/pdf,.pdf" className="sr-only" disabled={working} onChange={(event) => reset(event.currentTarget.files?.[0] ?? null)} aria-describedby="pdf-text-file-hint" />
+          <input type="file" accept="application/pdf,.pdf" className="sr-only" disabled={working} onChange={(event) => { const picked = event.currentTarget.files?.[0] ?? null; reset(picked); event.currentTarget.value = ""; }} aria-describedby="pdf-text-file-hint" />
           <span className="text-sm font-medium">Choose a text-based PDF</span>
           <span id="pdf-text-file-hint" className="mt-2 text-xs text-muted-foreground">One PDF, up to 50 MB. Scanned or image-only PDFs do not contain extractable text.</span>
         </span>

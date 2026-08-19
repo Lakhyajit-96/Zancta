@@ -17,9 +17,7 @@ export async function POST(req: NextRequest) {
 
   const { token, password } = parsed.data;
   const tokenHash = hashToken(token);
-  let prt = await prisma.passwordResetToken.findUnique({ where: { token: tokenHash } });
-  // Fallback for legacy plain
-  if (!prt) prt = await prisma.passwordResetToken.findUnique({ where: { token } }).catch(()=>null) as typeof prt;
+  const prt = await prisma.passwordResetToken.findUnique({ where: { token: tokenHash } });
   if (!prt || prt.usedAt || prt.expires < new Date()) return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
 
   const passwordHash = await bcrypt.hash(password, 12);

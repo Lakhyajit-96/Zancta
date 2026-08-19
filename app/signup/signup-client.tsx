@@ -13,15 +13,22 @@ export function SignupClient({ google, github }: { google: boolean; github: bool
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
+  const [warn, setWarn] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); setOk(""); setLoading(true);
+    setError(""); setOk(""); setWarn(""); setLoading(true);
     try {
       const res = await fetch("/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password, name: name || undefined }) });
       const data = await res.json();
       if (!res.ok) setError(data.error || "We could not create that account.");
+      else if (data.emailIssue) {
+        // Account exists but the verification email could not be sent —
+        // route to the resend flow instead of pretending everything worked.
+        setWarn(data.message || "Account created, but the verification email could not be sent yet.");
+        setTimeout(() => router.push("/verify-email"), 2500);
+      }
       else { setOk(data.message || "Account created. Check your email to continue."); setTimeout(() => router.push("/signin"), 1500); }
     } catch { setError("Network error. Please try again."); }
     setLoading(false);
@@ -36,6 +43,7 @@ export function SignupClient({ google, github }: { google: boolean; github: bool
         <div><label htmlFor="email" className="text-sm font-medium">Email</label><input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="field-input mt-1 h-11" autoComplete="email" /></div>
         <div><label htmlFor="password" className="text-sm font-medium">Password</label><input id="password" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className="field-input mt-1 h-11" autoComplete="new-password" /><p className="mt-1 text-xs text-muted-foreground">At least 8 characters. Never stored in plain text.</p></div>
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
+        {warn && <div role="status" aria-live="polite" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">{warn}</div>}
         {ok && <div role="status" aria-live="polite" className="rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">{ok}</div>}
         <button type="submit" disabled={loading} className="premium-button premium-button-primary mt-2 w-full">{loading ? "Creating…" : "Create account"}</button>
       </form>

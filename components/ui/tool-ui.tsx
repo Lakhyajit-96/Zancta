@@ -55,7 +55,12 @@ export function UploadZone({
         accept={accept}
         multiple={multiple}
         className="hidden"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          // Reset so re-selecting the SAME file fires change again (e.g. after
+          // "Process another" cleared the list).
+          e.target.value = "";
+        }}
         onClick={(e) => e.stopPropagation()}
         aria-hidden
         tabIndex={-1}
