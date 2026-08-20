@@ -6,6 +6,15 @@ describe("OAuth error messages — safe, no internals leaked", () => {
   it("maps linking conflict to a password-signin hint", () => {
     expect(describeAuthError("OAuthAccountNotLinked")).toMatch(/already registered with a password/i);
   });
+  it("maps missing OAuth account on sign-in to create-account guidance", () => {
+    expect(describeAuthError("OAuthAccountNotFound")).toMatch(/Create an account first/i);
+    expect(describeAuthError("OAuthCreateAccount")).toMatch(/Create an account first/i);
+    expect(describeAuthError("OAuthCreateAccount", { page: "signup" })).toMatch(/couldn't create/i);
+  });
+  it("maps deleted OAuth identity to explicit re-registration, not resurrection", () => {
+    expect(describeAuthError("OAuthAccountDeleted")).toMatch(/no longer exists/i);
+    expect(describeAuthError("OAuthAccountDeleted", { page: "signup" })).toMatch(/couldn't create/i);
+  });
   it("maps provider failures to a generic safe message", () => {
     for (const code of ["OAuthSignin", "OAuthCallback", "OAuthCallbackError", "CallbackRouteError"]) {
       const msg = describeAuthError(code);

@@ -202,3 +202,14 @@ model WebhookEvent {
   @@index([provider, eventType])
   @@index([createdAt])
 }
+
+// Privacy-preserving block on silent OAuth re-creation after deletion.
+// identityHash is HMAC-SHA256(provider + NUL + providerAccountId) with AUTH_SECRET.
+model DeletedProviderIdentity {
+  id           String   @id @default(cuid())
+  identityHash String   @unique
+  provider     String
+  deletedAt    DateTime @default(now())
+
+  @@index([provider])
+}

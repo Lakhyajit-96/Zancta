@@ -67,8 +67,16 @@ export async function POST(req: NextRequest) {
 
   // Hard delete for privacy: remove user and cascade (sessions, accounts, entitlement, tokens)
   // Audit event is anonymized (userId set null via SetNull? but we keep targetId)
-  await auditEvent({ userId, action: "account_deleted", targetId: userId, ip });
+  const oauthAccounts = await prisma.account.findMany({
+    where: { userId, provider: { not: "credentials" } },
+    select: { provider: true, providerAccountId: true },
+  });
+  const { recordDeletedProviderIdentities } = await import("@/lib/deleted-identity");
+  await recordDeletedProviderIdentities(oauthAccounts);
 
+  await auditEvent({ userId, action: "account_deleted", targetId: userId, ip, metadata: JSON.stringify({ oauthProviders: oauthAccounts.map((a) => a.provider) }) });
+
+  await prisma.session.deleteMany({ where: { userId } });
   await prisma.user.delete({ where: { id: userId } });
 
   return NextResponse.json({ ok: true });

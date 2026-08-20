@@ -29,22 +29,50 @@ function GitHubMark() {
   );
 }
 
-export function OAuthButtons({ google, github, callbackUrl }: { google: boolean; github: boolean; callbackUrl?: string }) {
+export function OAuthButtons({
+  google,
+  github,
+  callbackUrl,
+  intent,
+}: {
+  google: boolean;
+  github: boolean;
+  callbackUrl?: string;
+  intent: "signin" | "signup";
+}) {
   const [pending, setPending] = useState<"google" | "github" | null>(null);
+  const [error, setError] = useState("");
   if (!google && !github) return null;
 
-  // Full-page redirect to the provider. Auth.js generates state + PKCE on the
-  // outbound request and validates both when the callback returns.
-  const start = (provider: "google" | "github") => {
+  const start = async (provider: "google" | "github") => {
+    setError("");
     setPending(provider);
-    signIn(provider, { callbackUrl: callbackUrl || "/account" });
+    try {
+      const res = await fetch("/api/auth/oauth-intent", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ intent }),
+      });
+      if (!res.ok) {
+        setError("We couldn’t start that sign-in. Please try again.");
+        setPending(null);
+        return;
+      }
+      await signIn(provider, { callbackUrl: callbackUrl || "/account" });
+    } catch {
+      setError("We couldn’t start that sign-in. Please try again.");
+      setPending(null);
+    }
   };
+
+  const googleLabel = intent === "signup" ? "Sign up with Google" : "Continue with Google";
+  const githubLabel = intent === "signup" ? "Sign up with GitHub" : "Continue with GitHub";
 
   return (
     <div className="mt-6">
       <div aria-hidden className="flex items-center gap-3 text-[0.6rem] font-mono uppercase tracking-[0.16em] text-muted-foreground">
         <span className="h-px flex-1 bg-border" />
-        or continue with
+        or {intent === "signup" ? "sign up with" : "continue with"}
         <span className="h-px flex-1 bg-border" />
       </div>
       <div className="mt-4 space-y-3">
@@ -56,7 +84,7 @@ export function OAuthButtons({ google, github, callbackUrl }: { google: boolean;
             className="premium-button premium-button-secondary flex h-11 w-full items-center justify-center gap-2.5"
           >
             <GoogleMark />
-            {pending === "google" ? "Redirecting…" : "Continue with Google"}
+            {pending === "google" ? "Redirecting…" : googleLabel}
           </button>
         )}
         {github && (
@@ -67,10 +95,11 @@ export function OAuthButtons({ google, github, callbackUrl }: { google: boolean;
             className="premium-button premium-button-secondary flex h-11 w-full items-center justify-center gap-2.5"
           >
             <GitHubMark />
-            {pending === "github" ? "Redirecting…" : "Continue with GitHub"}
+            {pending === "github" ? "Redirecting…" : githubLabel}
           </button>
         )}
       </div>
+      {error && <div role="alert" className="mt-3 rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
     </div>
   );
 }

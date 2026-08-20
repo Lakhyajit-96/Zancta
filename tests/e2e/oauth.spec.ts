@@ -39,8 +39,37 @@ test.describe("OAuth — real provider wiring", () => {
 
   test("signup renders provider buttons when configured", async ({ page }) => {
     await page.goto("/signup");
+    await expect(page.getByRole("button", { name: /Sign up with Google/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Sign up with GitHub/i })).toBeVisible();
+  });
+
+  test("signin copy distinguishes existing accounts from create-account", async ({ page }) => {
+    await page.goto("/signin");
+    await expect(page.getByText(/Already have an account\?/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Continue with GitHub/i })).toBeVisible();
+  });
+
+  test("signup copy distinguishes new registration", async ({ page }) => {
+    await page.goto("/signup");
+    await expect(page.getByText(/New to ZANCTA\?/i)).toBeVisible();
+  });
+
+  test("unknown OAuth identity on sign-in shows create-account guidance", async ({ page }) => {
+    await page.goto("/signin?error=OAuthAccountNotFound");
+    await expect(page.getByRole("alert").first()).toContainText(/Create an account first/i);
+    await expect(page.getByRole("alert").first()).not.toContainText("OAuthAccountNotFound");
+  });
+
+  test("deleted OAuth identity on sign-in does not invite silent recreation", async ({ page }) => {
+    await page.goto("/signin?error=OAuthAccountDeleted");
+    await expect(page.getByRole("alert").first()).toContainText(/no longer exists/i);
+    await expect(page.getByRole("alert").first()).toContainText(/Create a new account/i);
+  });
+
+  test("query intent parameter does not change OAuth button semantics", async ({ page }) => {
+    await page.goto("/signin?intent=signup");
+    await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Sign up with Google/i })).toHaveCount(0);
   });
 
   test("Google button reaches the real Google authorization URL", async ({ page }) => {
