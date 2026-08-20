@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = { title: "Help", description: "Practical guidance for ZANCTA tools, files, local processing, downloads, accounts, and troubleshooting.", alternates: { canonical: "/help" } };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/help", {
+  title: "Help",
+  description: "Practical guidance for ZANCTA tools, files, local processing, downloads, accounts, and troubleshooting.",
+});
 
 export default function HelpPage() {
   return <ContentPage eyebrow="/help" title="How can we help?" intro="Start with the tool page in front of you. It is the source of truth for its accepted formats, limits, and local processing behavior.">

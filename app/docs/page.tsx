@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Footer, Navigation } from "@/components/marketing/nav";
 import { MaskLines, Reveal } from "@/components/marketing/motion";
 
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/docs", {
   title: "Docs",
   description: "Public documentation for ZANCTA's supported local PDF, image, OCR, and text-extraction workflows.",
-  alternates: { canonical: "/docs" },
-};
+});
 
 const sections = [
   {

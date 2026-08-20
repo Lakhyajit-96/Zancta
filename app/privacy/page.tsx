@@ -1,7 +1,12 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 import { ShieldVisual } from "@/components/marketing/visuals";
 
-export const metadata = { title: "Privacy", description: "How ZANCTA handles local files, accounts, cookies, payments, email, and future advertising.", alternates: { canonical: "/privacy" } };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/privacy", {
+  title: "Privacy",
+  description: "How ZANCTA handles local files, accounts, cookies, payments, email, and future advertising.",
+});
 
 export default function PrivacyPage() {
   return <ContentPage eyebrow="/privacy" title="Your privacy is our product." intro="We believe privacy isn't just a policy — it is the way we build. This page describes current product behavior and requires review by the responsible legal owner before a commercial launch." visual={<ShieldVisual />}>

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/guides/local-processing", {
   title: "Local processing — privacy, OCR, and PDF text",
   description: "How ZANCTA processes PDFs and images in the browser, what OCR and PDF text extraction can and cannot do, and where the privacy boundary ends.",
-  alternates: { canonical: "/guides/local-processing" },
-};
+});
 
 export default function LocalProcessingGuidePage() {
   return (

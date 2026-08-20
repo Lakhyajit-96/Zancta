@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import sitemap from "@/app/sitemap";
-import { PUBLIC_SITE_URL } from "@/lib/seo";
+import { pageMeta, PUBLIC_SITE_URL } from "@/lib/seo";
 
 describe("sitemap contract", () => {
   it("emits unique https zancta.tech URLs and excludes private/unavailable routes", async () => {
@@ -17,5 +17,11 @@ describe("sitemap contract", () => {
     }
     expect(urls.some((u) => u === `${origin}/` || u === origin)).toBe(true);
     expect(urls).toContain(`${origin}/guides/local-processing`);
+  });
+
+  it("pageMeta uses the page path as og:url, not the homepage", () => {
+    const meta = pageMeta("/tools", { title: "Tools" });
+    expect(meta.alternates).toEqual({ canonical: "/tools" });
+    expect(meta.openGraph).toMatchObject({ url: "https://zancta.tech/tools" });
   });
 });

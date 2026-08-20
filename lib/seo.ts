@@ -54,8 +54,24 @@ export function getAppOrigin(): string {
 
 export const PUBLIC_SITE_URL = resolvePublicSiteUrl();
 
+export function pageAbsoluteUrl(path: string): string {
+  if (!path || path === "/") return PUBLIC_SITE_URL;
+  return `${PUBLIC_SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+/** Page-level SEO so child routes do not inherit the homepage og:url. */
+export function pageMeta(path: string, meta: Metadata = {}): Metadata {
+  const url = pageAbsoluteUrl(path);
+  const openGraph = typeof meta.openGraph === "object" && meta.openGraph ? meta.openGraph : {};
+  return {
+    ...meta,
+    alternates: { canonical: path, ...meta.alternates },
+    openGraph: { type: "website", ...openGraph, url },
+  };
+}
+
 export function buildMetadata({ title, description, path, canonical }: SEOProps): Metadata {
-  const url = `${PUBLIC_SITE_URL}${path}`;
+  const url = pageAbsoluteUrl(path);
   const can = canonical || url;
   return {
     title,

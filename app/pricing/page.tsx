@@ -2,11 +2,12 @@ import { LayoutChrome } from "@/components/layout/chrome";
 import { MaskLines, Reveal } from "@/components/marketing/motion";
 import { PricingClient } from "./pricing-client";
 
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/pricing", {
   title: "Pricing",
   description: "Current access and Premium checkout availability for ZANCTA's local-first tools.",
-  alternates: { canonical: "/pricing" },
-};
+});
 
 export default function PricingPage() {
   return (

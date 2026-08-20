@@ -2,11 +2,12 @@ import { Navigation, Footer } from "@/components/marketing/nav";
 import { MaskLines, Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 import { LaptopVisual } from "@/components/marketing/visuals";
 
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/how-it-works", {
   title: "How it works",
   description: "How ZANCTA validates, processes, and returns supported files in the browser.",
-  alternates: { canonical: "/how-it-works" },
-};
+});
 
 const steps = [
   ["01", "Select", "Open a specific PDF or image tool, then review its supported inputs, limits, and output behavior before you choose a file."],

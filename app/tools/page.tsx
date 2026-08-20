@@ -2,7 +2,9 @@ import { LayoutChrome } from "@/components/layout/chrome";
 import { ToolGrid } from "@/components/marketing/tool-grid";
 import { MaskLines, Reveal } from "@/components/marketing/motion";
 
-export const metadata = { title: "Tools", alternates: { canonical: "/tools" } };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/tools", { title: "Tools" });
 
 export default function ToolsPage() {
   return (

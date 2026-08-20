@@ -2,11 +2,12 @@ import { FAQAccordion } from "@/components/marketing/faq-accordion";
 import { Footer, Navigation } from "@/components/marketing/nav";
 import { MaskLines, Reveal } from "@/components/marketing/motion";
 
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/faq", {
   title: "FAQ",
   description: "Practical answers about ZANCTA tools, local processing, accounts, limits, and billing availability.",
-  alternates: { canonical: "/faq" },
-};
+});
 
 const faqs = [
   ["Does ZANCTA upload my files?", "For implemented local tools, selected file bytes are processed in the browser and are not uploaded to ZANCTA for processing. The page itself still makes normal requests for application code and assets."],

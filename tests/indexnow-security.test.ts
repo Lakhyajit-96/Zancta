@@ -116,4 +116,16 @@ describe("POST /api/indexnow", () => {
     expect(JSON.stringify(res.body)).not.toContain(TEST_KEY);
     expect(fetch).toHaveBeenCalledOnce();
   });
+
+  it("rate-limits excessive submissions from the same IP", async () => {
+    vi.mocked(fetch).mockClear();
+    const ip = "203.0.113.50";
+    for (let i = 0; i < 5; i += 1) {
+      const res = await call({ auth: null, ip, body: { urls: ["https://zancta.tech/"] } });
+      expect(res.status).toBe(401);
+    }
+    const limited = await call({ auth: "Bearer test-notify-secret", ip });
+    expect(limited.status).toBe(429);
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });

@@ -4,7 +4,9 @@ import { PrivacyArchitectureSection } from "@/components/homepage/privacy-archit
 import { ToolEcosystemSection } from "@/components/homepage/tool-ecosystem";
 import { PremiumPreviewSection } from "@/components/homepage/premium-preview";
 import { Footer } from "@/components/marketing/nav";
-import { PUBLIC_SITE_URL } from "@/lib/seo";
+import { pageMeta, PUBLIC_SITE_URL } from "@/lib/seo";
+
+export const metadata = pageMeta("/", {});
 
 const websiteJsonLd = {
   "@context": "https://schema.org",

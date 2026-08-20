@@ -2,11 +2,12 @@ import { Footer, Navigation } from "@/components/marketing/nav";
 import { ContentSection } from "@/components/marketing/content-page";
 import { MaskLines, Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
-export const metadata = {
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/about", {
   title: "About",
   description: "Why ZANCTA builds local-first tools for practical document and image work.",
-  alternates: { canonical: "/about" },
-};
+});
 
 const VALUES = [
   "Privacy first — the file never leaves your device for implemented local workflows.",

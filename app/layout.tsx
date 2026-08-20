@@ -27,7 +27,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ZANCTA — Your files never leave your device",
     description: "Privacy-first PDF & image tools that run entirely in your browser.",
-    url: PUBLIC_SITE_URL,
     siteName: "ZANCTA",
     type: "website",
     locale: "en_US",

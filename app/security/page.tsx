@@ -1,7 +1,12 @@
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 import { LayersVisual } from "@/components/marketing/visuals";
 
-export const metadata = { title: "Security", description: "The security controls implemented in the current ZANCTA application.", alternates: { canonical: "/security" } };
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta("/security", {
+  title: "Security",
+  description: "The security controls implemented in the current ZANCTA application.",
+});
 
 export default function SecurityPage() {
   return <ContentPage eyebrow="/security" title="Security by design." intro="ZANCTA is built with security at every layer — and without theatre. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified." visual={<LayersVisual />}>
