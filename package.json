@@ -39,7 +39,7 @@
     "jszip": "^3.10.1",
     "next": "16.3.0",
     "next-auth": "^5.0.0-beta.32",
-    "nodemailer": "^8.0.11",
+    "nodemailer": "9.0.5",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.1.91",
     "pg": "^8.23.0",
@@ -78,5 +78,8 @@
     "pdf",
     "image"
   ],
-  "license": "SEE LICENSE IN LICENSE"
+  "license": "SEE LICENSE IN LICENSE",
+  "overrides": {
+    "nodemailer": "9.0.5"
+  }
 }
