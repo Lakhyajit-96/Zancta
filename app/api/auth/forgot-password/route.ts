@@ -5,6 +5,7 @@ import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
+import { getAppOrigin } from "@/lib/seo";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
@@ -32,8 +33,7 @@ export async function POST(req: NextRequest) {
     await prisma.passwordResetToken.create({ data: { userId: user.id, token: tokenHash, expires } });
 
     stage = "email-send";
-    const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
-    const url = `${base}/reset-password?token=${plainToken}`;
+    const url = `${getAppOrigin()}/reset-password?token=${plainToken}`;
     const { getEmailAdapter } = await import("@/lib/email/index");
     const emailer = getEmailAdapter();
     try {

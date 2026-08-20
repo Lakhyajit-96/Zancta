@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
+import { getAppOrigin } from "@/lib/seo";
 
 const GENERIC_SENT = "If that email is registered and not verified yet, a new verification email is on its way.";
 
@@ -42,8 +43,7 @@ export async function POST(req: NextRequest) {
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
   await prisma.verificationToken.create({ data: { identifier: email, token: tokenHash, expires, userId: user.id } });
 
-  const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const url = `${base}/verify-email?token=${plainToken}`;
+  const url = `${getAppOrigin()}/verify-email?token=${plainToken}`;
   try {
     const { getEmailAdapter } = await import("@/lib/email/index");
     const emailer = getEmailAdapter();

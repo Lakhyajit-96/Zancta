@@ -10,8 +10,11 @@ class ResendAdapter implements EmailAdapter {
   private from: string;
   constructor() {
     const key = process.env.RESEND_API_KEY;
-    const from = process.env.EMAIL_FROM || "noreply@zancta.app";
+    const from = (process.env.EMAIL_FROM || "").trim();
     if (!key) throw new Error("RESEND_API_KEY missing");
+    if (!from.includes("@")) {
+      throw new Error("EMAIL_FROM must be a mailbox such as noreply@mail.example.com");
+    }
     this.resend = new Resend(key);
     this.from = from;
   }

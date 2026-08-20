@@ -6,6 +6,7 @@ import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
+import { getAppOrigin } from "@/lib/seo";
 
 async function createAndSendVerification(userId: string, email: string): Promise<{ ok: boolean; plainToken: string }> {
   // Replace any stale tokens for this account, then issue a fresh one-time
@@ -17,8 +18,7 @@ async function createAndSendVerification(userId: string, email: string): Promise
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
   await prisma.verificationToken.create({ data: { identifier: email, token: tokenHash, expires, userId } });
 
-  const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const url = `${base}/verify-email?token=${plainToken}`;
+  const url = `${getAppOrigin()}/verify-email?token=${plainToken}`;
   const { getEmailAdapter } = await import("@/lib/email/index");
   const emailer = getEmailAdapter();
   try {

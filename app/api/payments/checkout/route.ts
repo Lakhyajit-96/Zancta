@@ -23,12 +23,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid planId (expected PREMIUM_MONTHLY or PREMIUM_ANNUAL)" }, { status: 400 });
   }
 
-  // External action gate: products not configured -> instruct
   const monthly = process.env.DODO_PRODUCT_MONTHLY_ID || process.env.DODO_PAYMENTS_PRODUCT_MONTHLY_ID;
   const annual = process.env.DODO_PRODUCT_ANNUAL_ID || process.env.DODO_PAYMENTS_PRODUCT_ANNUAL_ID;
   if (!monthly || !annual) {
     return NextResponse.json(
-      { error: "Payment products not configured — set DODO_PRODUCT_MONTHLY_ID / DODO_PRODUCT_ANNUAL_ID in env (test mode). See docs/PHASE9A_REPORT.md §AJ." },
+      { error: "Payment products not configured. Checkout is unavailable." },
+      { status: 503 }
+    );
+  }
+
+  const dodoEnv = (process.env.DODO_ENVIRONMENT || "test").toLowerCase();
+  const liveEnabled = process.env.PAYMENTS_LIVE_ENABLED === "true";
+  if ((dodoEnv === "live" || dodoEnv === "production") && !liveEnabled) {
+    return NextResponse.json(
+      { error: "Live checkout is not enabled yet." },
       { status: 503 }
     );
   }

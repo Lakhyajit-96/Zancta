@@ -16,6 +16,7 @@ import type {
   RefundInput,
   VerifyWebhookResult,
 } from "../types";
+import { getAppOrigin } from "@/lib/seo";
 
 function requireEnv(name: string): string {
   const v = process.env[name];
@@ -124,7 +125,7 @@ export class DodoProvider implements PaymentProvider {
     const base = getBaseUrl();
     // Dodo Checkout Session API — https://docs.dodopayments.com/api-reference/checkouts
     // We use product_id checkout: POST /checkouts  { product_id, customer: { email }, return_url, metadata }
-    const appUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = getAppOrigin();
     const returnUrl = input.successUrl || `${appUrl}/account?checkout=success`;
     const res = await fetch(`${base}/checkouts`, {
       method: "POST",

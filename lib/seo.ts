@@ -7,21 +7,49 @@ type SEOProps = {
   canonical?: string;
 };
 
-// Stable pre-domain production origin. Phase 12 will replace this with the
-// approved custom domain via NEXT_PUBLIC_APP_URL.
-const PRODUCTION_FALLBACK_URL = "https://toolsite-4q4w.vercel.app";
+const CANONICAL_PRODUCTION_URL = "https://zancta.tech";
+
+function stripSlash(url: string): string {
+  return url.replace(/\/$/, "");
+}
+
+function isUnusablePublicOrigin(url: string): boolean {
+  return /localhost|127\.0\.0\.1|toolsite-4q4w\.vercel\.app|example\.com/i.test(url);
+}
+
+function normalizePublicOrigin(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === "www.zancta.tech") return CANONICAL_PRODUCTION_URL;
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return stripSlash(url);
+  }
+}
+
+function firstUsableOrigin(candidates: Array<string | undefined>): string | null {
+  for (const raw of candidates) {
+    if (!raw) continue;
+    const origin = stripSlash(raw);
+    if (isUnusablePublicOrigin(origin)) continue;
+    return normalizePublicOrigin(origin);
+  }
+  return null;
+}
 
 function resolvePublicSiteUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  if (!fromEnv) return PRODUCTION_FALLBACK_URL;
-  // Ignore localhost values baked into production builds — common Vercel misconfiguration.
-  if (
-    process.env.NODE_ENV === "production" &&
-    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(fromEnv)
-  ) {
-    return PRODUCTION_FALLBACK_URL;
-  }
-  return fromEnv;
+  const fromEnv = firstUsableOrigin([process.env.NEXT_PUBLIC_APP_URL, process.env.NEXTAUTH_URL, process.env.AUTH_URL]);
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "production") return CANONICAL_PRODUCTION_URL;
+  return "http://localhost:3000";
+}
+
+/** Runtime origin for auth emails and payment return URLs. Never localhost in production. */
+export function getAppOrigin(): string {
+  const fromEnv = firstUsableOrigin([process.env.NEXTAUTH_URL, process.env.AUTH_URL, process.env.NEXT_PUBLIC_APP_URL]);
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "production") return CANONICAL_PRODUCTION_URL;
+  return "http://localhost:3000";
 }
 
 export const PUBLIC_SITE_URL = resolvePublicSiteUrl();
