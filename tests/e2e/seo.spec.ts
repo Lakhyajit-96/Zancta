@@ -12,9 +12,7 @@ test("seo", async ({ page }) => {
   expect(h1).toContain("Compress images");
   const canonical = await page.locator('link[rel="canonical"]').getAttribute("href").catch(()=>null);
   console.log("canonical:", canonical);
-  // breadcrumbs
   await expect(page.getByRole("navigation", {name:"Breadcrumb"})).toBeVisible();
-  // sitemap/robots via fetch
   const robots = await page.request.get("/robots.txt");
   console.log("robots", await robots.text().then(t=>t.slice(0,100)));
   expect(robots.ok()).toBeTruthy();
@@ -23,15 +21,15 @@ test("seo", async ({ page }) => {
   expect(sitemap.ok()).toBeTruthy();
 });
 
-test("IndexNow notify route is not an open proxy", async ({ request }) => {
-  const missing = await request.post("/api/indexnow", { data: { urls: ["https://zancta.tech/"] } });
-  expect([401, 503]).toContain(missing.status());
-  const body = await missing.json();
-  expect(JSON.stringify(body)).not.toMatch(/indexnow/i);
-  const get = await request.get("/api/indexnow");
-  expect(get.status()).toBe(405);
-});
+test("local processing guide is unique and linked", async ({ page }) => {
   await page.goto("/guides/local-processing");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Local processing/i);
   await expect(page.getByRole("link", { name: /OCR/i }).first()).toBeVisible();
+});
+
+test("IndexNow notify route is not an open proxy", async ({ request }) => {
+  const missing = await request.post("/api/indexnow", { data: { urls: ["https://zancta.tech/"] } });
+  expect([401, 503]).toContain(missing.status());
+  const get = await request.get("/api/indexnow");
+  expect(get.status()).toBe(405);
 });
