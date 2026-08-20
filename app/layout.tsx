@@ -4,6 +4,7 @@ import "@fontsource-variable/instrument-sans";
 import "@fontsource-variable/fraunces";
 import "./globals.css";
 import { PUBLIC_SITE_URL } from "@/lib/seo";
+import { ConsentAndAnalytics } from "@/components/consent-and-analytics";
 
 const geistMono = localFont({
   variable: "--font-geist-mono",
@@ -53,7 +54,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geistMono.variable}`}>
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        {children}
+        <ConsentAndAnalytics />
+      </body>
     </html>
   );
 }

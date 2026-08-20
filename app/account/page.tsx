@@ -51,7 +51,7 @@ export default async function AccountPage() {
         <div className="section-rule pt-7">
           <h2 className="eyebrow">Privacy</h2>
           <p className="text-xs text-muted-foreground mt-2">Your files are processed locally. No PDF/image bytes stored on server.</p>
-          <p className="text-xs text-muted-foreground">Analytics: coarse bucket only, no filename.</p>
+          <p className="text-xs text-muted-foreground">Optional analytics only after consent; never filenames or file contents.</p>
         </div>
         <div className="section-rule pt-7">
           <h2 className="eyebrow text-error">Danger zone</h2>

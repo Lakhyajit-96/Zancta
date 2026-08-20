@@ -32,7 +32,7 @@ function SignupInner({ google, github }: { google: boolean; github: boolean }) {
         setWarn(data.message || "Account created, but the verification email could not be sent yet.");
         setTimeout(() => router.push("/verify-email"), 2500);
       }
-      else { setOk(data.message || "Account created. Check your email to continue."); setTimeout(() => router.push("/signin"), 1500); }
+      else { setOk(data.message || "Account created. Check your email to continue."); try { const { trackEvent } = await import("@/components/consent-and-analytics"); trackEvent("signup"); } catch {} setTimeout(() => router.push("/signin"), 1500); }
     } catch { setError("Network error. Please try again."); }
     setLoading(false);
   };

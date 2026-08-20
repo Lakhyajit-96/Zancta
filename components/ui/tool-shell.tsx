@@ -210,12 +210,10 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         if (msg.meta) setMeta(msg.meta);
         worker.terminate();
         workerRef.current = null;
-        // Analytics (privacy-safe, coarse bucket)
-        try {
-          const total = files.reduce((a, f) => a + f.size, 0);
-          const bucket = total < 1024 * 1024 ? "<1MB" : total < 5 * 1024 * 1024 ? "1-5MB" : total < 20 * 1024 * 1024 ? "5-20MB" : "20MB+";
-          (window as unknown as { gtag?: (...a: unknown[]) => void }).gtag?.("event", "processing_completed", { tool: tool.slug, bucket });
-        } catch {}
+        // Privacy-safe product event: tool slug only, and only after analytics consent.
+        void import("@/components/consent-and-analytics").then(({ trackEvent }) => {
+          trackEvent("tool_used", { tool: tool.slug });
+        }).catch(() => {});
       } else if (msg.status === "failed" || msg.status === "aborted") {
         clearJobTimeout();
         setStatus(msg.status as Status);

@@ -22,3 +22,9 @@ test("seo", async ({ page }) => {
   console.log("sitemap", await sitemap.text().then(t=>t.slice(0,200)));
   expect(sitemap.ok()).toBeTruthy();
 });
+
+test("local processing guide is unique and linked", async ({ page }) => {
+  await page.goto("/guides/local-processing");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Local processing/i);
+  await expect(page.getByRole("link", { name: /OCR/i }).first()).toBeVisible();
+});

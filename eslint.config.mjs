@@ -13,7 +13,10 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Versioned third-party OCR worker/WASM loaders are served verbatim from this path.
+    // Probe scripts and generated OCR assets are not product lint targets.
     "public/ocr/**",
+    "audit-phase12b/**",
+    "brand-export/**",
   ]),
 ]);
 

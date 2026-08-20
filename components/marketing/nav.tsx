@@ -136,6 +136,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
     title: "Resources",
     links: [
       { href: "/docs", label: "Docs" },
+      { href: "/guides/local-processing", label: "Local processing" },
       { href: "/help", label: "Help" },
       { href: "/faq", label: "FAQ" },
       { href: "/security", label: "Security" },

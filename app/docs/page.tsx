@@ -12,7 +12,7 @@ const sections = [
   {
     id: "collection",
     title: "Tool collection",
-    body: <>The <Link href="/tools" className="text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">tool collection</Link> is the current catalog. PDF workflows cover merge, split, compression, page rendering, image-to-PDF, and embedded-text extraction. Image workflows cover compression, conversion, resizing, metadata cleaning, and local English OCR.</>,
+    body: <>The <Link href="/tools" className="text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">tool collection</Link> is the current catalog. PDF workflows cover merge, split, compression, page rendering, image-to-PDF, and embedded-text extraction. Image workflows cover compression, conversion, resizing, metadata cleaning, and local English OCR. For privacy, OCR limits, and PDF text vs scans, see <Link href="/guides/local-processing" className="text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">Local processing</Link>.</>,
   },
   {
     id: "inputs",
