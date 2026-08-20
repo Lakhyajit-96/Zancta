@@ -21,3 +21,4 @@ export function getActiveProviderName(): ProviderName {
 }
 
 export * from "./types";
+export { isLivePaymentsEnabled } from "./live";

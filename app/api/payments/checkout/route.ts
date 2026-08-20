@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getPaymentProvider } from "@/lib/payments";
+import { getPaymentProvider, isLivePaymentsEnabled } from "@/lib/payments";
 import type { PlanId } from "@/lib/payments/types";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
+
+export async function GET() {
+  return NextResponse.json({ live: isLivePaymentsEnabled() });
+}
 
 // POST /api/payments/checkout  { planId, currency? }
 // Requires auth. Returns { checkoutUrl }
@@ -33,8 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   const dodoEnv = (process.env.DODO_ENVIRONMENT || "test").toLowerCase();
-  const liveEnabled = process.env.PAYMENTS_LIVE_ENABLED === "true";
-  if ((dodoEnv === "live" || dodoEnv === "production") && !liveEnabled) {
+  if ((dodoEnv === "live" || dodoEnv === "production") && !isLivePaymentsEnabled()) {
     return NextResponse.json(
       { error: "Live checkout is not enabled yet." },
       { status: 503 }

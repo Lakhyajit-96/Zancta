@@ -4,8 +4,33 @@ import Link from "next/link";
 import { useState } from "react";
 import { StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
-export function PricingClient() {
+type PlanId = "PREMIUM_MONTHLY" | "PREMIUM_ANNUAL";
+
+export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
   const [annual, setAnnual] = useState(true);
+  const [busy, setBusy] = useState<PlanId | null>(null);
+  const [error, setError] = useState("");
+
+  async function startCheckout(planId: PlanId) {
+    setError("");
+    setBusy(planId);
+    const res = await fetch("/api/payments/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ planId, currency: "INR" }),
+    });
+    const data = await res.json().catch(() => ({})) as { checkoutUrl?: string; error?: string };
+    if (res.status === 401) {
+      window.location.href = `/signin?callbackUrl=${encodeURIComponent("/pricing")}`;
+      return;
+    }
+    if (!res.ok || !data.checkoutUrl) {
+      setError(data.error || "Checkout is unavailable.");
+      setBusy(null);
+      return;
+    }
+    window.location.href = data.checkoutUrl;
+  }
 
   return (
     <div>
@@ -55,7 +80,11 @@ export function PricingClient() {
           >
             <div className="flex items-baseline justify-between">
               <h3 className="text-sm font-semibold">Premium Monthly</h3>
-              <span className="text-xs text-warning">Not available yet</span>
+              {checkoutLive ? (
+                <span className="text-xs text-muted-foreground">₹199 INR / month</span>
+              ) : (
+                <span className="text-xs text-warning">Not available yet</span>
+              )}
             </div>
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹199</p>
             <p className="mt-1 text-xs text-muted-foreground">/month</p>
@@ -64,9 +93,20 @@ export function PricingClient() {
               <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Reserved ad-free when ads are introduced</li>
               <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Supports the product ahead of larger limits</li>
             </ul>
-            <button type="button" disabled className="premium-button premium-button-secondary mt-8">
-              Not available
-            </button>
+            {checkoutLive ? (
+              <button
+                type="button"
+                disabled={busy !== null}
+                onClick={() => startCheckout("PREMIUM_MONTHLY")}
+                className="premium-button premium-button-secondary mt-8"
+              >
+                {busy === "PREMIUM_MONTHLY" ? "Redirecting…" : "Subscribe monthly"}
+              </button>
+            ) : (
+              <button type="button" disabled className="premium-button premium-button-secondary mt-8">
+                Not available
+              </button>
+            )}
           </section>
         </StaggerItem>
 
@@ -86,14 +126,31 @@ export function PricingClient() {
               <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Seven months free vs monthly</li>
               <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Reserved ad-free when ads are introduced</li>
             </ul>
-            <button type="button" disabled className="premium-button premium-button-secondary mt-8">
-              Not available
-            </button>
+            {checkoutLive ? (
+              <button
+                type="button"
+                disabled={busy !== null}
+                onClick={() => startCheckout("PREMIUM_ANNUAL")}
+                className="premium-button premium-button-primary mt-8"
+              >
+                {busy === "PREMIUM_ANNUAL" ? "Redirecting…" : "Subscribe annually"}
+              </button>
+            ) : (
+              <button type="button" disabled className="premium-button premium-button-secondary mt-8">
+                Not available
+              </button>
+            )}
           </section>
         </StaggerItem>
       </StaggerGroup>
 
-      <p className="mt-8 text-center text-xs text-muted-foreground">Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium currently includes the same local tools as Free plus a reserved ad-free experience once ads launch; higher limits are not part of Premium yet. Premium checkout is not available at the moment.</p>
+      {error && <p role="alert" className="mt-6 text-center text-sm text-error">{error}</p>}
+
+      <p className="mt-8 text-center text-xs text-muted-foreground">
+        {checkoutLive
+          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools as Free plus a reserved ad-free experience once ads launch; higher limits are not part of Premium yet."
+          : "Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium currently includes the same local tools as Free plus a reserved ad-free experience once ads launch; higher limits are not part of Premium yet. Premium checkout is not available at the moment."}
+      </p>
     </div>
   );
 }

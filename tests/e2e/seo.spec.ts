@@ -33,3 +33,12 @@ test("IndexNow notify route is not an open proxy", async ({ request }) => {
   const get = await request.get("/api/indexnow");
   expect(get.status()).toBe(405);
 });
+
+test("checkout availability is not an open live switch locally", async ({ request, page }) => {
+  const avail = await request.get("/api/payments/checkout");
+  expect(avail.ok()).toBeTruthy();
+  const body = await avail.json();
+  expect(body.live).toBe(false);
+  await page.goto("/pricing");
+  await expect(page.getByRole("button", { name: "Not available" }).first()).toBeVisible();
+});
