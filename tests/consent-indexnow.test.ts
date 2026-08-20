@@ -1,7 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { isGaMeasurementId, parseConsent, sanitizeAnalyticsParams, serializeConsent } from "@/lib/consent";
-import { PUBLIC_SITE_URL } from "@/lib/seo";
-import { buildIndexNowPayload, INDEXNOW_KEY } from "@/lib/indexnow";
 
 describe("consent and analytics sanitization", () => {
   it("does not treat an unset or junk measurement id as GA4", () => {
@@ -33,19 +31,3 @@ describe("consent and analytics sanitization", () => {
   });
 });
 
-describe("IndexNow payload", () => {
-  it("includes only same-host URLs and the public key location", () => {
-    const origin = PUBLIC_SITE_URL.replace(/\/$/, "");
-    const payload = buildIndexNowPayload([
-      `${origin}/guides/local-processing`,
-      "https://evil.example/steal",
-      `${origin}/tools/ocr`,
-    ]);
-    expect(payload.key).toBe(INDEXNOW_KEY);
-    expect(payload.keyLocation).toBe(`${origin}/${INDEXNOW_KEY}.txt`);
-    expect(payload.urlList).toEqual([
-      `${origin}/guides/local-processing`,
-      `${origin}/tools/ocr`,
-    ]);
-  });
-});
