@@ -47,6 +47,10 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
     if (cancelled || activeId !== message.id) return;
 
     const totalPages = documentProxy.numPages;
+    if (totalPages > 200) {
+      post({ id: message.id, type: "failed", message: `Too many pages: ${totalPages} — max 200 pages.` });
+      return;
+    }
     post({ id: message.id, type: "loaded", totalPages });
 
     for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {

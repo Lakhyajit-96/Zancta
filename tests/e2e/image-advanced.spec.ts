@@ -27,10 +27,7 @@ test.describe("Image advanced gates", () => {
     await page.goto("/tools/image-compress");
     const badBuf = Buffer.from("not an image", "utf-8");
     await page.locator('input[type="file"]').setInputFiles({ name: "bad.png", mimeType: "image/png", buffer: badBuf });
-    await page.getByRole("button", { name: /Process locally/i }).click();
-    // Scope to the alert box: heading + per-file detail both contain "couldn't",
-    // so an unscoped getByText would hit 2 elements (strict-mode violation).
-    await expect(page.getByRole("alert").getByText(/couldn|Failed|error/i).first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("alert").getByText(/not a valid PNG|couldn|Failed|error/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("cancellation during processing", async ({ page }) => {

@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
-import { validateFiles } from "@/lib/file-safety";
+import { validateFiles, validateFileMagic, LIMITS } from "@/lib/file-safety";
 import { UploadZone, Progress, PrivacyIndicator, FileRow } from "@/components/ui/tool-ui";
 import { downloadBlob } from "@/lib/download";
 import { OcrTool } from "@/components/ui/ocr-tool";
@@ -37,7 +37,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
     }
   }, []);
 
-  const handleFiles = (incoming: File[]) => {
+  const handleFiles = async (incoming: File[]) => {
     const result = validateFiles(incoming, {
       acceptMime: tool.acceptMime,
       acceptExts: tool.supportedFormats,
@@ -46,6 +46,12 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
     });
     if (!result.ok) {
       setErrors(result.errors.map((e) => `${e.message}${e.hint ? ` — ${e.hint}` : ""}`));
+      setStatus("failed");
+      return;
+    }
+    const magic = await validateFileMagic(incoming);
+    if (!magic.ok) {
+      setErrors(magic.errors.map((e) => `${e.message}${e.hint ? ` — ${e.hint}` : ""}`));
       setStatus("failed");
       return;
     }
@@ -71,11 +77,12 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
   const startJobTimeout = () => {
     clearJobTimeout();
     timeoutRef.current = setTimeout(() => {
+      cancelledRef.current = true;
       workerRef.current?.terminate();
       workerRef.current = null;
-      setErrors(["Processing timed out (30s) — try fewer or smaller files."]);
+      setErrors(["Processing timed out — try fewer or smaller files."]);
       setStatus("failed");
-    }, 30_000);
+    }, tool.processingType === "pdf" ? LIMITS.BATCH_TIMEOUT_MS : LIMITS.WORKER_TIMEOUT_MS);
   };
 
   const start = async () => {
@@ -149,23 +156,37 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         try {
           let blobs: { name: string; blob: Blob }[] = [];
           let meta: { originalSize?: number; outputSize?: number } | undefined;
+          const cancelled = () => cancelledRef.current || idRef.current !== id;
           if (op === "MERGE") {
-            const b = await _merge(files, (p)=> setProgress(p));
+            const b = await _merge(files, (p)=> setProgress(p), cancelled);
             blobs = [{ name: "merged.pdf", blob: b }];
           } else if (op === "SPLIT") {
-            blobs = (await _split(files[0], range, (p)=> setProgress(p))).map((b,i)=>({name:`split-${i+1}.pdf`, blob:b}));
+            blobs = (await _split(files[0], range, (p)=> setProgress(p), cancelled)).map((b,i)=>({name:`split-${i+1}.pdf`, blob:b}));
           } else if (op === "COMPRESS") {
-            const r = await _compress(files[0]); blobs = [{name:"compressed.pdf", blob:r.blob}]; meta={originalSize:r.original, outputSize:r.output};
+            const r = await _compress(files[0], cancelled); blobs = [{name:"compressed.pdf", blob:r.blob}]; meta={originalSize:r.original, outputSize:r.output};
           } else if (op === "IMAGES_TO_PDF") {
-            const b = await _img2pdf(files, (p)=> setProgress(p)); blobs=[{name:"images-to-pdf.pdf", blob:b}];
+            const b = await _img2pdf(files, (p)=> setProgress(p), cancelled); blobs=[{name:"images-to-pdf.pdf", blob:b}];
           } else if (op === "PDF_TO_IMAGES") {
-            const arr = await _pdf2img(files[0], imageFormat, 0.92, (p)=> setProgress(p)); blobs=arr.map((b,i)=>({name:`page-${i+1}.${imageFormat}`, blob:b}));
+            const arr = await _pdf2img(files[0], imageFormat, 0.92, (p)=> setProgress(p), cancelled); blobs=arr.map((b,i)=>({name:`page-${i+1}.${imageFormat}`, blob:b}));
           } else if (op === "IMAGE_COMPRESS") {
             const arr = await Promise.all(files.map(async (f)=>{ const b=await _cImg(f, imageQuality); return {name: f.name.replace(/\.[^.]+$/, "")+`-compressed.`+ (f.name.split(".").pop()||"jpg"), blob:b}; })); blobs=arr;
           } else if (op === "IMAGE_CONVERT") {
             const arr = await Promise.all(files.map(async (f)=>{ const b=await _convImg(f, convertTarget, 0.92); return {name: f.name.replace(/\.[^.]+$/, "")+`-converted.`+ convertTarget.split("/")[1].replace("jpeg","jpg"), blob:b}; })); blobs=arr;
           } else if (op === "IMAGE_RESIZE") {
-            const arr = await Promise.all(files.map(async (f)=>{ const b=await _resImg(f, resizeWidth, resizeHeight, convertTarget, 0.92); return {name: f.name.replace(/\.[^.]+$/, "")+`-resized.`+ convertTarget.split("/")[1].replace("jpeg","jpg"), blob:b}; })); blobs=arr;
+            const { aspectHeight } = await import("@/lib/image-engine");
+            const arr = await Promise.all(files.map(async (f)=>{
+              const w = resizeWidth;
+              let h = resizeHeight;
+              if (keepAspect) {
+                const bmp = await createImageBitmap(f);
+                h = aspectHeight(bmp.width, bmp.height, w);
+                bmp.close();
+              }
+              const mime = f.type === "image/jpeg" || f.type === "image/webp" || f.type === "image/png" ? f.type : "image/png";
+              const b = await _resImg(f, w, h, mime, 0.92);
+              const ext = mime === "image/jpeg" ? "jpg" : mime === "image/webp" ? "webp" : "png";
+              return {name: f.name.replace(/\.[^.]+$/, "")+`-resized.`+ ext, blob:b};
+            })); blobs=arr;
           } else if (op === "EXIF_CLEAN") {
             const arr = await Promise.all(files.map(async (f)=>{ const b=await _exif(f); return {name: f.name.replace(/\.[^.]+$/, "")+`-clean.`+ (f.name.split(".").pop()||"jpg"), blob:b}; })); blobs=arr;
           }
@@ -179,6 +200,9 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
           setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed");
           clearJobTimeout();
+          void import("@/components/consent-and-analytics").then(({ trackEvent }) => {
+            trackEvent("tool_used", { tool: tool.slug });
+          }).catch(() => {});
         } catch (err) {
           if (cancelledRef.current || idRef.current !== id) { clearJobTimeout(); return; }
           setErrors([(err as Error).message]); setStatus("failed"); clearJobTimeout(); return;
@@ -242,7 +266,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         targetMime: convertTarget,
         width: resizeWidth,
         height: resizeHeight,
-        maxWidth: 1920,
+        keepAspect,
       },
     });
   };
@@ -349,7 +373,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         </div>
       )}
 
-      <UploadZone onFiles={handleFiles} accept={tool.acceptMime.join(",")} multiple={tool.maxFiles > 1} maxFiles={tool.maxFiles} />
+      <UploadZone onFiles={handleFiles} accept={tool.acceptMime.join(",")} multiple={tool.maxFiles > 1} maxFiles={tool.maxFiles} maxFileSize={tool.maxFileSize} />
 
       {files.length > 0 && (
         <ul className="space-y-2" aria-live="polite">
@@ -430,7 +454,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
       <p className="text-xs text-muted-foreground">
         Max {Math.round(tool.maxFileSize / 1024 / 1024)}MB/file, {tool.maxFiles} files, total 100MB. HEIC/SVG not supported. Password-protected PDFs aren&apos;t currently supported.
-        {tool.slug === "pdf-compress" && " Compression uses object-stream cleanup — image recompression where possible; honest size is reported, not guaranteed to shrink every PDF."}
+        {tool.slug === "pdf-compress" && " Compression rewrites the PDF with object streams. Embedded images are not recompressed; size may stay the same or grow."}
       </p>
     </div>
   );

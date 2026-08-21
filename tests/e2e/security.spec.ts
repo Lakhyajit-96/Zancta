@@ -43,7 +43,10 @@ test.describe("API authorization and session security", () => {
     });
     const body = await signup.json();
     expect(body.devToken?.length).toBeGreaterThan(0);
-    await request.post("/api/auth/verify-email", { data: { token: body.devToken } });
+    await request.post("/api/auth/verify-email", {
+      headers: { "x-forwarded-for": uniqueIp() },
+      data: { token: body.devToken },
+    });
     await page.goto("/signin?callbackUrl=https://evil.example/phish");
     await page.fill("#email", email);
     await page.fill("#password", password);
@@ -77,7 +80,10 @@ test.describe("API authorization and session security", () => {
     const signupBody = await signup.json();
     const verifyToken = signupBody.devToken as string;
     expect(verifyToken?.length).toBeGreaterThan(0);
-    const verified = await request.post("/api/auth/verify-email", { data: { token: verifyToken } });
+    const verified = await request.post("/api/auth/verify-email", {
+      headers: { "x-forwarded-for": uniqueIp() },
+      data: { token: verifyToken },
+    });
     expect(verified.ok()).toBeTruthy();
 
     const ctxA = await browser.newContext();
@@ -90,7 +96,7 @@ test.describe("API authorization and session security", () => {
       await page.fill("#email", email);
       await page.fill("#password", password);
       await page.getByRole("button", { name: /^Sign in$/i }).click();
-      await page.waitForURL(/\/account/, { timeout: 15_000 });
+      await page.waitForURL(/\/account/, { timeout: 20_000, waitUntil: "commit" });
     }
 
     const forgot = await request.post("/api/auth/forgot-password", {

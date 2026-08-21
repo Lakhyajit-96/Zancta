@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { compressImage, convertImage, resizeImage, exifClean } from "@/lib/image-engine";
+import { compressImage, convertImage, resizeImage, exifClean, aspectHeight } from "@/lib/image-engine";
 
 async function makeImage(width: number, height: number, color = "red"): Promise<File> {
   const canvas = document.createElement("canvas");
@@ -18,12 +18,15 @@ async function makeImage(width: number, height: number, color = "red"): Promise<
 // blobToBytes removed — not needed for current assertions (kept for future byte-level validation)
 
 describe("image-engine", () => {
-  it("compress reduces or keeps size", async () => {
+  it("compress preserves dimensions", async () => {
     const f = await makeImage(400, 400, "blue");
     const blob = await compressImage(f, 0.7);
     expect(blob.type).toMatch(/image\//);
     expect(blob.size).toBeGreaterThan(0);
-    // may not always be smaller for tiny images, just check non-zero
+    const bmp = await createImageBitmap(blob);
+    expect(bmp.width).toBe(400);
+    expect(bmp.height).toBe(400);
+    bmp.close();
   });
 
   it("convert PNG → JPEG", async () => {
@@ -60,6 +63,10 @@ describe("image-engine", () => {
     expect(bmp.width).toBe(80);
     expect(bmp.height).toBe(60);
     bmp.close();
+  });
+
+  it("aspectHeight keeps ratio", () => {
+    expect(aspectHeight(100, 50, 80)).toBe(40);
   });
 
   it("resize rejects too large", async () => {

@@ -13,7 +13,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const tool = getTool(slug);
   if (!tool) return {};
-  return buildMetadata({ title: tool.seoTitle, description: tool.seoDescription, path: `/tools/${slug}` });
+  const meta = buildMetadata({ title: tool.seoTitle, description: tool.seoDescription, path: `/tools/${slug}` });
+  if (!tool.available) {
+    return { ...meta, robots: { index: false, follow: false } };
+  }
+  return meta;
 }
 
 export default async function ToolPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -81,10 +85,12 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           </p>
         </section>
 
+        {tool.available && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSoftwareApp(tool)) }}
         />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

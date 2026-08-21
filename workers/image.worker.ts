@@ -24,7 +24,6 @@ self.onmessage = async (e: MessageEvent<ImageRequest | { id: string; op: "CANCEL
   try {
     post({ id, status: "validating", progress: 5 });
     if (!files || files.length === 0) throw new Error("No files");
-    if (files.length > 5) throw new Error("Too many files — max 5 free");
     post({ id, status: "loading", progress: 15 });
     const results: { name: string; blob: Blob }[] = [];
     for (let i = 0; i < files.length; i++) {
@@ -37,7 +36,7 @@ self.onmessage = async (e: MessageEvent<ImageRequest | { id: string; op: "CANCEL
       const base = f.name.replace(/\.[^.]+$/, "") || "image";
       if (op === "COMPRESS" || op === "IMAGE_COMPRESS") {
         const q = options?.quality ?? 0.8;
-        blob = await compressImage(f, q, options?.maxWidth);
+        blob = await compressImage(f, q);
         const ext = f.name.split(".").pop() || "jpg";
         outName = `${base}-compressed.${ext}`;
       } else if (op === "CONVERT" || op === "IMAGE_CONVERT") {

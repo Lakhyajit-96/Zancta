@@ -1,7 +1,22 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 test.describe("a11y", () => {
-  const pages = ["/", "/tools", "/tools/image-compress", "/tools/image-convert", "/tools/image-resize", "/tools/exif-cleaner"];
+  const pages = [
+    "/",
+    "/tools",
+    "/tools/pdf-merge",
+    "/tools/pdf-split",
+    "/tools/pdf-compress",
+    "/tools/pdf-to-images",
+    "/tools/images-to-pdf",
+    "/tools/image-compress",
+    "/tools/image-convert",
+    "/tools/image-resize",
+    "/tools/exif-cleaner",
+    "/tools/ocr",
+    "/tools/pdf-text-extractor",
+    "/tools/background-remover",
+  ];
   for (const p of pages) {
     test(`axe ${p} — no serious violations`, async ({ page }) => {
       await page.goto(p);

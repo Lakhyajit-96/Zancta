@@ -5,6 +5,7 @@ function uniqueIp() {
 }
 
 test.describe("Auth — real flows", () => {
+  test.describe.configure({ mode: "serial" });
   const password = "Test12345!";
 
   test("signup → verify → signin → account → delete", async ({ page, request }) => {
@@ -35,11 +36,12 @@ test.describe("Auth — real flows", () => {
     await expect(page.getByText(/verified/i)).toBeVisible({ timeout: 10000 });
 
     // Signin
+    await page.setExtraHTTPHeaders({ "x-forwarded-for": uniqueIp() });
     await page.goto("/signin");
     await page.fill("#email", email);
     await page.fill("#password", password);
-    await page.getByRole("button", { name: /Sign in/i }).click();
-    await page.waitForURL(/\/account/, { timeout: 10000 });
+    await page.locator("form").getByRole("button", { name: /Sign in/i }).click();
+    await expect(page).toHaveURL(/\/account/, { timeout: 25000 });
     await expect(page.getByText(email)).toBeVisible();
 
     // Account shows entitlement
@@ -76,15 +78,25 @@ test.describe("Auth — real flows", () => {
     expect(token.length).toBeGreaterThan(0);
     await page.goto(`/verify-email?token=${token}`);
     await expect(page.getByText(/verified/i)).toBeVisible({ timeout: 10000 });
+    await page.setExtraHTTPHeaders({ "x-forwarded-for": uniqueIp() });
     await page.goto("/signin");
     await page.fill("#email", email);
     await page.fill("#password", password);
-    await page.getByRole("button", { name: /^Sign in$/i }).click();
-    await page.waitForURL(/\/account/, { timeout: 10000 });
+    await page.locator("form").evaluate((form) => (form as HTMLFormElement).requestSubmit());
+    await expect(page).toHaveURL(/\/account/, { timeout: 25000 });
     await page.fill('input[placeholder="Type DELETE"]', "DELETE");
     await page.getByRole("button", { name: /Delete account/i }).click();
-    await page.waitForURL((url) => new URL(url).pathname === "/", { timeout: 10000 });
-    const accountRes = await page.request.get("/account", { maxRedirects: 0 });
+    await page.waitForURL((url) => new URL(url).pathname === "/", { timeout: 20000, waitUntil: "commit" });
+    let accountRes: Awaited<ReturnType<typeof page.request.get>> | undefined;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        accountRes = await page.request.get("/account", { maxRedirects: 0 });
+        break;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+    }
+    if (!accountRes) throw new Error("GET /account failed after retries");
     expect(accountRes.status()).toBeGreaterThanOrEqual(300);
     expect(accountRes.status()).toBeLessThan(400);
     expect(accountRes.headers()["location"] || accountRes.url()).toMatch(/signin/);

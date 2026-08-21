@@ -44,15 +44,16 @@ test.describe("PDF tools — real processing", () => {
     await page.locator('input[type="file"]').setInputFiles({ name: "one.pdf", mimeType: "application/pdf", buffer: Buffer.from(bytes) });
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/Original/i)).toBeVisible();
+    await expect(page.getByText(/Original \d/)).toBeVisible();
   });
 
   test("pdf-to-images: renders pages", async ({ page }) => {
+    test.setTimeout(60_000);
     const bytes = await makePdfBytes(2);
     await page.goto("/tools/pdf-to-images");
     await page.locator('input[type="file"]').setInputFiles({ name: "two.pdf", mimeType: "application/pdf", buffer: Buffer.from(bytes) });
     await page.getByRole("button", { name: /Process locally/i }).click();
-    await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 45000 });
   });
 
   test("images-to-pdf: two PNGs → PDF", async ({ page }) => {
@@ -65,6 +66,37 @@ test.describe("PDF tools — real processing", () => {
     ]);
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
+  });
+
+  test("images-to-pdf: WebP is accepted and produces a PDF", async ({ page }) => {
+    const webp = Buffer.from("UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA", "base64");
+    await page.goto("/tools/images-to-pdf");
+    await page.locator('input[type="file"]').setInputFiles({ name: "a.webp", mimeType: "image/webp", buffer: webp });
+    await page.getByRole("button", { name: /Process locally/i }).click();
+    await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: /Download/i }).first().click();
+    const dl = await downloadPromise;
+    expect(await dl.suggestedFilename()).toMatch(/\.pdf$/i);
+  });
+
+  test("renamed PNG is not treated as a PDF", async ({ page }) => {
+    const pngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
+    await page.goto("/tools/pdf-merge");
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "fake.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from(pngBase64, "base64"),
+    });
+    await expect(page.getByRole("alert").filter({ hasText: /couldn't process/i })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/not a valid PDF/i)).toBeVisible();
+  });
+
+  test("pdf-compress does not advertise quality levels", async ({ page }) => {
+    await page.goto("/tools/pdf-compress");
+    const body = await page.locator("body").innerText();
+    expect(body).not.toMatch(/Light, Medium, Strong|3 quality levels/i);
+    expect(body).toMatch(/object streams/i);
   });
 
   test("split rejects invalid range", async ({ page }) => {

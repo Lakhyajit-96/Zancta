@@ -79,7 +79,7 @@ test.describe("Image tools — real processing", () => {
 
   test("exif cleaner: re-encode strips metadata", async ({ page }) => {
     await page.goto("/tools/exif-cleaner");
-    await page.locator('input[type="file"]').setInputFiles({ name: "photo.jpg", mimeType: "image/jpeg", buffer: pngBuf });
+    await page.locator('input[type="file"]').setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: pngBuf });
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
     const dlPromise = page.waitForEvent("download");

@@ -7,11 +7,13 @@ export function UploadZone({
   accept,
   multiple,
   maxFiles,
+  maxFileSize = 50 * 1024 * 1024,
 }: {
   onFiles: (files: File[]) => void;
   accept: string;
   multiple?: boolean;
   maxFiles: number;
+  maxFileSize?: number;
 }) {
   const [dragOver, setDragOver] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -73,7 +75,7 @@ export function UploadZone({
         </div>
         <p className="text-base font-semibold tracking-tight">Drop files here or click to browse</p>
         <p className="text-xs text-muted-foreground">
-          Max {maxFiles} files, 50 MB each. HEIC and SVG not supported in MVP.
+          Max {maxFiles} files, {Math.round(maxFileSize / 1024 / 1024)} MB each. HEIC and SVG are not supported.
         </p>
         <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />

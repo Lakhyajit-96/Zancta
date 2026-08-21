@@ -6,7 +6,7 @@ import { hashToken } from "@/lib/token";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const rl = await rateLimitAsync(`verify:${ip}`, 10, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`verify:${ip}`, 60, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
 
   const { token } = await req.json().catch(() => ({}));
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const ip = getClientIp(req.headers);
-  const rl = await rateLimitAsync(`verify:${ip}`, 10, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`verify:${ip}`, 60, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
   const token = req.nextUrl.searchParams.get("token");
   if (!token) return NextResponse.json({ error: "Missing token" }, { status: 400 });

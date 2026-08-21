@@ -62,20 +62,24 @@ test.describe("Image output validation", () => {
     await expect(page.getByText(/Completed/i)).toBeVisible({timeout:15000});
     await downloadAndValidate(page, "image/png", "png");
   });
-  test("resize exact dimensions 80x60", async ({ page }) => {
+  test("resize exact dimensions 80x60 when aspect lock is off", async ({ page }) => {
     await page.goto("/tools/image-resize");
+    await page.getByLabel("Keep aspect").uncheck();
     await page.getByLabel("Width").fill("80");
     await page.getByLabel("Height").fill("60");
     await page.locator('input[type="file"]').setInputFiles({ name: "a.png", mimeType: "image/png", buffer: pngBuf });
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({timeout:15000});
-    await downloadAndValidate(page, undefined, undefined);
-    const dims = await page.evaluate(() => ({ ok: true }));
-    expect(dims.ok).toBeTruthy();
+    const dlPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: /Download/i }).first().click();
+    const dl = await dlPromise;
+    const p = await dl.path();
+    expect(p).toBeTruthy();
+    expect(await dl.suggestedFilename()).toMatch(/\.png$/i);
   });
   test("exif cleaner produces re-encoded output", async ({ page }) => {
     await page.goto("/tools/exif-cleaner");
-    await page.locator('input[type="file"]').setInputFiles({ name: "photo.jpg", mimeType: "image/jpeg", buffer: pngBuf });
+    await page.locator('input[type="file"]').setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: pngBuf });
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({timeout:15000});
     await downloadAndValidate(page, undefined, undefined);

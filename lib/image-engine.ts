@@ -51,14 +51,20 @@ async function canvasToBlob(
   );
 }
 
+export function aspectHeight(sourceWidth: number, sourceHeight: number, targetWidth: number): number {
+  if (sourceWidth <= 0) return targetWidth;
+  return Math.max(1, Math.round((sourceHeight * targetWidth) / sourceWidth));
+}
+
 export async function compressImage(file: File, quality = 0.8, maxWidth?: number): Promise<Blob> {
-  // Use browser-image-compression for JPEG/WebP; for PNG we still re-encode via canvas to strip metadata
+  // Re-encode only. Do not silently resize — dimensions stay unless the caller passes maxWidth.
   const opts: Record<string, unknown> = {
     maxSizeMB: 50,
-    maxWidthOrHeight: maxWidth || 1920,
     useWebWorker: false,
     initialQuality: quality,
     fileType: file.type || "image/jpeg",
+    alwaysKeepResolution: !maxWidth,
+    ...(maxWidth ? { maxWidthOrHeight: maxWidth } : {}),
   };
   // browser-image-compression expects File, returns Blob
   try {

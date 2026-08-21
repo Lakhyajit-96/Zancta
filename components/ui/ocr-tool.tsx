@@ -188,6 +188,11 @@ export function OcrTool() {
           </div>
           <label className="mt-4 block text-sm font-medium" htmlFor="ocr-result">Extracted text</label>
           <textarea id="ocr-result" readOnly value={text} className="field-input mt-2 h-56 p-3 font-mono text-sm leading-6" aria-label="Extracted OCR text" />
+          {!text.trim() && (
+            <p role="status" className="mt-3 text-sm text-muted-foreground">
+              No text was recognized. English OCR can miss handwriting, low-contrast images, or non-English text. This is not a silent success with hidden content.
+            </p>
+          )}
         </div>
       )}
 

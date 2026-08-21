@@ -1,9 +1,6 @@
 export const LIMITS = {
   MAX_FILE_SIZE: 50 * 1024 * 1024,
   MAX_BG_SIZE: 30 * 1024 * 1024,
-  MAX_FILES_FREE: 5,
-  // Authoritative Free-tier PDF page limit — applies to every input
-  // combination (1 file, 2 files, many files): sum(all input pages).
   MAX_PDF_PAGES: 200,
   MAX_IMAGE_DIM: 12000,
   MAX_TOTAL_BYTES: 100 * 1024 * 1024,
@@ -19,7 +16,9 @@ export type ValidationErrorCode =
   | "IMAGE_TOO_LARGE_DIM"
   | "PDF_TOO_MANY_PAGES"
   | "HEIC_NOT_SUPPORTED"
-  | "SVG_NOT_SUPPORTED";
+  | "SVG_NOT_SUPPORTED"
+  | "EMPTY_FILE"
+  | "MAGIC_MISMATCH";
 
 export interface ValidationError {
   code: ValidationErrorCode;
@@ -81,7 +80,7 @@ export function validateFiles(
       errors.push({
         code: "HEIC_NOT_SUPPORTED",
         message: `HEIC not supported yet — "${f.name}"`,
-        hint: "Convert HEIC in Photos or use JPG/PNG/WebP. HEIC cloud fallback coming in V1.",
+        hint: "Convert HEIC in Photos or another app, then use JPG, PNG, or WebP.",
       });
       continue;
     }
@@ -91,6 +90,15 @@ export function validateFiles(
         code: "SVG_NOT_SUPPORTED",
         message: `SVG not supported — "${f.name}"`,
         hint: "Use JPG, PNG, or WebP for image tools.",
+      });
+      continue;
+    }
+
+    if (f.size === 0) {
+      errors.push({
+        code: "EMPTY_FILE",
+        message: `"${f.name}" is empty (0 bytes).`,
+        hint: "Choose a real file with content.",
       });
       continue;
     }
@@ -129,7 +137,53 @@ export function validateFiles(
 export function checkMagicBytes(bytes: Uint8Array, expected: keyof typeof MAGIC): boolean {
   const sig = MAGIC[expected];
   if (!sig) return false;
-  return sig.every((b, i) => bytes[i] === b);
+  if (!sig.every((b, i) => bytes[i] === b)) return false;
+  if (expected === "webp") {
+    // RIFF....WEBP — first 4 bytes also match WAV/AVI
+    return bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+  }
+  return true;
+}
+
+function expectedKind(ext: string, mime: string): keyof typeof MAGIC | null {
+  if (ext === "pdf" || mime === "application/pdf") return "pdf";
+  if (ext === "png" || mime === "image/png") return "png";
+  if (ext === "jpg" || ext === "jpeg" || mime === "image/jpeg") return "jpg";
+  if (ext === "webp" || mime === "image/webp") return "webp";
+  return null;
+}
+
+async function readFileBytes(file: File): Promise<Uint8Array> {
+  if (typeof (file as File & { arrayBuffer?: () => Promise<ArrayBuffer> }).arrayBuffer === "function") {
+    return new Uint8Array(await file.arrayBuffer());
+  }
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsArrayBuffer(file as unknown as Blob);
+  });
+}
+
+/** Inspect the first bytes of already-accepted files. Does not trust extension alone. */
+export async function validateFileMagic(files: File[]): Promise<ValidationResult> {
+  const errors: ValidationError[] = [];
+  for (const f of files) {
+    if (f.size === 0) continue;
+    const ext = extOf(f.name);
+    const kind = expectedKind(ext, f.type);
+    if (!kind) continue;
+    const bytes = await readFileBytes(f);
+    const head = bytes.subarray(0, 16);
+    if (!checkMagicBytes(head, kind)) {
+      errors.push({
+        code: "MAGIC_MISMATCH",
+        message: `"${f.name}" is not a valid ${kind.toUpperCase()} file.`,
+        hint: "The filename or type does not match the file contents. Rename will not convert formats.",
+      });
+    }
+  }
+  return { ok: errors.length === 0, errors };
 }
 
 export function formatBytes(bytes: number): string {

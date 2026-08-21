@@ -146,4 +146,23 @@ describe("pdf-engine", () => {
       expect(doc.getPageCount()).toBe(198);
     });
   });
+
+  it("split rejects more than 200 pages", async () => {
+    const f = fileFromBytes(await makePdf(201), "p201.pdf", "application/pdf");
+    await expect(splitPdf(f, "1")).rejects.toThrow(/max 200 pages/);
+  });
+
+  it("compress rejects more than 200 pages", async () => {
+    const f = fileFromBytes(await makePdf(201), "p201.pdf", "application/pdf");
+    await expect(compressPdf(f)).rejects.toThrow(/max 200 pages/);
+  });
+
+  it("imagesToPdf rasterizes WebP-labelled PNG bytes", async () => {
+    const pngBytes = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=", "base64"));
+    const f = new File([pngBytes], "tiny.webp", { type: "image/webp" });
+    const blob = await imagesToPdf([f]);
+    expect(blob.type).toBe("application/pdf");
+    const doc = await PDFDocument.load(await blobToBytes(blob));
+    expect(doc.getPageCount()).toBe(1);
+  });
 });
