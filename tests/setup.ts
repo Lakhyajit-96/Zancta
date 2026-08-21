@@ -1,6 +1,13 @@
 import "dotenv/config";
 import { createCanvas, loadImage } from "canvas";
 
+if (!process.env.NEXT_PUBLIC_APP_URL) {
+  process.env.NEXT_PUBLIC_APP_URL = "https://zancta.tech";
+}
+if (!process.env.NEXTAUTH_URL) {
+  process.env.NEXTAUTH_URL = "https://zancta.tech";
+}
+
 if (typeof globalThis.createImageBitmap === "undefined") {
   // @ts-expect-error polyfill
   globalThis.createImageBitmap = async (blob: Blob): Promise<ImageBitmap> => {

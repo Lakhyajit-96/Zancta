@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { NextRequest } from "next/server";
-import { buildIndexNowPayload, isAllowedIndexNowUrl, sanitizeIndexNowUrls } from "@/lib/indexnow";
+import { buildIndexNowPayload, indexNowKeyFileResponse, isAllowedIndexNowUrl, sanitizeIndexNowUrls } from "@/lib/indexnow";
 
 const TEST_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
@@ -49,6 +49,15 @@ describe("IndexNow URL allowlist", () => {
     const urls = Array.from({ length: 25 }, (_, i) => `https://zancta.tech/tools?n=${i}`);
     urls.push("https://zancta.tech/tools?n=0");
     expect(sanitizeIndexNowUrls(urls).length).toBe(20);
+  });
+
+  it("serves the key file only at the exact public path", () => {
+    const file = indexNowKeyFileResponse(`/${TEST_KEY}.txt`);
+    expect(file?.body).toBe(TEST_KEY);
+    expect(file?.headers["content-type"]).toMatch(/text\/plain/);
+    expect(indexNowKeyFileResponse("/llms.txt")).toBeNull();
+    expect(indexNowKeyFileResponse("/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab.txt")).toBeNull();
+    expect(indexNowKeyFileResponse("/api/indexnow")).toBeNull();
   });
 });
 

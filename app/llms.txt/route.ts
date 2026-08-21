@@ -14,7 +14,7 @@ function llmsTxt(): string {
 
   return `# ZANCTA
 
-> ${LEGAL_PUBLIC.brand} is a website of browser-local PDF and image tools at ${LEGAL_PUBLIC.siteUrl}.
+> ${LEGAL_PUBLIC.brand} is a website of browser-local PDF and image tools at ${LEGAL_PUBLIC.siteUrl}, operated by ${LEGAL_PUBLIC.operatorName} as an individual operator.
 > This file is a concise, factual description for language-model crawlers. It is not a ranking claim.
 
 ## What it is

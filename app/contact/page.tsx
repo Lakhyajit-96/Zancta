@@ -33,7 +33,7 @@ export default function ContactPage() {
         </p>
       </ContentSection>
       <ContentSection title="Launch requirement" className="md:col-span-2">
-        <p>Before a complete commercial launch, ZANCTA needs a monitored support and security channel, clear ownership, a response process, and appropriate retention guidance. That work is intentionally not replaced with a fake contact address. This page stays out of the sitemap and is marked noindex until a genuine channel exists.</p>
+        <p>Before a complete commercial launch, ZANCTA needs a monitored support and security channel, clear ownership, a response process, and appropriate retention guidance. India&apos;s Digital Personal Data Protection Rules, 2025, Rule 9, may also require a published business contact for questions about personal-data processing; that is flagged for professional review rather than treated as a completed designation. This page stays out of the sitemap and is marked noindex until a genuine channel exists.</p>
       </ContentSection>
     </ContentPage>
   );

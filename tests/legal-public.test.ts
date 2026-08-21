@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { jsonLdSoftwareApp, jsonLdWebSite } from "@/lib/seo";
+import { jsonLdOrganization, jsonLdSoftwareApp, jsonLdWebSite } from "@/lib/seo";
 import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { GET } from "@/app/llms.txt/route";
 
@@ -33,12 +33,20 @@ describe("public legal and AI-search facts", () => {
     expect(String((jsonLdWebSite() as { url: string }).url)).toMatch(/\/$/);
   });
 
+  it("names the individual operator in Organization structured data without an address", () => {
+    const json = JSON.stringify(jsonLdOrganization());
+    expect(json).toContain("Lakhyajit Changmai");
+    expect(json).toContain('"@type":"Person"');
+    expect(json).not.toMatch(/Pvt Ltd|LLP|registered office|Inc\./i);
+  });
+
   it("llms.txt is factual and omits ranking claims", async () => {
     const res = GET();
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toMatch(/text\/plain/);
     const body = await res.text();
     expect(body).toContain("ZANCTA");
+    expect(body).toContain("Lakhyajit Changmai");
     expect(body).toContain("https://zancta.tech/refund-and-cancellation");
     expect(body).toMatch(/11 available|11 working|11 available tools/i);
     expect(body).not.toMatch(/#1|most secure|guaranteed indexing|guaranteed ChatGPT/i);

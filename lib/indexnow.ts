@@ -22,6 +22,20 @@ export function indexNowKeyLocation(): string | null {
   return `https://${ALLOWED_HOST}/${key}.txt`;
 }
 
+const INDEXNOW_KEY_FILE_HEADERS = {
+  "content-type": "text/plain; charset=utf-8",
+  "cache-control": "public, max-age=3600",
+  "x-robots-tag": "noindex",
+} as const;
+
+/** Serve the public IndexNow ownership file only at /{key}.txt. */
+export function indexNowKeyFileResponse(pathname: string): { body: string; headers: Record<string, string> } | null {
+  const key = getIndexNowKey();
+  if (!key) return null;
+  if (pathname !== `/${key}.txt`) return null;
+  return { body: key, headers: { ...INDEXNOW_KEY_FILE_HEADERS } };
+}
+
 export function isAllowedIndexNowUrl(raw: string): boolean {
   let parsed: URL;
   try {

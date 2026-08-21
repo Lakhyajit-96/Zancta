@@ -45,13 +45,37 @@ describe("production transactional email", () => {
     );
 
     const payload = sendMock.mock.calls[0][0] as Record<string, unknown>;
-    expect(payload.from).toBe("noreply@mail.zancta.tech");
+    expect(payload.from).toBe("ZANCTA <noreply@mail.zancta.tech>");
     expect(payload.replyTo).toBe("support@zancta.tech");
     expect(payload.subject).toBe("Reset your ZANCTA password");
     expect(payload.html).toEqual(expect.stringContaining("ZANCTA"));
     expect(payload.html).toEqual(expect.stringContaining("Reset password"));
     expect(payload.html).toEqual(expect.stringContaining("abc%26def"));
+    expect(payload.html).toEqual(expect.stringContaining("display:none"));
+    expect(payload.html).toEqual(expect.stringContaining("copy this URL"));
     expect(payload.text).toEqual(expect.stringContaining("This link expires in 60 minutes"));
+    expect(payload.text).toEqual(expect.stringContaining("existing signed-in sessions"));
     expect(payload.html).not.toEqual(expect.stringContaining("<script"));
+  });
+
+  it("omits Reply-To unless EMAIL_REPLY_TO is an explicit mailbox", async () => {
+    (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.EMAIL_FROM = "noreply@mail.zancta.tech";
+    delete process.env.EMAIL_REPLY_TO;
+    process.env.NEXTAUTH_URL = "https://zancta.tech";
+
+    const { getEmailAdapter } = await import("@/lib/email");
+    await getEmailAdapter().sendVerification(
+      "person@example.com",
+      "https://zancta.tech/verify-email?token=verify-token"
+    );
+
+    const payload = sendMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.from).toBe("ZANCTA <noreply@mail.zancta.tech>");
+    expect(payload.replyTo).toBeUndefined();
+    expect(payload.html).toEqual(expect.stringContaining("belongs to you"));
+    expect(payload.html).not.toEqual(expect.stringContaining("support@zancta.tech"));
+    expect(payload.text).toEqual(expect.stringContaining("https://zancta.tech/verify-email?token=verify-token"));
   });
 });

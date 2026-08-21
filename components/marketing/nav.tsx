@@ -171,7 +171,7 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
     ],
   },
   {
-    title: "Company",
+    title: "ZANCTA",
     links: [
       { href: "/about", label: "About" },
       { href: "/contact", label: "Contact" },

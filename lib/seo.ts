@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LEGAL_PUBLIC } from "@/lib/legal-public";
 
 type SEOProps = {
   title: string;
@@ -115,6 +116,10 @@ export function jsonLdOrganization(): object {
     url: `${PUBLIC_SITE_URL}/`,
     logo: `${PUBLIC_SITE_URL}/assets/zancta-brand/logos/compact-mark.svg`,
     description: "PDF and image tools that process supported files in the browser.",
+    founder: {
+      "@type": "Person",
+      name: LEGAL_PUBLIC.operatorName,
+    },
   };
 }
 
@@ -125,7 +130,13 @@ export function jsonLdWebSite(): object {
     name: "ZANCTA",
     alternateName: "ZANCTA",
     url: `${PUBLIC_SITE_URL}/`,
+    inLanguage: "en",
     description: "PDF and image tools that process supported files in the browser.",
+    publisher: {
+      "@type": "Organization",
+      name: "ZANCTA",
+      url: `${PUBLIC_SITE_URL}/`,
+    },
   };
 }
 

@@ -11,8 +11,8 @@
 **Env vars:**
 ```
 RESEND_API_KEY=re_... (server secret, never NEXT_PUBLIC)
-EMAIL_FROM=noreply@mail.zancta.tech (verified Resend sender)
-EMAIL_REPLY_TO=support@zancta.tech
+EMAIL_FROM=noreply@mail.zancta.tech (verified Resend sender; code sends as ZANCTA <that address>)
+EMAIL_REPLY_TO= # optional; set only after a real mailbox is proven
 NEXTAUTH_URL=https://zancta.tech
 ```
 
@@ -41,7 +41,7 @@ NEXTAUTH_URL=https://zancta.tech
 - [ ] `RESEND_API_KEY` in Vercel env (Production)
 - [ ] `EMAIL_FROM=noreply@mail.zancta.tech` verified in Resend
 - [ ] Exact Resend SPF/DKIM/DMARC records added for `mail.zancta.tech` and `Verified` in Resend
-- [ ] `support@zancta.tech` is a real monitored mailbox; role aliases are tested before being called monitored
+- [ ] Role mailboxes exist and are tested before EMAIL_REPLY_TO or public addresses are published as monitored
 - [ ] Test email to Gmail/Outlook → `pass`
 - [ ] Confirm production responses never expose `devToken` (local-host gating only)
 
