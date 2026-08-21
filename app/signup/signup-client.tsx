@@ -38,7 +38,7 @@ function SignupInner({ google, github }: { google: boolean; github: boolean }) {
   };
 
   return (
-    <AuthShell eyebrow="JOIN ZANCTA" title="A quieter way to work with files." description="Create an account for entitlements and account settings. The supported tools still process files in your browser." reassurance="Your account is separate from your file bytes; tool files are not uploaded for local processing.">
+    <AuthShell eyebrow="JOIN ZANCTA" title="Create an account for billing and settings." description="Create an account for paid-plan status and account settings. The supported tools still process files in your browser." reassurance="Your account is separate from your file bytes; tool files are not uploaded for local processing.">
       <h2 className="text-lg font-semibold tracking-tight">Create account</h2>
       <p className="mt-1 text-sm text-muted-foreground">New to ZANCTA? Create an account. Local tools do not require one.</p>
       {providerError && <div role="alert" className="mt-4 rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{providerError}</div>}

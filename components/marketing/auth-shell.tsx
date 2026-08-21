@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CornerTicks, Reveal } from "./motion";
+import { Reveal } from "./motion";
 
 export function AuthShell({
   eyebrow,
@@ -35,8 +35,7 @@ export function AuthShell({
           <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
         </Reveal>
 
-        <Reveal delay={0.16} className="aperture card-surface relative mt-8 p-6 shadow-[0_28px_70px_rgba(0,0,0,0.42)] md:p-8">
-          <CornerTicks />
+        <Reveal delay={0.16} className="card-surface relative mt-8 p-6 shadow-[0_28px_70px_rgba(0,0,0,0.42)] md:p-8">
           {children}
         </Reveal>
 
@@ -47,7 +46,7 @@ export function AuthShell({
       </div>
 
       <p className="mx-auto mt-auto pt-12 text-center text-xs text-muted-foreground/80">
-        Local processing by design — your tool files never leave the browser for supported workflows.
+        Local processing for implemented tools — selected file bytes are not uploaded for processing.
       </p>
     </main>
   );

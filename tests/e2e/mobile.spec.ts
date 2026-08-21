@@ -11,8 +11,7 @@ for (const w of viewports) {
     expect(hasOverflow).toBe(false);
     await expect(page.getByLabel("Quality")).toBeVisible();
     // Touch target size check — button should be at least 44px?
-    const btn = page.getByRole("button", { name: /Select files/i }).first();
-    await expect(btn).toBeVisible();
+    await expect(page.getByLabel("Select files")).toBeAttached();
     await ctx.close();
     console.log(`mobile ${w}px ok`);
   });

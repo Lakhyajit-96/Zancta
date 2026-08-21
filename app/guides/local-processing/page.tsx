@@ -33,7 +33,7 @@ export default function LocalProcessingGuidePage() {
         <p>Compression, conversion, and resize stay in the browser for JPG, PNG, and WebP. HEIC and SVG are out of scope. EXIF cleaning removes common metadata from supported images; it cannot prove a downstream site will not re-tag a file you later upload elsewhere.</p>
       </ContentSection>
       <ContentSection title="Honest limits" className="md:col-span-2">
-        <p>Password-protected PDFs, corrupt files, very large documents, and low-memory phones can fail. Each tool page lists size and batch limits. Background removal is not offered until a local model can be licensed. For formats, recovery steps, and accounts see <Link href="/docs" className="underline">Docs</Link>, <Link href="/help" className="underline">Help</Link>, and <Link href="/faq" className="underline">FAQ</Link>.</p>
+        <p>Password-protected PDFs, corrupt files, very large documents, and low-memory phones can fail. Each tool page lists size and batch limits. Background removal is not offered until a local model can be licensed. For recovery steps and accounts see <Link href="/help" className="underline">Help</Link> and the <Link href="/faq" className="underline">FAQ</Link>.</p>
       </ContentSection>
     </ContentPage>
   );

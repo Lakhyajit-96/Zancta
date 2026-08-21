@@ -16,11 +16,12 @@ test("FAQ accordion is keyboard-accessible and reveals a real answer", async ({ 
 });
 
 test("public editorial pages use the viewport without horizontal overflow", async ({ browser }) => {
-  for (const width of [320, 375, 390, 430, 768, 1024, 1440, 1920]) {
+  test.setTimeout(180000);
+    for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     const context = await browser.newContext({ viewport: { width, height: 1080 } });
     const page = await context.newPage();
 
-    for (const route of ["/about", "/faq", "/docs", "/privacy", "/terms", "/security", "/contact"]) {
+    for (const route of ["/about", "/faq", "/help", "/privacy", "/terms", "/security", "/contact", "/", "/tools", "/pricing", "/how-it-works"]) {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);

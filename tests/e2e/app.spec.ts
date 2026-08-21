@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 test("homepage loads with correct heading", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Powerful file tools/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /PDF and image tools/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Choose a tool/i }).first()).toBeVisible();
 });
 test("tools page lists tools", async ({ page }) => {

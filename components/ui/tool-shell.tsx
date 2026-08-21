@@ -7,7 +7,6 @@ import { downloadBlob } from "@/lib/download";
 import { OcrTool } from "@/components/ui/ocr-tool";
 import { PdfTextExtractor } from "@/components/ui/pdf-text-extractor";
 import type { ToolMeta } from "@/lib/tools";
-import { CornerTicks } from "@/components/marketing/motion";
 type Status = "idle" | "validating" | "loading" | "processing" | "completed" | "failed" | "aborted";
 
 function GenericToolShell({ tool }: { tool: ToolMeta }) {
@@ -307,7 +306,6 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
   return (
     <div className={`aperture card-surface relative space-y-6 rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8 ${busy ? "aperture-active" : ""}`}>
-      <CornerTicks />
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <PrivacyIndicator />
         <span className="max-w-xl text-right text-xs leading-5 text-muted-foreground">Your files are processed locally in your browser. Your file bytes are not uploaded for processing.</span>
@@ -453,7 +451,9 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       )}
 
       <p className="text-xs text-muted-foreground">
-        Max {Math.round(tool.maxFileSize / 1024 / 1024)}MB/file, {tool.maxFiles} files, total 100MB. HEIC/SVG not supported. Password-protected PDFs aren&apos;t currently supported.
+        Max {Math.round(tool.maxFileSize / 1024 / 1024)}MB/file, {tool.maxFiles} files.
+        {tool.acceptMime.some((mime) => mime.startsWith("image/")) ? " HEIC and SVG are not supported." : ""}
+        {tool.acceptMime.includes("application/pdf") ? " Password-protected PDFs aren't currently supported." : ""}
         {tool.slug === "pdf-compress" && " Compression rewrites the PDF with object streams. Embedded images are not recompressed; size may stay the same or grow."}
       </p>
     </div>

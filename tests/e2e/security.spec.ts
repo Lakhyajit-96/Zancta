@@ -108,6 +108,7 @@ test.describe("API authorization and session security", () => {
     expect(resetToken?.length).toBeGreaterThan(0);
 
     const reset = await request.post("/api/auth/reset-password", {
+      headers: { "x-forwarded-for": uniqueIp() },
       data: { token: resetToken, password: nextPassword },
     });
     expect(reset.ok()).toBeTruthy();

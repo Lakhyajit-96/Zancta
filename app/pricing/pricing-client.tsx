@@ -62,8 +62,8 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
               <h3 className="text-sm font-semibold">Free</h3>
               <span className="text-xs text-muted-foreground">No account needed</span>
             </div>
-            <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">$0</p>
-            <p className="mt-1 text-xs text-muted-foreground">forever</p>
+            <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹0</p>
+            <p className="mt-1 text-xs text-muted-foreground">INR · forever</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
               {FREE_BENEFITS.map((item) => (
                 <li key={item} className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> {item}</li>
@@ -77,7 +77,7 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
         <StaggerItem className="h-full">
           <section
-            className={`card-surface flex h-full flex-col p-6 transition-shadow md:p-8 ${!annual ? "border-accent/50 shadow-[0_0_44px_rgba(232,160,180,0.12)]" : ""}`}
+            className={`card-surface flex h-full flex-col p-6 md:p-8 ${!annual ? "border-border-strong" : ""}`}
           >
             <div className="flex items-baseline justify-between">
               <h3 className="text-sm font-semibold">Premium Monthly</h3>
@@ -113,12 +113,11 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
         <StaggerItem className="h-full">
           <section
-            className={`card-surface relative flex h-full flex-col overflow-hidden p-6 md:p-8 ${annual ? "border-accent/50 shadow-[0_0_44px_rgba(232,160,180,0.12)]" : ""}`}
+            className={`card-surface relative flex h-full flex-col overflow-hidden p-6 md:p-8 ${annual ? "border-border-strong" : ""}`}
           >
-            <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-accent/70" />
             <div className="flex items-baseline justify-between">
               <h3 className="text-sm font-semibold">Premium Annual</h3>
-              <span className="rounded-full border border-accent/50 bg-accent/10 px-2.5 py-0.5 text-[0.65rem] font-medium text-accent">Best value</span>
+              <span className="text-xs text-muted-foreground">₹999 INR / year</span>
             </div>
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹999</p>
             <p className="mt-1 text-xs text-muted-foreground">/year</p>
@@ -150,8 +149,8 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         {checkoutLive
-          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later."
-          : "Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
+          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools and the same limits as Free. Ad-free access is reserved for if ads launch later — ads are not live today. There is no monitored support channel yet."
+          : "Prices are listed in INR. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
       </p>
     </div>
   );

@@ -10,8 +10,8 @@ export const metadata = pageMeta("/about", {
 });
 
 const VALUES = [
-  "Privacy first — the file never leaves your device for implemented local workflows.",
-  "Obsessive about details — restrained design, legible limits, honest states.",
+  "Privacy first — selected file bytes stay in the browser for implemented local workflows.",
+  "Clear limits — restrained design, legible formats, honest states.",
   "Transparent by design — deferred work stays labelled as deferred.",
   "Useful without an account — free tools work immediately.",
 ];
@@ -28,8 +28,8 @@ export default function AboutPage() {
               <p className="eyebrow-path">/about</p>
               <MaskLines
                 as="h1"
-                className="display-serif mt-5 text-4xl md:text-6xl"
-                lines={[<>Built for privacy.</>, <>Built for everyone.</>]}
+                className="display-serif mt-5 text-4xl md:text-5xl"
+                lines={[<>Built for privacy.</>, <>Useful without an account.</>]}
               />
               <Reveal delay={0.2}>
                 <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground">
@@ -52,8 +52,8 @@ export default function AboutPage() {
               <img
                 src="/assets/zancta-brand/hero/zancta-about-ridge.jpg"
                 alt="A dark mountain ridge with a faint rose rim light — the quiet, local boundary ZANCTA keeps around your files"
-                width={1536}
-                height={1024}
+                width={1264}
+                height={848}
                 loading="lazy"
                 className="h-full w-full object-cover"
               />

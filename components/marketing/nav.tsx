@@ -5,15 +5,13 @@ import { useEffect, useState } from "react";
 
 const PRIMARY_LINKS = [
   { href: "/tools", label: "Tools" },
-  { href: "/features", label: "Features" },
-  { href: "/how-it-works", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/docs", label: "Docs" },
-  { href: "/about", label: "About" },
+  { href: "/help", label: "Help" },
 ];
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -23,6 +21,21 @@ export function Navigation() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((session: { user?: unknown } | null) => {
+        if (!cancelled) setSignedIn(Boolean(session?.user));
+      })
+      .catch(() => {
+        if (!cancelled) setSignedIn(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-xl">
@@ -47,12 +60,21 @@ export function Navigation() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/signin"
-            className="hidden px-3 py-3 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
-          >
-            Sign in
-          </Link>
+          {signedIn ? (
+            <Link
+              href="/account"
+              className="hidden px-3 py-3 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+            >
+              Account
+            </Link>
+          ) : (
+            <Link
+              href="/signin"
+              className="hidden px-3 py-3 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+            >
+              Sign in
+            </Link>
+          )}
           <Link href="/tools" className="premium-button premium-button-primary hidden min-h-10 px-4 text-xs md:inline-flex">
             Open a tool <span aria-hidden>→</span>
           </Link>
@@ -85,6 +107,13 @@ export function Navigation() {
           aria-label="Primary"
           className="absolute inset-x-4 top-[4.25rem] rounded-xl border border-border-strong bg-surface p-3 text-sm shadow-2xl lg:hidden"
         >
+          <Link
+            href="/tools"
+            onClick={() => setOpen(false)}
+            className="premium-button premium-button-primary mb-2 w-full min-h-11 text-xs"
+          >
+            Open a tool <span aria-hidden>→</span>
+          </Link>
           <ul className="space-y-1">
             {PRIMARY_LINKS.map((link) => (
               <li key={link.href}>
@@ -98,22 +127,23 @@ export function Navigation() {
               </li>
             ))}
             <li className="border-t border-border pt-2">
-              <Link
-                href="/signin"
-                onClick={() => setOpen(false)}
-                className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
-              >
-                Sign in
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/account"
-                onClick={() => setOpen(false)}
-                className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
-              >
-                Account
-              </Link>
+              {signedIn ? (
+                <Link
+                  href="/account"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
+                >
+                  Account
+                </Link>
+              ) : (
+                <Link
+                  href="/signin"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
+                >
+                  Sign in
+                </Link>
+              )}
             </li>
           </ul>
         </nav>
@@ -127,7 +157,6 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
     title: "Product",
     links: [
       { href: "/tools", label: "Tools" },
-      { href: "/features", label: "Features" },
       { href: "/how-it-works", label: "How it works" },
       { href: "/pricing", label: "Pricing" },
     ],
@@ -135,7 +164,6 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
   {
     title: "Resources",
     links: [
-      { href: "/docs", label: "Docs" },
       { href: "/guides/local-processing", label: "Local processing" },
       { href: "/help", label: "Help" },
       { href: "/faq", label: "FAQ" },
@@ -160,16 +188,16 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
 
 export function Footer() {
   return (
-    <footer className="mt-28 border-t border-border">
-      <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-20">
-        <div className="grid gap-12 md:grid-cols-[1.2fr_2fr]">
+    <footer className="mt-16 border-t border-border md:mt-20">
+      <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-16">
+        <div className="grid gap-12 md:grid-cols-[minmax(0,18rem)_1fr]">
           <div>
             <Link href="/" className="flex items-center gap-3" aria-label="ZANCTA home">
               <img src="/assets/zancta-brand/logos/compact-mark.svg" alt="" width={28} height={28} className="h-7 w-7" />
               <span className="text-sm font-semibold tracking-[0.22em]">ZANCTA</span>
             </Link>
             <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
-              Powerful file tools. Always local. Always private. Supported workflows process your files in your browser — never uploaded.
+              PDF and image tools that process supported files in your browser. Implemented local workflows do not upload the selected file for processing.
             </p>
           </div>
           <nav className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4" aria-label="Footer">
@@ -191,7 +219,7 @@ export function Footer() {
         </div>
         <div className="mt-14 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} ZANCTA. All rights reserved.</p>
-          <p className="text-muted-foreground/80">Local browser processing for the supported tools.</p>
+          <p>Local browser processing for the supported tools.</p>
         </div>
       </div>
     </footer>

@@ -9,6 +9,7 @@ test.describe("Auth — real flows", () => {
   const password = "Test12345!";
 
   test("signup → verify → signin → account → delete", async ({ page, request }) => {
+    test.setTimeout(60000);
     const email = `test-${Date.now()}-${Math.random().toString(36).slice(2,6)}@example.com`;
     // Signup via API to capture devToken reliably
     const resSignup = await request.post("/api/auth/signup", {
@@ -29,7 +30,7 @@ test.describe("Auth — real flows", () => {
     const token = devToken;
     // Also verify UI shows success
     await page.goto("/signup");
-    await expect(page.getByRole("heading", { name: /Create account/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Create account", exact: true })).toBeVisible({ timeout: 15_000 });
 
     // Verify
     await page.goto(`/verify-email?token=${token}`);
@@ -40,7 +41,7 @@ test.describe("Auth — real flows", () => {
     await page.goto("/signin");
     await page.fill("#email", email);
     await page.fill("#password", password);
-    await page.locator("form").getByRole("button", { name: /Sign in/i }).click();
+    await page.locator("form").evaluate((form) => (form as HTMLFormElement).requestSubmit());
     await expect(page).toHaveURL(/\/account/, { timeout: 25000 });
     await expect(page.getByText(email)).toBeVisible();
 

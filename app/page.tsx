@@ -4,7 +4,7 @@ import { PrivacyArchitectureSection } from "@/components/homepage/privacy-archit
 import { ToolEcosystemSection } from "@/components/homepage/tool-ecosystem";
 import { PremiumPreviewSection } from "@/components/homepage/premium-preview";
 import { Footer } from "@/components/marketing/nav";
-import { pageMeta, PUBLIC_SITE_URL } from "@/lib/seo";
+import { jsonLdOrganization, pageMeta, PUBLIC_SITE_URL } from "@/lib/seo";
 
 export const metadata = pageMeta("/", {});
 export const dynamic = "force-dynamic";
@@ -14,13 +14,14 @@ const websiteJsonLd = {
   "@type": "WebSite",
   name: "ZANCTA",
   url: PUBLIC_SITE_URL,
-  description: "Privacy-first PDF and image tools that run in the browser.",
+  description: "PDF and image tools that process supported files in the browser.",
 };
 
 export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization()) }} />
       <Navigation />
       <main>
         <ZanctaHero />

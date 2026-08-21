@@ -105,7 +105,7 @@ function VerifyInner() {
     <AuthShell
       eyebrow="ACCOUNT VERIFICATION"
       title="Confirm your email."
-      description="Email verification helps keep account recovery and entitlement changes tied to the right address."
+      description="Email verification keeps account recovery tied to the right address."
       reassurance="The link is processed by the existing authentication flow and does not touch your local tool files."
     >
       <h2 className="text-lg font-semibold tracking-tight">Verify email</h2>

@@ -357,14 +357,8 @@ body {
   to { stroke-dashoffset: -24; }
 }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
 .anim-node-pulse { animation: node-pulse 3.2s ease-in-out infinite; }
 .anim-dash-flow { animation: dash-flow 1.6s linear infinite; }
-.anim-float-slow { animation: float-slow 7s ease-in-out infinite; }
 
 /* Text accent soft — lighter rose for links on dark, passes 4.5:1 where bg-accent (darker) would fail */
 .text-accent {
@@ -389,7 +383,7 @@ body {
   }
 
   .premium-button::after { display: none; }
-  .anim-node-pulse, .anim-dash-flow, .anim-float-slow { animation: none !important; }
+  .anim-node-pulse, .anim-dash-flow { animation: none !important; }
   .aperture-active { animation: none !important; }
 }
 

@@ -59,14 +59,38 @@ export function pageAbsoluteUrl(path: string): string {
   return `${PUBLIC_SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+const OG_IMAGE = {
+  url: "/assets/zancta-brand/og-images/zancta-og-hero.png",
+  width: 1200,
+  height: 630,
+  alt: "ZANCTA — local PDF and image tools",
+} as const;
+
 /** Page-level SEO so child routes do not inherit the homepage og:url. */
 export function pageMeta(path: string, meta: Metadata = {}): Metadata {
   const url = pageAbsoluteUrl(path);
   const openGraph = typeof meta.openGraph === "object" && meta.openGraph ? meta.openGraph : {};
+  const twitter = typeof meta.twitter === "object" && meta.twitter ? meta.twitter : {};
+  const title = typeof meta.title === "string" ? meta.title : undefined;
+  const description = typeof meta.description === "string" ? meta.description : undefined;
   return {
     ...meta,
     alternates: { canonical: path, ...meta.alternates },
-    openGraph: { type: "website", ...openGraph, url },
+    openGraph: {
+      type: "website",
+      images: [OG_IMAGE],
+      ...(title ? { title } : {}),
+      ...(description ? { description } : {}),
+      ...openGraph,
+      url,
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [OG_IMAGE.url],
+      ...(title ? { title } : {}),
+      ...(description ? { description } : {}),
+      ...twitter,
+    },
   };
 }
 
@@ -77,9 +101,45 @@ export function buildMetadata({ title, description, path, canonical }: SEOProps)
     title,
     description,
     alternates: { canonical: can },
-    openGraph: { title, description, url, type: "website" },
-    twitter: { card: "summary_large_image", title, description },
+    openGraph: { title, description, url, type: "website", images: [OG_IMAGE] },
+    twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE.url] },
     robots: { index: true, follow: true },
+  };
+}
+
+export function jsonLdOrganization(): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "ZANCTA",
+    url: PUBLIC_SITE_URL,
+    logo: `${PUBLIC_SITE_URL}/assets/zancta-brand/logos/compact-mark.svg`,
+    description: "PDF and image tools that process supported files in the browser.",
+  };
+}
+
+export function jsonLdFaqPage(items: ReadonlyArray<{ q: string; a: string } | readonly [string, string]>): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => {
+      const name = "q" in item ? item.q : item[0];
+      const text = "a" in item ? item.a : item[1];
+      return { "@type": "Question", name, acceptedAnswer: { "@type": "Answer", text } };
+    }),
+  };
+}
+
+export function jsonLdBreadcrumbList(items: Array<{ name: string; path: string }>): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: pageAbsoluteUrl(item.path),
+    })),
   };
 }
 

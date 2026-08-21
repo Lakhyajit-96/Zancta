@@ -36,7 +36,7 @@ export default async function AccountPage() {
           <p className="text-xs text-muted-foreground mt-1">Created {user.createdAt.toLocaleDateString()}</p>
         </div>
         <div className="section-rule pt-7">
-          <h2 className="eyebrow">Plan &amp; entitlement</h2>
+          <h2 className="eyebrow">Your plan</h2>
           <p className="text-sm text-muted-foreground mt-2">Plan: <span className="font-medium text-foreground">{ent.plan}</span> — {ent.status}</p>
           <p className="text-xs text-muted-foreground mt-1">Local tools and their limits are the same on Free and Premium. Premium reserves an ad-free experience if ads are introduced. No file bytes are stored.</p>
           {ent.integrityIssue === "missing_provider_subscription" && (
@@ -48,7 +48,7 @@ export default async function AccountPage() {
           {ent.plan === "FREE" ? (
             <p className="text-xs text-muted-foreground mt-2">
               <Link href="/pricing" className="text-accent underline underline-offset-4">View pricing</Link>
-              {isLivePaymentsEnabled() ? " — Premium checkout is available." : " — Premium checkout is not available yet."}
+              {isLivePaymentsEnabled() ? " — Checkout can process a payment. There is no monitored support channel yet." : " — Premium checkout is not available yet."}
             </p>
           ) : ent.plan === "PREMIUM" && ent.status === "ACTIVE" && ent.providerBacked ? (
             ent.cancelAtPeriodEnd ? (

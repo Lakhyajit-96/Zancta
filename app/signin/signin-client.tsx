@@ -27,7 +27,7 @@ function SigninInner({ google, github }: { google: boolean; github: boolean }) {
     setLoading(false);
   };
   return (
-    <AuthShell eyebrow="WELCOME BACK" title="Your workspace, without the upload anxiety." description="Sign in to manage account settings and premium entitlements. Your supported tool files remain local to your browser." reassurance="Authentication protects your account; it is not required to process local files.">
+    <AuthShell eyebrow="WELCOME BACK" title="Sign in to your account." description="Sign in to manage account settings and paid-plan status. Supported tool files still process in your browser." reassurance="Sign-in is not required to process local files.">
       <h2 className="text-lg font-semibold tracking-tight">Sign in</h2>
       <p className="mt-1 text-sm text-muted-foreground">Already have an account? Continue to your existing ZANCTA workspace.</p>
       {providerError && <div role="alert" className="mt-4 rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{providerError}</div>}

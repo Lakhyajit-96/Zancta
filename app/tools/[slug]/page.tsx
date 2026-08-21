@@ -1,6 +1,6 @@
 import { LayoutChrome } from "@/components/layout/chrome";
-import { getTool, TOOLS } from "@/lib/tools";
-import { buildMetadata, jsonLdSoftwareApp } from "@/lib/seo";
+import { getTool, relatedToolsFor, TOOLS } from "@/lib/tools";
+import { buildMetadata, jsonLdBreadcrumbList, jsonLdSoftwareApp } from "@/lib/seo";
 import { ToolShell } from "@/components/ui/tool-shell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -25,21 +25,20 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
   const tool = getTool(slug);
   if (!tool) notFound();
 
-  const related = tool.related.map((s) => TOOLS.find((t) => t.slug === s)).filter(Boolean) as typeof TOOLS;
+  const related = relatedToolsFor(tool);
 
   return (
     <LayoutChrome showNav={true} showFooter={true}>
-      {/* ZANCTA tool header */}
       <section className="border-b border-border">
-        <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-20">
+        <div className="mx-auto max-w-[80rem] px-5 py-12 md:px-8 md:py-16">
           <nav aria-label="Breadcrumb" className="text-left text-xs text-muted-foreground">
             <Link href="/" className="hover:text-foreground">Home</Link> <span aria-hidden> / </span>
             <Link href="/tools" className="hover:text-foreground">Tools</Link> <span aria-hidden> / </span>
             <span aria-current="page" className="text-foreground">{tool.name}</span>
           </nav>
 
-          <p className="eyebrow-path mt-10">/tools/{tool.category}</p>
-          <h1 className="display-serif mt-4 max-w-4xl text-4xl md:text-6xl">{tool.h1}</h1>
+          <p className="eyebrow-path mt-8">/tools/{tool.category}</p>
+          <h1 className="display-serif mt-4 max-w-4xl text-4xl md:text-5xl">{tool.h1}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{tool.longDescription}</p>
           <div className="mt-8 flex flex-wrap gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tool.processingType === "bg" ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success"}`}>
@@ -50,8 +49,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
         </div>
       </section>
 
-      <main className="mx-auto max-w-[80rem] px-5 pb-20 pt-10 md:px-8 md:pt-14">
-        {/* Tool interface section */}
+      <main className="mx-auto max-w-[80rem] px-5 pb-20 pt-10 md:px-8 md:pt-12">
         <ToolShell tool={tool} />
 
         {related.length > 0 && (
@@ -103,6 +101,16 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
                 acceptedAnswer: { "@type": "Answer", text: f.a },
               })),
             }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLdBreadcrumbList([
+              { name: "Home", path: "/" },
+              { name: "Tools", path: "/tools" },
+              { name: tool.name, path: `/tools/${tool.slug}` },
+            ])),
           }}
         />
       </main>

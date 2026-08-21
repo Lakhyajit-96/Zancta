@@ -4,11 +4,19 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { CornerTicks, MaskLines, ScrollDrift, EASE } from "@/components/marketing/motion";
 
-const LOOP = 7;
+const PLAY = 7;
+
+const HERO_TOOLS = [
+  { href: "/tools/pdf-merge", label: "Merge PDF" },
+  { href: "/tools/pdf-compress", label: "Compress PDF" },
+  { href: "/tools/ocr", label: "Image OCR" },
+  { href: "/tools/image-compress", label: "Compress Image" },
+  { href: "/tools/pdf-split", label: "Split PDF" },
+] as const;
 
 /**
  * The Boundary demo — a file crosses into the frame, is transformed inside it,
- * and the result settles inside the same frame. Nothing ever exits the perimeter.
+ * and the result settles inside the same frame. Plays once, then idles.
  * Illustrative choreography of the real local workflow; no real processing implied.
  */
 function BoundaryDemo() {
@@ -23,35 +31,24 @@ function BoundaryDemo() {
         <span className="font-mono text-[0.65rem] text-muted-foreground">this browser / local</span>
       </div>
 
-      {/* Stage */}
       <div className="relative mt-6 h-40 overflow-hidden rounded-lg border border-border bg-background/70">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 perspective-floor opacity-30" />
 
-        {/* Perimeter glow while transformation is in flight */}
         {!reduceMotion && (
           <motion.div
             aria-hidden
             className="absolute inset-0 rounded-lg border border-accent/45"
-            animate={{ opacity: [0, 0, 1, 1, 0, 0] }}
-            transition={{ duration: LOOP, times: [0, 0.34, 0.44, 0.62, 0.74, 1], repeat: Infinity, ease: "easeInOut" }}
+            animate={{ opacity: [0, 0, 1, 1, 0] }}
+            transition={{ duration: PLAY, times: [0, 0.34, 0.44, 0.62, 1], ease: "easeInOut" }}
           />
         )}
 
-        {/* Incoming file — enters the boundary, never leaves it */}
         <motion.div
           aria-hidden
           className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-md border border-border-strong bg-elevated px-3 py-2"
-          initial={reduceMotion ? false : undefined}
-          animate={
-            reduceMotion
-              ? { opacity: 0 }
-              : { opacity: [0, 1, 1, 0, 0], x: ["-6.5rem", "0rem", "0rem", "0rem", "0rem"] }
-          }
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { duration: LOOP, times: [0, 0.14, 0.4, 0.5, 1], repeat: Infinity, ease: EASE }
-          }
+          initial={reduceMotion ? false : { opacity: 0, x: "-6.5rem" }}
+          animate={reduceMotion ? { opacity: 0 } : { opacity: [0, 1, 1, 0], x: ["-6.5rem", "0rem", "0rem", "0rem"] }}
+          transition={reduceMotion ? { duration: 0 } : { duration: PLAY, times: [0, 0.14, 0.4, 0.52], ease: EASE }}
         >
           <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 text-platinum" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M7 3h7l4 4v14H7z" />
@@ -60,21 +57,12 @@ function BoundaryDemo() {
           <span className="font-mono text-xs text-muted-foreground">report.pdf</span>
         </motion.div>
 
-        {/* Result — settles inside the same frame */}
         <motion.div
           aria-hidden
           className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-md border border-success/40 bg-elevated px-3 py-2"
-          initial={reduceMotion ? false : undefined}
-          animate={
-            reduceMotion
-              ? { opacity: 1 }
-              : { opacity: [0, 0, 1, 1, 0], scale: [0.96, 0.96, 1, 1, 0.98] }
-          }
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { duration: LOOP, times: [0, 0.58, 0.7, 0.94, 1], repeat: Infinity, ease: EASE }
-          }
+          initial={reduceMotion ? false : { opacity: 0 }}
+          animate={reduceMotion ? { opacity: 1 } : { opacity: [0, 0, 1], scale: [0.96, 0.96, 1] }}
+          transition={reduceMotion ? { duration: 0 } : { duration: PLAY, times: [0, 0.58, 0.72], ease: EASE }}
         >
           <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 text-success" fill="none" stroke="currentColor" strokeWidth="1.6">
             <circle cx="12" cy="12" r="9" />
@@ -84,7 +72,6 @@ function BoundaryDemo() {
         </motion.div>
       </div>
 
-      {/* Honest readout */}
       <ul className="mt-6 space-y-2.5 font-mono text-[0.7rem] text-muted-foreground">
         <li className="flex items-center gap-3">
           <span className="text-platinum">01</span> Selected on your device
@@ -99,7 +86,10 @@ function BoundaryDemo() {
       </ul>
 
       <p className="mt-6 border-t border-border pt-4 text-xs leading-6 text-muted-foreground">
-        No file upload for implemented local tools. The workflow above illustrates the boundary: nothing crosses it.
+        No file upload for implemented local tools.{" "}
+        <Link href="/guides/local-processing" className="underline underline-offset-4 hover:text-foreground">
+          How local processing works
+        </Link>
       </p>
     </div>
   );
@@ -119,21 +109,28 @@ export function ZanctaHero() {
       <ScrollDrift className="pointer-events-none absolute inset-x-0 top-10" distance={22}>
         <div aria-hidden className="editorial-grid h-[30rem] opacity-25" />
       </ScrollDrift>
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-48 perspective-floor opacity-30" />
-      <div className="relative mx-auto grid max-w-[80rem] items-center gap-14 px-5 py-20 md:grid-cols-[1.05fr_0.95fr] md:px-8 md:py-28">
-        <div className="space-y-7">
+      <div className="relative mx-auto grid max-w-[80rem] items-center gap-10 px-5 py-16 md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] md:px-8 md:py-20 lg:gap-14">
+        <div className="space-y-6">
           <motion.p {...fade(0)} className="eyebrow">Local-first file tools</motion.p>
           <MaskLines
-            className="display-serif max-w-3xl text-5xl text-white md:text-7xl"
-            lines={[
-              <>Powerful file tools.</>,
-              <>Always local.</>,
-              <span key="rose" className="text-accent">Always private.</span>,
-            ]}
+            className="display-serif max-w-3xl text-4xl text-white md:text-6xl"
+            lines={[<>PDF and image tools.</>, <>They run in your browser.</>]}
           />
           <motion.p {...fade(0.28)} className="max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
-            ZANCTA runs supported file processing entirely in your browser. Your files stay in your control — always.
+            Free to use, with no account. Implemented tools process the file you select in this browser and do not upload it for processing.
           </motion.p>
+          <motion.ul {...fade(0.32)} className="flex flex-wrap gap-2" aria-label="Example tools">
+            {HERO_TOOLS.map((tool) => (
+              <li key={tool.href}>
+                <Link
+                  href={tool.href}
+                  className="inline-flex min-h-9 items-center rounded-md border border-border bg-elevated px-3 text-xs text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
+                >
+                  {tool.label}
+                </Link>
+              </li>
+            ))}
+          </motion.ul>
           <motion.div {...fade(0.36)} className="flex flex-wrap gap-3">
             <Link href="/tools" className="premium-button premium-button-primary px-6">
               Choose a tool <span aria-hidden>→</span>
@@ -142,11 +139,6 @@ export function ZanctaHero() {
               How it works
             </Link>
           </motion.div>
-          <motion.ul {...fade(0.44)} className="grid gap-2.5 border-t border-border pt-5 text-sm text-muted-foreground md:max-w-lg">
-            <li>Supported workflows process selected file bytes locally.</li>
-            <li>Tool pages state formats, limits, and honest failure cases.</li>
-            <li>Downloads are generated in the browser when a tool produces output.</li>
-          </motion.ul>
         </div>
 
         <motion.div {...fade(0.3)}>

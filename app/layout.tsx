@@ -15,7 +15,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    default: "ZANCTA — Powerful file tools. Always local. Always private.",
+    default: "ZANCTA — PDF and image tools that run in your browser",
     template: "%s — ZANCTA",
   },
   description:
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     apple: "/favicon-zancta.svg",
   },
   openGraph: {
-    title: "ZANCTA — Your files never leave your device",
-    description: "Privacy-first PDF & image tools that run entirely in your browser.",
+    title: "ZANCTA — PDF and image tools that run in your browser",
+    description: "Implemented local workflows process the selected file in your browser. No file upload for processing.",
     siteName: "ZANCTA",
     type: "website",
     locale: "en_US",
@@ -35,14 +35,15 @@ export const metadata: Metadata = {
         url: "/assets/zancta-brand/og-images/zancta-og-hero.png",
         width: 1200,
         height: 630,
-        alt: "ZANCTA — privacy-first file tools",
+        alt: "ZANCTA — local PDF and image tools",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ZANCTA — Privacy-first file tools",
-    description: "Local processing. No upload. No watermark.",
+    title: "ZANCTA — Local PDF and image tools",
+    description: "Implemented local processing. No upload for supported tools. No watermark.",
+    images: ["/assets/zancta-brand/og-images/zancta-og-hero.png"],
   },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },

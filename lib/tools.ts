@@ -43,8 +43,8 @@ export const TOOLS: ToolMeta[] = [
     slug: "pdf-merge",
     name: "Merge PDF",
     shortName: "Merge",
-    description: "Combine multiple PDFs into one — locally, no upload.",
-    longDescription: "Merge up to 50 PDFs (200 total pages) in your browser. Files never leave your device. No watermark.",
+    description: "Combine multiple PDFs into one in this browser.",
+    longDescription: "Merge up to 50 PDFs (200 total pages) in your browser. Selected file bytes are not uploaded for processing. No watermark.",
     category: "pdf",
     icon: "merge",
     supportedFormats: ["pdf"],
@@ -188,7 +188,7 @@ export const TOOLS: ToolMeta[] = [
     processingType: "image",
     seoTitle: "Convert Image — JPG PNG WebP Locally, No Upload",
     seoDescription: "Convert images between formats locally. No upload.",
-    h1: "Convert images — any format, locally",
+    h1: "Convert images — JPG, PNG, and WebP",
     available: true,
     related: ["image-compress", "image-resize", "pdf-to-images"],
     faq: [{ q: "AVIF?", a: "AVIF is not supported. Use JPG, PNG, or WebP." }],
@@ -256,7 +256,7 @@ export const TOOLS: ToolMeta[] = [
     seoDescription: "Clean EXIF/GPS metadata locally. No upload.",
     h1: "Clean EXIF — share safely",
     available: true,
-    related: ["image-compress", "image-convert", "exif-cleaner"],
+    related: ["image-compress", "image-convert", "image-resize"],
     faq: [{ q: "What is removed?", a: "Common image metadata is removed by re-encoding. EXIF, GPS, and camera data do not survive canvas re-encode." }],
   },
   {
@@ -313,6 +313,13 @@ export const TOOLS: ToolMeta[] = [
 
 export function getTool(slug: string): ToolMeta | undefined {
   return TOOLS.find((t) => t.slug === slug);
+}
+
+export function relatedToolsFor(tool: ToolMeta): ToolMeta[] {
+  return tool.related
+    .filter((slug) => slug !== tool.slug)
+    .map((slug) => getTool(slug))
+    .filter((item): item is ToolMeta => Boolean(item));
 }
 
 export const TOOL_SLUGS = TOOLS.map((t) => t.slug);

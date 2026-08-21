@@ -17,6 +17,9 @@ describe("sitemap contract", () => {
     }
     expect(urls.some((u) => u === `${origin}/` || u === origin)).toBe(true);
     expect(urls).toContain(`${origin}/guides/local-processing`);
+    expect(urls).not.toContain(`${origin}/contact`);
+    expect(urls).not.toContain(`${origin}/features`);
+    expect(urls).not.toContain(`${origin}/docs`);
   });
 
   it("pageMeta uses the page path as og:url, not the homepage", () => {

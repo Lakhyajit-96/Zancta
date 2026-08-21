@@ -55,6 +55,13 @@ export function ConsentAndAnalytics() {
     if (!consent.decided) queueMicrotask(() => setShow(true));
   }, []);
 
+  useEffect(() => {
+    document.body.style.paddingBottom = show ? "7.5rem" : "";
+    return () => {
+      document.body.style.paddingBottom = "";
+    };
+  }, [show]);
+
   if (!isGaMeasurementId(gaId) || !show) return null;
 
   const choose = (analytics: boolean) => {
@@ -64,9 +71,16 @@ export function ConsentAndAnalytics() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg rounded-lg border border-border bg-surface/95 p-4 text-sm shadow-lg backdrop-blur md:left-auto md:right-5">
-      <p className="leading-6 text-muted-foreground">
-        Optional analytics (page views and product events such as tool used or signup). Never file bytes, filenames, PDF text, or OCR output.{" "}
+    <aside
+      role="region"
+      aria-labelledby="consent-title"
+      className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg rounded-lg border border-border bg-surface p-4 text-sm shadow-lg md:left-auto md:right-5"
+    >
+      <p id="consent-title" className="font-medium text-foreground">
+        Optional analytics
+      </p>
+      <p className="mt-1 leading-6 text-muted-foreground">
+        Page views and product events such as tool used or signup. Never file bytes, filenames, PDF text, or OCR output.{" "}
         <a href="/privacy" className="underline underline-offset-4">Privacy</a>
       </p>
       <div className="mt-3 flex gap-2">
@@ -77,6 +91,6 @@ export function ConsentAndAnalytics() {
           Allow analytics
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

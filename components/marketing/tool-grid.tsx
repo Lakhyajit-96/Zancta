@@ -1,23 +1,29 @@
 import Link from "next/link";
-import { TOOLS } from "@/lib/tools";
+import { TOOLS, type ToolMeta } from "@/lib/tools";
+
+const EXTRACT_SLUGS = new Set(["ocr", "pdf-text-extractor"]);
 
 export function ToolGrid() {
-  const pdf = TOOLS.filter((t) => t.category === "pdf");
-  const img = TOOLS.filter((t) => t.category === "image");
+  const pdf = TOOLS.filter((t) => t.category === "pdf" && !EXTRACT_SLUGS.has(t.slug));
+  const img = TOOLS.filter((t) => t.category === "image" && !EXTRACT_SLUGS.has(t.slug) && t.slug !== "background-remover");
+  const extract = TOOLS.filter((t) => EXTRACT_SLUGS.has(t.slug));
+  const other = TOOLS.filter((t) => t.slug === "background-remover");
   return (
     <div className="space-y-14">
       <ToolSection title="PDF tools" tools={pdf} />
       <ToolSection title="Image tools" tools={img} />
+      <ToolSection title="Extract tools" tools={extract} />
+      <ToolSection title="Deferred" tools={other} />
     </div>
   );
 }
 
-function ToolSection({ title, tools }: { title: string; tools: typeof TOOLS }) {
+function ToolSection({ title, tools }: { title: string; tools: ToolMeta[] }) {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between border-b border-border pb-3">
         <h3 className="eyebrow">{title}</h3>
-        <span className="font-mono text-[0.65rem] text-muted-foreground">{String(tools.length).padStart(2, "0")} tools</span>
+        <span className="font-mono text-[0.65rem] text-muted-foreground">{String(tools.length).padStart(2, "0")}</span>
       </div>
       <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {tools.map((t, index) => (

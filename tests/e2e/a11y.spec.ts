@@ -1,9 +1,19 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 test.describe("a11y", () => {
-  const pages = [
+    const pages = [
     "/",
     "/tools",
+    "/pricing",
+    "/faq",
+    "/help",
+    "/privacy",
+    "/terms",
+    "/security",
+    "/contact",
+    "/signin",
+    "/signup",
+    "/forgot-password",
     "/tools/pdf-merge",
     "/tools/pdf-split",
     "/tools/pdf-compress",
@@ -32,12 +42,21 @@ test.describe("a11y", () => {
   }
   test("keyboard focus and labels", async ({ page }) => {
     await page.goto("/tools/image-compress");
-    await page.keyboard.press("Tab");
-    await expect(page.locator('input[type="file"]')).toBeAttached();
-    // Check aria labels
+    const fileInput = page.getByLabel("Select files");
+    await expect(fileInput).toBeAttached();
+    await expect(fileInput).not.toHaveAttribute("aria-hidden", "true");
+    await fileInput.focus();
+    await expect(fileInput).toBeFocused();
     await expect(page.getByLabel("Quality")).toBeVisible();
     await page.goto("/tools/image-resize");
     await expect(page.getByLabel("Width")).toBeVisible();
     await expect(page.getByLabel("Height")).toBeVisible();
+    await page.goto("/pricing");
+    await expect(page.getByRole("group", { name: "Billing period" })).toBeVisible();
+    await page.goto("/faq");
+    await expect(page.getByRole("button", { name: "Does ZANCTA upload my files?" })).toBeVisible();
+    await page.goto("/signin");
+    await expect(page.getByLabel("Email")).toBeVisible();
+    await page.keyboard.press("Tab");
   });
 });

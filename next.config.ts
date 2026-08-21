@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: "/features", destination: "/tools", permanent: true },
+      { source: "/docs", destination: "/help", permanent: true },
+    ];
+  },
   async headers() {
     const csp = [
       "default-src 'self'",

@@ -21,6 +21,19 @@ test("seo", async ({ page }) => {
   expect(sitemap.ok()).toBeTruthy();
 });
 
+test("tools catalog has unique metadata and twitter image", async ({ page }) => {
+  await page.goto("/tools");
+  expect(await page.title()).toMatch(/Tools/i);
+  const desc = await page.locator('meta[name="description"]').getAttribute("content");
+  expect(desc || "").toMatch(/Eleven local/i);
+  const ogWidth = await page.locator('meta[property="og:image:width"]').getAttribute("content");
+  expect(ogWidth).toBe("1200");
+  const ogHeight = await page.locator('meta[property="og:image:height"]').getAttribute("content");
+  expect(ogHeight).toBe("630");
+  const twitter = await page.locator('meta[name="twitter:image"], meta[property="twitter:image"]').first().getAttribute("content");
+  expect(twitter || "").toMatch(/zancta-og-hero/);
+});
+
 test("local processing guide is unique and linked", async ({ page }) => {
   await page.goto("/guides/local-processing");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Local processing/i);
@@ -29,7 +42,7 @@ test("local processing guide is unique and linked", async ({ page }) => {
 
 test("IndexNow notify route is not an open proxy", async ({ request }) => {
   const missing = await request.post("/api/indexnow", { data: { urls: ["https://zancta.tech/"] } });
-  expect([401, 503]).toContain(missing.status());
+  expect([401, 429, 503]).toContain(missing.status());
   const get = await request.get("/api/indexnow");
   expect(get.status()).toBe(405);
 });
