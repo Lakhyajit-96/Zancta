@@ -36,10 +36,17 @@ test("P0/P1 launch contract", async ({ page }) => {
   await expect(page.locator("body")).not.toContainText("$0");
   await expect(page.getByRole("heading", { name: /Premium is optional support/i })).toBeVisible();
 
-  await page.goto("/contact");
-  const robots = await page.locator('meta[name="robots"]').getAttribute("content");
-  expect(robots || "").not.toMatch(/noindex/i);
-  await expect(page.getByRole("link", { name: "support@zancta.tech" })).toBeVisible();
+    await page.goto("/contact");
+    const robots = await page.locator('meta[name="robots"]').getAttribute("content");
+    expect(robots || "").not.toMatch(/noindex/i);
+    await expect(page.getByRole("heading", { name: "Contact ZANCTA" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Send an enquiry" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Send enquiry" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "support@zancta.tech" }).first()).toBeVisible();
+    await expect(page.locator("main header")).not.toContainText("Lakhyajit Changmai");
+    await expect(page.getByRole("heading", { name: "Operator" })).toBeVisible();
+    await expect(page.locator("body")).not.toContainText("24/7");
+    await expect(page.locator("body")).not.toContainText("live chat");
 
   await page.goto("/refund-and-cancellation");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Refunds and cancellation/i);

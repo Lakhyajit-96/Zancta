@@ -1,4 +1,5 @@
 import { PREMIUM_CONTRACT } from "@/lib/payments/premium-contract";
+import type { ContactEnquiryPayload } from "@/lib/contact/schema";
 import type { EmailDocument } from "./layout";
 import { publicOrigin } from "./layout";
 import { EMAIL_CONTACTS } from "./contacts";
@@ -212,4 +213,50 @@ export function amountLabelFromPlan(planId: string | null | undefined): string {
   const id = (planId || "").toUpperCase();
   if (id.includes("YEAR")) return PREMIUM_CONTRACT.annualDisplayINR.replace(" / ", "/");
   return PREMIUM_CONTRACT.monthlyDisplayINR.replace(" / ", "/");
+}
+
+export function contactInternalEmail(payload: ContactEnquiryPayload): EmailDocument {
+  const messageLines = payload.message.split("\n").slice(0, 80);
+  return {
+    preheader: `New ${payload.topicLabel} enquiry ${payload.reference}.`,
+    eyebrow: "Support enquiry",
+    title: "New ZANCTA support enquiry",
+    intro: `A contact form enquiry was received under ${payload.topicLabel}.`,
+    paragraphs: [
+      `Reference: ${payload.reference}`,
+      `Topic: ${payload.topicLabel}`,
+      `Sender name: ${payload.name}`,
+      `Sender email: ${payload.email}`,
+      ...(payload.accountEmail ? [`Account email: ${payload.accountEmail}`] : []),
+      `Subject: ${payload.subject}`,
+      `Received: ${payload.receivedAt}`,
+      `Environment: ${payload.environment}`,
+      "Message:",
+      ...messageLines.map((line) => (line.length ? line : " ")),
+    ],
+    notes: [
+      "Do not treat this message as verified identity.",
+      "Reply using the appropriate ZANCTA mailbox. Do not request passwords, session tokens, or payment-card numbers.",
+    ],
+  };
+}
+
+export function contactAcknowledgementEmail(payload: ContactEnquiryPayload): EmailDocument {
+  return {
+    preheader: `We received your enquiry. Reference ${payload.reference}.`,
+    eyebrow: "Contact",
+    title: "We received your enquiry",
+    intro: `Hello ${payload.name},`,
+    paragraphs: [
+      "Thanks for contacting ZANCTA.",
+      `We received your enquiry under: ${payload.topicLabel}`,
+      `Reference: ${payload.reference}`,
+      "Our team will review the message and respond through the appropriate ZANCTA contact channel.",
+    ],
+    action: { label: "Open ZANCTA", url: `${origin()}/` },
+    notes: [
+      "For your security, please do not send passwords, session tokens, payment-card numbers, or sensitive document contents by email.",
+      `Support: ${EMAIL_CONTACTS.support}`,
+    ],
+  };
 }

@@ -1,10 +1,14 @@
 import { Resend } from "resend";
+import type { ContactEnquiryPayload } from "@/lib/contact/schema";
+import { contactTopicById } from "@/lib/contact/topics";
 import type { EmailRole } from "./contacts";
-import { replyToForRole } from "./contacts";
+import { replyToForRole, safeReplyMailbox } from "./contacts";
 import { renderEmailHtml, renderEmailText, safeHttpsUrl, type EmailDocument } from "./layout";
 import {
   accountDeletedEmail,
   cancellationEmail,
+  contactAcknowledgementEmail,
+  contactInternalEmail,
   passwordChangedEmail,
   passwordResetEmail,
   paymentFailedEmail,
@@ -40,6 +44,8 @@ export interface EmailAdapter {
     input: { amountLabel?: string; currency?: string; status: string; reference?: string }
   ): Promise<void>;
   sendSecurityNotification(to: string, input: { happened: string; when?: string; next: string }): Promise<void>;
+  sendContactNotification(payload: ContactEnquiryPayload): Promise<void>;
+  sendContactAcknowledgement(payload: ContactEnquiryPayload): Promise<void>;
 }
 
 function formatFromAddress(from: string): string {
@@ -61,11 +67,17 @@ class ResendAdapter implements EmailAdapter {
     this.resend = new Resend(key);
     this.from = formatFromAddress(from);
   }
-  private async send(params: { to: string; subject: string; doc: EmailDocument; role?: EmailRole }) {
+  private async send(params: {
+    to: string;
+    subject: string;
+    doc: EmailDocument;
+    role?: EmailRole;
+    replyTo?: string;
+  }) {
     const { error } = await this.resend.emails.send({
       from: this.from,
-      replyTo: replyToForRole(params.role ?? "support"),
-      to: params.to,
+      replyTo: safeReplyMailbox(params.replyTo ?? replyToForRole(params.role ?? "support")),
+      to: safeReplyMailbox(params.to),
       subject: params.subject,
       html: renderEmailHtml(params.doc),
       text: renderEmailText(params.doc),
@@ -159,6 +171,23 @@ class ResendAdapter implements EmailAdapter {
       doc: securityNotificationEmail(input),
     });
   }
+  async sendContactNotification(payload: ContactEnquiryPayload) {
+    await this.send({
+      to: payload.destination,
+      subject: `[ZANCTA] New Support Enquiry — ${payload.topicLabel}`,
+      doc: contactInternalEmail(payload),
+      replyTo: payload.email,
+    });
+  }
+  async sendContactAcknowledgement(payload: ContactEnquiryPayload) {
+    const role = contactTopicById(payload.topicId)?.destinationRole ?? "support";
+    await this.send({
+      to: payload.email,
+      subject: "ZANCTA — We received your enquiry",
+      doc: contactAcknowledgementEmail(payload),
+      role,
+    });
+  }
 }
 
 class ConsoleAdapter implements EmailAdapter {
@@ -194,6 +223,12 @@ class ConsoleAdapter implements EmailAdapter {
   }
   async sendSecurityNotification(to: string) {
     console.log(`[DEV] Security notification for ${to}`);
+  }
+  async sendContactNotification(payload: ContactEnquiryPayload) {
+    console.log(`[DEV] Contact enquiry ${payload.reference} -> ${payload.destination}`);
+  }
+  async sendContactAcknowledgement(payload: ContactEnquiryPayload) {
+    console.log(`[DEV] Contact acknowledgement ${payload.reference} -> ${payload.email}`);
   }
 }
 
@@ -246,6 +281,19 @@ class TestAdapter implements EmailAdapter {
   async sendSecurityNotification(to: string) {
     this.lastEvent = "security";
     console.log(`[TEST] Security ${to}`);
+  }
+  lastContactReference: string | null = null;
+  lastContactDestination: string | null = null;
+  async sendContactNotification(payload: ContactEnquiryPayload) {
+    this.lastEvent = "contact-notification";
+    this.lastContactReference = payload.reference;
+    this.lastContactDestination = payload.destination;
+    console.log(`[TEST] Contact enquiry ${payload.reference} -> ${payload.destination}`);
+  }
+  async sendContactAcknowledgement(payload: ContactEnquiryPayload) {
+    this.lastEvent = "contact-acknowledgement";
+    this.lastContactReference = payload.reference;
+    console.log(`[TEST] Contact acknowledgement ${payload.reference} -> ${payload.email}`);
   }
 }
 

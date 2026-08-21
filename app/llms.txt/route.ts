@@ -15,6 +15,7 @@ function llmsTxt(): string {
   return `# ZANCTA
 
 > ${LEGAL_PUBLIC.brand} is a website of browser-local PDF and image tools at ${LEGAL_PUBLIC.siteUrl}, operated by ${LEGAL_PUBLIC.operatorName} as an individual operator.
+> Public contact is ${LEGAL_PUBLIC.siteUrl}/contact. Mailboxes: ${LEGAL_PUBLIC.supportEmail}, ${LEGAL_PUBLIC.privacyEmail}, ${LEGAL_PUBLIC.securityEmail}, ${LEGAL_PUBLIC.billingEmail}. A postal address is not published.
 > This file is a concise, factual description for language-model crawlers. It is not a ranking claim.
 
 ## What it is

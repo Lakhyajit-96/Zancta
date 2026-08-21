@@ -42,7 +42,9 @@ describe("public legal and AI-search facts", () => {
     const json = JSON.stringify(jsonLdOrganization());
     expect(json).toContain("Lakhyajit Changmai");
     expect(json).toContain('"@type":"Person"');
+    expect(json).toContain("support@zancta.tech");
     expect(json).not.toMatch(/Pvt Ltd|LLP|registered office|Inc\./i);
+    expect(json).not.toMatch(/streetAddress|postalCode|addressCountry/i);
   });
 
   it("llms.txt is factual and omits ranking claims", async () => {
@@ -52,7 +54,8 @@ describe("public legal and AI-search facts", () => {
     const body = await res.text();
     expect(body).toContain("ZANCTA");
     expect(body).toContain("Lakhyajit Changmai");
-    expect(body).toContain("https://zancta.tech/refund-and-cancellation");
+    expect(body).toContain("https://zancta.tech/contact");
+    expect(body).toContain("support@zancta.tech");
     expect(body).toMatch(/11 available|11 working|11 available tools/i);
     expect(body).not.toMatch(/#1|most secure|guaranteed indexing|guaranteed ChatGPT/i);
   });

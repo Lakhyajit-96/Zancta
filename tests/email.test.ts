@@ -55,6 +55,9 @@ describe("production transactional email", () => {
     expect(payload.text).toEqual(expect.stringContaining("The link expires after 60 minutes"));
     expect(payload.text).toEqual(expect.stringContaining("existing signed-in sessions"));
     expect(payload.html).not.toEqual(expect.stringContaining("<script"));
+    expect(payload.html).not.toEqual(expect.stringContaining("Lakhyajit Changmai"));
+    expect(payload.text).not.toEqual(expect.stringContaining("Lakhyajit Changmai"));
+    expect(payload.text).toEqual(expect.stringContaining("Transactional message from ZANCTA"));
   });
 
   it("defaults Reply-To to support@zancta.tech and includes the production logo URL", async () => {
@@ -81,5 +84,35 @@ describe("production transactional email", () => {
     expect(payload.html).not.toEqual(expect.stringContaining("vercel.app"));
     expect(payload.html).not.toEqual(expect.stringContaining("AUTH_SECRET"));
     expect(payload.text).toEqual(expect.stringContaining("https://zancta.tech/verify-email?token=verify-token"));
+  });
+
+  it("sends contact notification to the routed mailbox with user Reply-To", async () => {
+    (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.EMAIL_FROM = "noreply@mail.zancta.tech";
+    process.env.EMAIL_REPLY_TO = "support@zancta.tech";
+    process.env.NEXTAUTH_URL = "https://zancta.tech";
+
+    const { getEmailAdapter } = await import("@/lib/email");
+    await getEmailAdapter().sendContactNotification({
+      reference: "ZCT-MAIL0001",
+      topicId: "security",
+      topicLabel: "Security report",
+      name: "Reporter",
+      email: "reporter@example.com",
+      subject: "Possible issue",
+      message: "A concise security report.",
+      receivedAt: "2026-08-22T00:00:00.000Z",
+      environment: "production",
+      destination: "security@zancta.tech",
+    });
+
+    const payload = sendMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.from).toBe("ZANCTA <noreply@mail.zancta.tech>");
+    expect(payload.to).toBe("security@zancta.tech");
+    expect(payload.replyTo).toBe("reporter@example.com");
+    expect(payload.subject).toBe("[ZANCTA] New Support Enquiry — Security report");
+    expect(payload.html).toEqual(expect.stringContaining("ZCT-MAIL0001"));
+    expect(payload.html).not.toEqual(expect.stringContaining("Lakhyajit Changmai"));
   });
 });

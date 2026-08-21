@@ -15,7 +15,7 @@ export default function SecurityPage() {
     <ContentPage
       eyebrow="/security"
       title="Security by design."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA is operated by ${LEGAL_PUBLIC.operatorName}. ZANCTA is built with security at every layer — and without theatre. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA is built with security at every layer — and without theatre. This page does not claim a certification, audit, penetration test, or compliance program that has not been independently verified.`}
       visual={<LayersVisual />}
     >
       <ContentSection title="Local processing boundary">

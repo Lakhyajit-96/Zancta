@@ -63,5 +63,10 @@ test.describe("a11y", () => {
     await page.goto("/signin");
     await expect(page.getByLabel("Email")).toBeVisible();
     await page.keyboard.press("Tab");
+    await page.goto("/contact");
+    await expect(page.getByLabel("Name")).toBeVisible();
+    await page.getByLabel("Name").focus();
+    await expect(page.getByLabel("Name")).toBeFocused();
+    await expect(page.getByLabel("Message")).toBeVisible();
   });
 });

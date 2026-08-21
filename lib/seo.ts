@@ -121,6 +121,29 @@ export function jsonLdOrganization(): object {
       "@type": "Person",
       name: LEGAL_PUBLIC.operatorName,
     },
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: LEGAL_PUBLIC.supportEmail,
+        url: `${PUBLIC_SITE_URL}/contact`,
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "privacy inquiries",
+        email: LEGAL_PUBLIC.privacyEmail,
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "security",
+        email: LEGAL_PUBLIC.securityEmail,
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "billing support",
+        email: LEGAL_PUBLIC.billingEmail,
+      },
+    ],
   };
 }
 

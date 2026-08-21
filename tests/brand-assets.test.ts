@@ -64,6 +64,8 @@ describe("email design system", () => {
     expect(html).toContain("security@zancta.tech");
     expect(html).not.toContain("AUTH_SECRET");
     expect(html).not.toContain("localhost");
+    expect(html).not.toContain("Lakhyajit Changmai");
+    expect(html).toContain("Transactional message from ZANCTA");
   });
 
   it("verification copy matches the published verification subject intent", () => {

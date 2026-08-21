@@ -63,7 +63,7 @@ function footerHtml(origin: string): string {
           <p style="margin:0 0 6px">Security: <a href="mailto:${EMAIL_CONTACTS.security}" style="color:#d99a9a">${EMAIL_CONTACTS.security}</a></p>
           <p style="margin:0 0 14px">Billing: <a href="mailto:${EMAIL_CONTACTS.billing}" style="color:#d99a9a">${EMAIL_CONTACTS.billing}</a></p>
           <p style="margin:0"><a href="${origin}" style="color:#d99a9a">ZANCTA</a> · <a href="${origin}/help" style="color:#d99a9a">Help</a> · <a href="${origin}/privacy" style="color:#d99a9a">Privacy</a> · <a href="${origin}/terms" style="color:#d99a9a">Terms</a> · <a href="${origin}/refund-and-cancellation" style="color:#d99a9a">Refund &amp; Cancellation</a></p>
-          <p style="margin:12px 0 0">Operated by ${escapeHtml(LEGAL_PUBLIC.operatorName)}. Transactional message — no marketing unsubscribe.</p>`;
+          <p style="margin:12px 0 0">Transactional message from ZANCTA — no marketing unsubscribe.</p>`;
 }
 
 export function renderEmailHtml(doc: EmailDocument): string {
@@ -146,5 +146,5 @@ Privacy: ${origin}/privacy
 Terms: ${origin}/terms
 Refund & Cancellation: ${origin}/refund-and-cancellation
 
-Operated by ${LEGAL_PUBLIC.operatorName}. Transactional message.`;
+Transactional message from ZANCTA.`;
 }

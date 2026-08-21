@@ -41,8 +41,8 @@ NEXTAUTH_URL=https://zancta.tech
 - `lib/email/layout.ts` — one HTML/text design system
 - `lib/email/templates.ts` — copy for real events
 - `lib/email/index.ts` — Resend/Console/Test adapters
-- Wired events: verification, password reset, password changed, welcome after verify, account deleted, Dodo subscription.active / renewed / cancelled, payment.failed, refund.succeeded
-- Not wired: support/privacy/security inbound acknowledgements (Hostinger mailboxes, no application inbound webhook)
+- Wired events: verification, password reset, password changed, welcome after verify, account deleted, Dodo subscription.active / renewed / cancelled, payment.failed, refund.succeeded, contact-form internal notification, contact-form user acknowledgement
+- Contact form routes to existing Hostinger mailboxes. No inbound email webhook. No invented business mailbox.
 
 **Security:**
 - HTTPS CTAs only; localhost and `*.vercel.app` rejected
