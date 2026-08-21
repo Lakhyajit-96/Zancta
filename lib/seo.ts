@@ -112,8 +112,19 @@ export function jsonLdOrganization(): object {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "ZANCTA",
-    url: PUBLIC_SITE_URL,
+    url: `${PUBLIC_SITE_URL}/`,
     logo: `${PUBLIC_SITE_URL}/assets/zancta-brand/logos/compact-mark.svg`,
+    description: "PDF and image tools that process supported files in the browser.",
+  };
+}
+
+export function jsonLdWebSite(): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "ZANCTA",
+    alternateName: "ZANCTA",
+    url: `${PUBLIC_SITE_URL}/`,
     description: "PDF and image tools that process supported files in the browser.",
   };
 }

@@ -30,10 +30,8 @@ export function assertProductionConfig(): { ok: boolean; missing: string[]; warn
 
   for (const { key, env } of requiredForEmailInProduction) {
     const val = process.env[env];
-    if (!val) warnings.push(`${key} missing — email will fallback to console (not prod-ready)`);
-    else if (env === "EMAIL_FROM" && !val.includes("@")) {
-      warnings.push("EMAIL_FROM is not a mailbox address (missing @)");
-    }
+    if (!val) missing.push(key);
+    else if (env === "EMAIL_FROM" && !val.includes("@")) missing.push(key);
   }
 
   for (const { key, env } of requiredForRateLimitInProduction) {

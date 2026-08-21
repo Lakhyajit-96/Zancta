@@ -11,22 +11,23 @@
 **Env vars:**
 ```
 RESEND_API_KEY=re_... (server secret, never NEXT_PUBLIC)
-EMAIL_FROM=noreply@localfile.app (verified domain sender)
-NEXTAUTH_URL=https://localfile.app
+EMAIL_FROM=noreply@mail.zancta.tech (verified Resend sender)
+EMAIL_REPLY_TO=support@zancta.tech
+NEXTAUTH_URL=https://zancta.tech
 ```
 
 **Sender requirements:**
 - Verify domain in Resend dashboard (add DNS TXT for verification).
 - Use `noreply@<verified-domain>` (not @gmail).
 
-**DNS (future production, not yet configured):**
-- **SPF:** `v=spf1 include:amazonses.com ~all` is SES; Resend uses `include:sendgrid.net` or Resend's SPF via `send` include — add TXT at root: `v=spf1 include:amazonses.com ~all` per Resend docs (Resend uses SES under hood). Check Resend dashboard for exact.
-- **DKIM:** 3 CNAME records from Resend (e.g., `resend._domainkey` → `...`), provisioned after domain add.
-- **DMARC:** `v=DMARC1; p=none; rua=mailto:dmarc@localfile.app` at `_dmarc`.
-- Verification: Resend dashboard shows `Verified`, then test via `resend.emails.send` to personal inbox, check `Authentication-Results: dkim=pass spf=pass dmarc=pass`.
+**DNS:**
+- Hostinger apex MX/SPF handles receiving `@zancta.tech` mail.
+- Resend sends from the existing `mail.zancta.tech` domain; do not alter Hostinger apex MX to configure it.
+- Add only the exact SPF/DKIM/DMARC records currently supplied by the Resend dashboard for `mail.zancta.tech`. Never copy records from this document into DNS without comparing them to the dashboard.
+- Verification: Resend dashboard shows `Verified`, then test via `resend.emails.send` to an independent inbox and check `Authentication-Results: dkim=pass spf=pass dmarc=pass`.
 
 **Architecture:**
-- `lib/email/index.ts` — `EmailAdapter { sendVerification(to,url), sendPasswordReset(to,url) }`, `ResendAdapter` (prod), `ConsoleAdapter` (dev), `TestAdapter` (test). `getEmailAdapter()` picks `Resend` if `NODE_ENV=production && RESEND_API_KEY`, else `Console`. No provider name in auth logic.
+- `lib/email/index.ts` — `EmailAdapter { sendVerification(to,url), sendPasswordReset(to,url) }`, `ResendAdapter` (prod), `ConsoleAdapter` (dev), `TestAdapter` (test). Production always selects Resend and fails closed if its key or sender is missing; development/test use local adapters. No provider name in auth logic.
 - Production never logs `token`/`url` (only `url` sent to Resend, no `console.log`). Dev `ConsoleAdapter` logs `Verification ${to}: ${url}` for local/manual.
 
 **Prod flow:**
@@ -38,9 +39,10 @@ NEXTAUTH_URL=https://localfile.app
 
 **Checklist:**
 - [ ] `RESEND_API_KEY` in Vercel env (Production)
-- [ ] `EMAIL_FROM` verified domain
-- [ ] DNS SPF/DKIM/DMARC added and `Verified` in Resend
+- [ ] `EMAIL_FROM=noreply@mail.zancta.tech` verified in Resend
+- [ ] Exact Resend SPF/DKIM/DMARC records added for `mail.zancta.tech` and `Verified` in Resend
+- [ ] `support@zancta.tech` is a real monitored mailbox; role aliases are tested before being called monitored
 - [ ] Test email to Gmail/Outlook → `pass`
-- [ ] Remove `devToken` from signup response in prod (already `&& !RESEND_API_KEY`)
+- [ ] Confirm production responses never expose `devToken` (local-host gating only)
 
 **Not yet configured** — dev still uses Console, prod checklist above. No real secrets in repo.

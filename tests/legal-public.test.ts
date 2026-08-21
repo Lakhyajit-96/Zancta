@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { jsonLdSoftwareApp } from "@/lib/seo";
+import { jsonLdSoftwareApp, jsonLdWebSite } from "@/lib/seo";
 import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { GET } from "@/app/llms.txt/route";
 
@@ -21,6 +21,15 @@ describe("public legal and AI-search facts", () => {
     });
     expect(JSON.stringify(json)).toMatch(/"priceCurrency":"INR"/);
     expect(JSON.stringify(json)).not.toMatch(/USD/);
+  });
+
+  it("publishes one consistent ZANCTA WebSite entity", () => {
+    expect(jsonLdWebSite()).toMatchObject({
+      "@type": "WebSite",
+      name: "ZANCTA",
+      alternateName: "ZANCTA",
+    });
+    expect(String((jsonLdWebSite() as { url: string }).url)).toMatch(/\/$/);
   });
 
   it("llms.txt is factual and omits ranking claims", async () => {

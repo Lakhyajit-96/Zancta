@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "@fontsource-variable/instrument-sans";
 import "@fontsource-variable/fraunces";
@@ -21,9 +21,15 @@ export const metadata: Metadata = {
   description:
     "Process supported PDFs and images locally in your browser. No file upload for implemented local workflows.",
   icons: {
-    icon: "/favicon-zancta.svg",
-    apple: "/favicon-zancta.svg",
+    icon: [
+      { url: "/icons/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: { url: "/icons/favicon-180.png", sizes: "180x180", type: "image/png" },
   },
+  manifest: "/manifest.webmanifest",
   openGraph: {
     title: "ZANCTA — PDF and image tools that run in your browser",
     description: "Implemented local workflows process the selected file in your browser. No file upload for processing.",
@@ -47,6 +53,10 @@ export const metadata: Metadata = {
   },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#100f11",
 };
 
 export default function RootLayout({
