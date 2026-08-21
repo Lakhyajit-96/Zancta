@@ -1,20 +1,45 @@
+import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
+import { LEGAL_PUBLIC } from "@/lib/legal-public";
 
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/terms", {
   title: "Terms",
-  description: "Plain-language terms for ZANCTA's browser-based file tools and account services.",
+  description: "Product terms for ZANCTA's browser-based file tools, accounts, and optional Premium checkout.",
 });
 
 export default function TermsPage() {
-  return <ContentPage eyebrow="/terms" title="Terms of service" intro="Last updated: August 19, 2026. By using ZANCTA, you agree to these terms. These are product terms for the current service, not final legal terms — a responsible legal owner must complete entity, jurisdiction, liability, refund, and dispute provisions before commercial launch.">
-    <ContentSection title="Using the service"><p>You may use the available tools only for files you have the right to use and in compliance with applicable law. Do not use the service to harm others, infringe rights, bypass security controls, or disrupt the application.</p></ContentSection>
-    <ContentSection title="Files and results"><p>You remain responsible for the files you select and for checking the output before relying on it. Local processing can fail because of file structure, browser APIs, device memory, unsupported inputs, or service changes. A successful output is not a guarantee that it is suitable for a particular purpose.</p></ContentSection>
-    <ContentSection title="Accounts"><p>Keep account credentials private and provide accurate information needed for authentication. We may restrict or suspend access for abuse, security risk, or material violations of these terms. Account deletion is available where supported by the authenticated account flow.</p></ContentSection>
-    <ContentSection title="Free and Premium access"><p>Local free tools are available within their displayed limits. Premium currently includes the same tools and the same limits, plus a reserved ad-free experience if ads are introduced. Premium subscriptions, pricing, billing periods, cancellations, refunds, taxes, and paid entitlements apply only when live provider configuration is available and the terms shown at checkout are active.</p></ContentSection>
-    <ContentSection title="Third-party services"><p>Authentication, email, and payment functions can depend on configured third-party providers. Their own terms and privacy notices may apply to the parts of a transaction they handle. ZANCTA does not store payment card data.</p></ContentSection>
-    <ContentSection title="Availability and changes"><p>Tool availability, browser compatibility, input limits, and features can change. We may update these terms and product behavior as the service evolves. Material legal terms require a visible, legally reviewed update process before launch.</p></ContentSection>
-    <ContentSection title="Ownership and limitations" className="md:col-span-2"><p>You retain rights in your files. ZANCTA retains rights in its branding, design, and software. Limitations of liability, warranties, governing law, dispute resolution, notice details, and a legal entity identity remain subject to human legal review.</p></ContentSection>
-  </ContentPage>;
+  return (
+    <ContentPage
+      eyebrow="/terms"
+      title="Terms of service"
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. By using ZANCTA, you agree to these product terms. A legal entity name, governing law, limitation of liability, and lawyer-reviewed commercial terms have not been published. This page is not presented as attorney-approved.`}
+    >
+      <ContentSection title="Using the service">
+        <p>You may use the available tools only for files you have the right to use and in compliance with applicable law. Do not use the service to harm others, infringe rights, bypass security controls, or disrupt the application.</p>
+      </ContentSection>
+      <ContentSection title="Files and results">
+        <p>You remain responsible for the files you select and for checking the output before relying on it. Local processing can fail because of file structure, browser APIs, device memory, unsupported inputs, or service changes. A successful output is not a guarantee that it is suitable for a particular purpose.</p>
+      </ContentSection>
+      <ContentSection title="Accounts">
+        <p>Keep account credentials private and provide accurate information needed for authentication. Email verification is required before paid checkout. We may restrict or suspend access for abuse, security risk, or material violations of these terms. Account deletion is available where supported by the authenticated account flow.</p>
+      </ContentSection>
+      <ContentSection title="Free and Premium access">
+        <p>
+          Local free tools are available within their displayed limits. Premium currently includes the same tools and the same limits, plus a reserved ad-free experience if ads are introduced. Premium is {LEGAL_PUBLIC.monthlyDisplayINR} or {LEGAL_PUBLIC.annualDisplayINR} when live provider checkout is enabled. Checkout is hosted by {LEGAL_PUBLIC.paymentProviderName} as {LEGAL_PUBLIC.paymentProviderRole}. Cancellation, refunds, and disputes are described on{" "}
+          <Link href="/refund-and-cancellation" className="underline">Refunds and cancellation</Link>.
+        </p>
+      </ContentSection>
+      <ContentSection title="Third-party services">
+        <p>Authentication, email, and payment functions can depend on configured third-party providers. Their own terms and privacy notices may apply to the parts of a transaction they handle. ZANCTA does not store payment card data.</p>
+      </ContentSection>
+      <ContentSection title="Availability and changes">
+        <p>Tool availability, browser compatibility, input limits, and features can change. We may update these terms and product behavior as the service evolves. Material legal terms require a visible, legally reviewed update process before they should be treated as complete commercial terms.</p>
+      </ContentSection>
+      <ContentSection title="Ownership and unpublished legal terms" className="md:col-span-2">
+        <p>You retain rights in your files. ZANCTA retains rights in its branding, design, and software. A published legal entity identity, postal address, governing law, warranty disclaimer beyond this product description, and dispute-resolution forum are not stated here because those facts have not been provided for publication. See <Link href="/contact" className="underline">Contact</Link> and <Link href="/privacy" className="underline">Privacy</Link>.</p>
+      </ContentSection>
+    </ContentPage>
+  );
 }

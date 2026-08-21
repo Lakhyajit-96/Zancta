@@ -46,15 +46,16 @@ export async function POST(req: NextRequest) {
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
 
-    // Verified account already exists — intended policy surfaces this (no
-    // new enumeration beyond existing behavior).
+    const signupAck = { ok: true as const, message: "If this email can receive messages from ZANCTA, check your inbox for next steps." };
+
+    // Verified account already exists — same public body as a new signup to
+    // avoid email-existence enumeration. No mail is sent.
     if (existing && !existing.deletedAt && existing.emailVerified) {
-      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+      return NextResponse.json(signupAck);
     }
 
-    // Recovery path: account exists but never verified (e.g., the original
-    // verification email failed to send). Rotate the token and retry
-    // delivery instead of trapping the user behind a 409.
+    // Recovery path: account exists but never verified. Rotate the token and
+    // retry delivery. Public message stays generic.
     if (existing && !existing.deletedAt && !existing.emailVerified) {
       stage = "email-send";
       const sent = await createAndSendVerification(existing.id, email);
@@ -63,10 +64,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           ok: true,
           emailIssue: true,
-          message: "That account exists but isn't verified yet. We couldn't send a verification email right now — please try again in a few minutes.",
+          message: "We couldn't send a verification email right now — please try again in a few minutes.",
         });
       }
-      return NextResponse.json({ ok: true, message: "That account isn't verified yet. A new verification email is on its way." });
+      return NextResponse.json(signupAck);
     }
 
     if (existing?.deletedAt) {
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
         ...(allowDevToken ? { devToken: sent.plainToken } : {}),
       });
     }
-    return NextResponse.json({ ok: true, message: "Account created. Check your email to verify.", ...(allowDevToken ? { devToken: sent.plainToken } : {}) });
+    return NextResponse.json({ ...signupAck, ...(allowDevToken ? { devToken: sent.plainToken } : {}) });
   } catch (err) {
     return safeServerError("auth/signup", stage, err);
   }

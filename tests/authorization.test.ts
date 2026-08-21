@@ -10,8 +10,13 @@ describe("API authorization binds to the session, not client IDs", () => {
   it("checkout uses session.user.id and ignores a body userId field", async () => {
     const src = await source("app/api/payments/checkout/route.ts");
     expect(src).toMatch(/session\.user\.id/);
-    expect(src).not.toMatch(/body\?\.userId|body\.userId/);
-    expect(src).toMatch(/userId: session\.user\.id/);
+    expect(src).toMatch(/emailVerified/);
+    expect(src).toMatch(/EMAIL_UNVERIFIED/);
+    expect(src).toMatch(/getEntitlement/);
+    expect(src).toMatch(/currency: "INR"/);
+    expect(src).toMatch(/body\?\.userId && body\.userId !== liveUser\.id/);
+    expect(src).not.toMatch(/userId: body/);
+    expect(src).toMatch(/userId: liveUser\.id/);
   });
 
   it("status, cancel, and account delete never take a user id from the request body", async () => {

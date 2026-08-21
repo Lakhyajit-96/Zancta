@@ -34,6 +34,20 @@ test("tools catalog has unique metadata and twitter image", async ({ page }) => 
   expect(twitter || "").toMatch(/zancta-og-hero/);
 });
 
+test("SoftwareApplication offers use INR and llms.txt is factual", async ({ page, request }) => {
+  await page.goto("/tools/pdf-merge");
+  const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+  expect(jsonLd.some((text) => /"priceCurrency":\s*"INR"/.test(text))).toBeTruthy();
+  expect(jsonLd.join("")).not.toMatch(/"priceCurrency":\s*"USD"/);
+
+  const llms = await request.get("/llms.txt");
+  expect(llms.ok()).toBeTruthy();
+  const body = await llms.text();
+  expect(body).toMatch(/ZANCTA/);
+  expect(body).toMatch(/Merge PDF/);
+  expect(body).not.toMatch(/#1|most secure|guaranteed indexing|guaranteed ChatGPT/i);
+});
+
 test("local processing guide is unique and linked", async ({ page }) => {
   await page.goto("/guides/local-processing");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Local processing/i);

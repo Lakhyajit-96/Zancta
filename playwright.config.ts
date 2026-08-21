@@ -9,5 +9,11 @@ export default defineConfig({
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   workers: 3,
-  webServer: { command: "npm run build && npm run start -- -p 3000", port: 3000, reuseExistingServer: !process.env.CI, timeout: 240000 },
+  webServer: {
+    command: "npm run build && npm run start -- -p 3000",
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 240000,
+    env: { ...process.env, AUTH_USE_SECURE_COOKIES: "false" },
+  },
 });

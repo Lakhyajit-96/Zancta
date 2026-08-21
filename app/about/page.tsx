@@ -108,7 +108,7 @@ export default function AboutPage() {
                 <p>
                   ZANCTA does not manufacture customer stories, usage numbers, awards, or certifications. Product claims
                   are limited to the workflows that are implemented and tested, and deferred work stays labelled as
-                  deferred.
+                  deferred. A legal entity name and postal address have not been published.
                 </p>
               </ContentSection>
             </div>

@@ -17,6 +17,7 @@ describe("sitemap contract", () => {
     }
     expect(urls.some((u) => u === `${origin}/` || u === origin)).toBe(true);
     expect(urls).toContain(`${origin}/guides/local-processing`);
+    expect(urls).toContain(`${origin}/refund-and-cancellation`);
     expect(urls).not.toContain(`${origin}/contact`);
     expect(urls).not.toContain(`${origin}/features`);
     expect(urls).not.toContain(`${origin}/docs`);

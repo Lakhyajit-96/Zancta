@@ -32,6 +32,11 @@ export default async function AccountPage() {
         <div>
           <h2 className="eyebrow">Profile</h2>
           <p className="text-sm text-muted-foreground mt-2">Email: {user.email} {user.emailVerified ? "✓ verified" : "— not verified"}</p>
+          {!user.emailVerified && (
+            <p className="text-xs text-warning mt-2">
+              Verify your email before paid checkout. <Link href="/verify-email" className="underline underline-offset-4">Request a verification email</Link>
+            </p>
+          )}
           {user.name && <p className="text-sm text-muted-foreground">Name: {user.name}</p>}
           <p className="text-xs text-muted-foreground mt-1">Created {user.createdAt.toLocaleDateString()}</p>
         </div>
@@ -48,7 +53,8 @@ export default async function AccountPage() {
           {ent.plan === "FREE" ? (
             <p className="text-xs text-muted-foreground mt-2">
               <Link href="/pricing" className="text-accent underline underline-offset-4">View pricing</Link>
-              {isLivePaymentsEnabled() ? " — Checkout can process a payment. There is no monitored support channel yet." : " — Premium checkout is not available yet."}
+              {isLivePaymentsEnabled() ? " — Checkout can process a payment. There is no monitored support channel yet. See " : " — Premium checkout is not available yet. See "}
+              <Link href="/refund-and-cancellation" className="text-accent underline underline-offset-4">refunds and cancellation</Link>.
             </p>
           ) : ent.plan === "PREMIUM" && ent.status === "ACTIVE" && ent.providerBacked ? (
             ent.cancelAtPeriodEnd ? (

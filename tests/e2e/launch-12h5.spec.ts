@@ -40,6 +40,10 @@ test("P0/P1 launch contract", async ({ page }) => {
   const robots = await page.locator('meta[name="robots"]').getAttribute("content");
   expect(robots || "").toMatch(/noindex/i);
 
+  await page.goto("/refund-and-cancellation");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Refunds and cancellation/i);
+  await expect(page.getByRole("link", { name: "Account" }).first()).toBeVisible();
+
   await page.goto("/faq");
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(jsonLd.some((text) => text.includes("FAQPage"))).toBeTruthy();

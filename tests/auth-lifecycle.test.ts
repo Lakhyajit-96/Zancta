@@ -220,6 +220,22 @@ describe("Credentials lifecycle", () => {
     expect(ent?.status).toBe("ACTIVE");
   });
 
+  it("verified existing email signup returns a generic 200 and does not create a second user", async () => {
+    const { POST } = await import("@/app/api/auth/signup/route");
+    const before = await prisma.user.count({ where: { email: existingEmail } });
+    const req = new NextRequest("http://localhost:3000/api/auth/signup", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-forwarded-for": "10.8.0.2" },
+      body: JSON.stringify({ email: existingEmail, password, name: "Dup" }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.error).toBeUndefined();
+    expect(body.message).toMatch(/check your inbox/i);
+    expect(await prisma.user.count({ where: { email: existingEmail } })).toBe(before);
+  });
+
   it("3. existing credentials sign-in succeeds", async () => {
     const result = await verifyCredentialsUser(existingEmail, password);
     expect(result?.id).toBe(existingId);

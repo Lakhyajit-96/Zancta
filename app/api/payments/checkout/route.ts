@@ -5,27 +5,65 @@ import { getPaymentProvider, isLivePaymentsEnabled } from "@/lib/payments";
 import type { PlanId } from "@/lib/payments/types";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
+import { getEntitlement } from "@/lib/entitlement";
 
 export async function GET() {
   return NextResponse.json({ live: isLivePaymentsEnabled() });
 }
 
-// POST /api/payments/checkout  { planId, currency? }
-// Requires auth. Returns { checkoutUrl }
+const CHECKOUT_PLANS: PlanId[] = ["PREMIUM_MONTHLY", "PREMIUM_ANNUAL"];
+
+// POST /api/payments/checkout  { planId }
+// Requires authenticated, verified user. Returns { checkoutUrl }
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id || !session?.user?.email) {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   }
 
+  const liveUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, email: true, emailVerified: true, deletedAt: true },
+  });
+  if (!liveUser || liveUser.deletedAt || !liveUser.email) {
+    return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+  }
+  if (!liveUser.emailVerified) {
+    return NextResponse.json(
+      { error: "Verify your email before checkout.", code: "EMAIL_UNVERIFIED" },
+      { status: 403 }
+    );
+  }
+
   // Rate limit checkout creation 10/15m per user
-  const rl = await rateLimitAsync(`checkout:${session.user.id}`, 10, 15 * 60 * 1000);
+  const rl = await rateLimitAsync(`checkout:${liveUser.id}`, 10, 15 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many checkout attempts. Try again later." }, { status: 429 });
 
-  const body = await req.json().catch(() => null) as { planId?: string; currency?: string } | null;
+  const body = await req.json().catch(() => null) as { planId?: string; currency?: string; userId?: string } | null;
+  if (body?.userId && body.userId !== liveUser.id) {
+    return NextResponse.json({ error: "Checkout is bound to the signed-in account." }, { status: 403 });
+  }
+
   const planId = body?.planId as PlanId | undefined;
-  if (!planId || !["PREMIUM_MONTHLY", "PREMIUM_ANNUAL"].includes(planId)) {
+  if (!planId || !CHECKOUT_PLANS.includes(planId)) {
     return NextResponse.json({ error: "Invalid planId (expected PREMIUM_MONTHLY or PREMIUM_ANNUAL)" }, { status: 400 });
+  }
+
+  const entitlement = await getEntitlement(liveUser.id);
+  if (entitlement.plan === "PREMIUM" && entitlement.status === "ACTIVE" && entitlement.providerBacked) {
+    return NextResponse.json({ error: "Premium is already active on this account." }, { status: 409 });
+  }
+
+  const recentCheckout = await prisma.paymentCheckout.findFirst({
+    where: {
+      userId: liveUser.id,
+      status: "created",
+      createdAt: { gt: new Date(Date.now() - 2 * 60 * 1000) },
+    },
+    select: { id: true },
+  });
+  if (recentCheckout) {
+    return NextResponse.json({ error: "A checkout is already in progress. Try again in a moment." }, { status: 409 });
   }
 
   const monthly = process.env.DODO_PRODUCT_MONTHLY_ID || process.env.DODO_PAYMENTS_PRODUCT_MONTHLY_ID;
@@ -48,28 +86,28 @@ export async function POST(req: NextRequest) {
   try {
     const provider = getPaymentProvider();
     const result = await provider.createCheckout({
-      userId: session.user.id,
-      email: session.user.email,
+      userId: liveUser.id,
+      email: liveUser.email,
       planId,
-      currency: (body?.currency as "INR" | "USD") || undefined,
+      currency: "INR",
     });
 
     await prisma.paymentCheckout.upsert({
       where: { providerCheckoutId: result.providerCheckoutId },
       create: {
-        userId: session.user.id,
+        userId: liveUser.id,
         provider: result.provider,
         providerCheckoutId: result.providerCheckoutId,
         planId,
         status: "created",
       },
-      update: { userId: session.user.id, planId, status: "created" },
+      update: { userId: liveUser.id, planId, status: "created" },
     }).catch((e) => {
       console.error("[checkout] local checkout persist failed", e instanceof Error ? e.message : String(e));
     });
 
     await auditEvent({
-      userId: session.user.id,
+      userId: liveUser.id,
       action: "payment.checkout_started",
       targetId: result.providerCheckoutId,
       metadata: JSON.stringify({ provider: result.provider, planId }),
