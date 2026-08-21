@@ -5,7 +5,8 @@ import { GET } from "@/app/llms.txt/route";
 
 describe("public legal and AI-search facts", () => {
   it("does not publish invented operator identity or mailboxes", () => {
-    expect(LEGAL_PUBLIC.operatorLegalNamePublished).toBe(false);
+    expect(LEGAL_PUBLIC.operatorLegalNamePublished).toBe(true);
+    expect(LEGAL_PUBLIC.operatorName).toBe("Lakhyajit Changmai");
     expect(LEGAL_PUBLIC.operatorAddressPublished).toBe(false);
     expect(LEGAL_PUBLIC.monitoredSupportPublished).toBe(false);
     expect(LEGAL_PUBLIC.lawyerReviewed).toBe(false);

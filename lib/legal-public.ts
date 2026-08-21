@@ -7,9 +7,10 @@
 export const LEGAL_PUBLIC = {
   brand: "ZANCTA",
   siteUrl: "https://zancta.tech",
+  operatorName: "Lakhyajit Changmai",
   lastUpdated: "August 21, 2026",
   lawyerReviewed: false,
-  operatorLegalNamePublished: false,
+  operatorLegalNamePublished: true,
   operatorAddressPublished: false,
   jurisdictionPublished: false,
   monitoredSupportPublished: false,

@@ -15,7 +15,7 @@ export default function PrivacyPage() {
     <ContentPage
       eyebrow="/privacy"
       title="How ZANCTA handles privacy."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. This page describes current product behavior. It is not a lawyer-approved privacy notice and does not name a legal entity, postal address, or data-protection officer because those have not been published.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA is operated by ${LEGAL_PUBLIC.operatorName}, an individual operator. This page describes current product behavior. It is not a lawyer-approved privacy notice and does not publish a company/entity, postal address, or data-protection officer because those have not been provided.`}
       visual={<ShieldVisual />}
     >
       <ContentSection title="Local file processing">

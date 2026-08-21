@@ -3,6 +3,7 @@ import { ContentSection } from "@/components/marketing/content-page";
 import { MaskLines, Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
 import { pageMeta } from "@/lib/seo";
+import { LEGAL_PUBLIC } from "@/lib/legal-public";
 
 export const metadata = pageMeta("/about", {
   title: "About local-first PDF and image tools",
@@ -104,11 +105,18 @@ export default function AboutPage() {
                   restrained so the task, not the interface, remains in focus.
                 </p>
               </ContentSection>
+              <ContentSection title="Operator">
+                <p>
+                  ZANCTA is operated by {LEGAL_PUBLIC.operatorName}, an individual operator. No company or registered
+                  entity is represented here, and no physical address is published until the owner supplies one for
+                  public use.
+                </p>
+              </ContentSection>
               <ContentSection title="Responsible scope" className="md:col-span-2">
                 <p>
                   ZANCTA does not manufacture customer stories, usage numbers, awards, or certifications. Product claims
                   are limited to the workflows that are implemented and tested, and deferred work stays labelled as
-                  deferred. A legal entity name and postal address have not been published.
+                  deferred. No company or registered entity and no postal address have been published.
                 </p>
               </ContentSection>
             </div>

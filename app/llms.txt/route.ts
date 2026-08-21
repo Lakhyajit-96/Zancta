@@ -1,5 +1,6 @@
 import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { PREMIUM_CONTRACT, FREE_BENEFITS, PREMIUM_BENEFITS } from "@/lib/payments/premium-contract";
+import { isLivePaymentsEnabled } from "@/lib/payments/live";
 import { TOOLS } from "@/lib/tools";
 
 export const dynamic = "force-static";
@@ -7,6 +8,7 @@ export const dynamic = "force-static";
 function llmsTxt(): string {
   const available = TOOLS.filter((t) => t.available);
   const deferred = TOOLS.filter((t) => !t.available);
+  const checkoutLive = isLivePaymentsEnabled();
   const toolLines = available.map((t) => `- ${t.name} (${LEGAL_PUBLIC.siteUrl}/tools/${t.slug}): ${t.description}`).join("\n");
   const deferredLines = deferred.map((t) => `- ${t.name} (${LEGAL_PUBLIC.siteUrl}/tools/${t.slug}): deferred, noindex, no processing`).join("\n");
 
@@ -47,7 +49,7 @@ Accounts are for sign-in and paid-plan status, not to unlock the local tools.
 Premium is ${LEGAL_PUBLIC.monthlyDisplayINR} or ${LEGAL_PUBLIC.annualDisplayINR} via ${LEGAL_PUBLIC.paymentProviderName} (${LEGAL_PUBLIC.paymentProviderRole}).
 Free: ${FREE_BENEFITS.join("; ")}.
 Premium: ${PREMIUM_BENEFITS.join("; ")}.
-Ads shipped: ${String(PREMIUM_CONTRACT.adsShipped)}. Checkout can be live while monitored support is not configured.
+Ads shipped: ${String(PREMIUM_CONTRACT.adsShipped)}. Checkout status: ${checkoutLive ? "live" : "paused pending verified support and commercial launch prerequisites"}.
 
 ## Canonical pages
 

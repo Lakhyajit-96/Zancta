@@ -14,7 +14,7 @@ export default function TermsPage() {
     <ContentPage
       eyebrow="/terms"
       title="Terms of service"
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. By using ZANCTA, you agree to these product terms. A legal entity name, governing law, limitation of liability, and lawyer-reviewed commercial terms have not been published. This page is not presented as attorney-approved.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA is operated by ${LEGAL_PUBLIC.operatorName}, an individual operator. By using ZANCTA, you agree to these product terms. A physical address, governing law, limitation of liability, and lawyer-reviewed commercial terms have not been published. This page is not presented as attorney-approved.`}
     >
       <ContentSection title="Using the service">
         <p>You may use the available tools only for files you have the right to use and in compliance with applicable law. Do not use the service to harm others, infringe rights, bypass security controls, or disrupt the application.</p>
@@ -38,7 +38,7 @@ export default function TermsPage() {
         <p>Tool availability, browser compatibility, input limits, and features can change. We may update these terms and product behavior as the service evolves. Material legal terms require a visible, legally reviewed update process before they should be treated as complete commercial terms.</p>
       </ContentSection>
       <ContentSection title="Ownership and unpublished legal terms" className="md:col-span-2">
-        <p>You retain rights in your files. ZANCTA retains rights in its branding, design, and software. A published legal entity identity, postal address, governing law, warranty disclaimer beyond this product description, and dispute-resolution forum are not stated here because those facts have not been provided for publication. See <Link href="/contact" className="underline">Contact</Link> and <Link href="/privacy" className="underline">Privacy</Link>.</p>
+        <p>You retain rights in your files. ZANCTA retains rights in its branding, design, and software. The individual operator is named above; a company/entity identity, postal address, governing law, warranty disclaimer beyond this product description, and dispute-resolution forum are not stated here because those facts have not been provided for publication. See <Link href="/contact" className="underline">Contact</Link> and <Link href="/privacy" className="underline">Privacy</Link>.</p>
       </ContentSection>
     </ContentPage>
   );

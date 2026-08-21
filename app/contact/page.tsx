@@ -15,7 +15,7 @@ export default function ContactPage() {
     <ContentPage
       eyebrow="/contact"
       title="Get in touch — honestly."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA does not currently have a monitored public support, privacy, grievance, or security contact channel. We will not publish a placeholder address or imply a response commitment that does not exist.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA is operated by ${LEGAL_PUBLIC.operatorName}. ZANCTA does not currently have a monitored public support, privacy, grievance, or security contact channel. We will not publish a placeholder address or imply a response commitment that does not exist.`}
     >
       <ContentSection title="Product guidance">
         <p>
