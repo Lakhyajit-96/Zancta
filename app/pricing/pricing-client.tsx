@@ -153,7 +153,7 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         {checkoutLive
-          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools and the same limits as Free. Ad-free access is reserved for if ads launch later — ads are not live today. Cancel at period end from Account. There is no monitored support channel yet."
+          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools and the same limits as Free. Ad-free access is reserved for if ads launch later — ads are not live today. Cancel at period end from Account. Billing questions: billing@zancta.tech."
           : "Prices are listed in INR. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
       </p>
     </div>

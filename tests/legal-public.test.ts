@@ -8,7 +8,12 @@ describe("public legal and AI-search facts", () => {
     expect(LEGAL_PUBLIC.operatorLegalNamePublished).toBe(true);
     expect(LEGAL_PUBLIC.operatorName).toBe("Lakhyajit Changmai");
     expect(LEGAL_PUBLIC.operatorAddressPublished).toBe(false);
-    expect(LEGAL_PUBLIC.monitoredSupportPublished).toBe(false);
+    expect(LEGAL_PUBLIC.monitoredSupportPublished).toBe(true);
+    expect(LEGAL_PUBLIC.monitoredSecurityPublished).toBe(true);
+    expect(LEGAL_PUBLIC.supportEmail).toBe("support@zancta.tech");
+    expect(LEGAL_PUBLIC.privacyEmail).toBe("privacy@zancta.tech");
+    expect(LEGAL_PUBLIC.securityEmail).toBe("security@zancta.tech");
+    expect(LEGAL_PUBLIC.billingEmail).toBe("billing@zancta.tech");
     expect(LEGAL_PUBLIC.lawyerReviewed).toBe(false);
     expect(LEGAL_PUBLIC.monthlyDisplayINR).toBe("₹199 / month");
     expect(LEGAL_PUBLIC.annualDisplayINR).toBe("₹999 / year");

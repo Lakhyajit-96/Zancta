@@ -7,6 +7,7 @@ import prisma from "@/lib/db";
 import { auditEvent } from "@/lib/audit";
 import { deriveFromSubscription, isStaleEvent } from "@/lib/payments/billing-state";
 import { revokeToFree, syncEntitlement } from "@/lib/payments/entitlement-sync";
+import { notifyBillingEvent } from "@/lib/email/billing-notify";
 
 const TERMINAL_SUCCESS = new Set(["succeeded", "processed", "duplicate"]);
 const STALE_PROCESSING_MS = 2 * 60 * 1000;
@@ -504,6 +505,17 @@ export async function processVerifiedDodoEvent(input: {
       }
       await revokeToFree(userId, "dodo", "dispute", webhookId, eventTimestamp);
     }
+
+    await notifyBillingEvent({
+      eventType,
+      userId,
+      fallbackEmail: email,
+      planId: planFromMeta,
+      data,
+      paymentId,
+      currentPeriodEnd: cpe,
+      cancelAtPeriodEnd: cancelAtEnd,
+    });
 
     await markSucceeded(webhookId);
     return { ok: true };

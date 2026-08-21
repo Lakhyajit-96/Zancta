@@ -83,10 +83,17 @@ export async function POST(req: NextRequest) {
   const { recordDeletedProviderIdentities } = await import("@/lib/deleted-identity");
   await recordDeletedProviderIdentities(oauthAccounts);
 
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+
   await auditEvent({ userId, action: "account_deleted", targetId: userId, ip, metadata: JSON.stringify({ oauthProviders: oauthAccounts.map((a) => a.provider) }) });
 
   await prisma.session.deleteMany({ where: { userId } });
   await prisma.user.delete({ where: { id: userId } });
+
+  if (user?.email) {
+    const { getEmailAdapter, trySendEmail } = await import("@/lib/email");
+    await trySendEmail("account-deleted", () => getEmailAdapter().sendAccountDeleted(user.email));
+  }
 
   return NextResponse.json({ ok: true });
 }

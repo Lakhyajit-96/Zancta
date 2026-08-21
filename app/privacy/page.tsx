@@ -43,7 +43,10 @@ export default function PrivacyPage() {
       </ContentSection>
       <ContentSection title="Contact for privacy questions" className="md:col-span-2">
         <p>
-          A monitored privacy, support, or security mailbox is not published. Self-service pages: <Link href="/help" className="underline">Help</Link>, <Link href="/contact" className="underline">Contact</Link>, <Link href="/security" className="underline">Security</Link>.
+          Privacy questions: <a href={`mailto:${LEGAL_PUBLIC.privacyEmail}`} className="underline">{LEGAL_PUBLIC.privacyEmail}</a>.
+          Support: <a href={`mailto:${LEGAL_PUBLIC.supportEmail}`} className="underline">{LEGAL_PUBLIC.supportEmail}</a>.
+          Security: <a href={`mailto:${LEGAL_PUBLIC.securityEmail}`} className="underline">{LEGAL_PUBLIC.securityEmail}</a>.
+          Self-service pages: <Link href="/help" className="underline">Help</Link>, <Link href="/contact" className="underline">Contact</Link>, <Link href="/security" className="underline">Security</Link>.
         </p>
         <p>
           India&apos;s Digital Personal Data Protection Rules, 2025 (MeitY), Rule 9, require a Data Fiduciary to publish business contact information for a person who can answer questions about processing of personal data. Whether and when those rules apply to this site is a legal question, not a product claim. No Data Protection Officer or grievance officer is designated here. This notice is not legal advice and has not been lawyer-reviewed.

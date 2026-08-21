@@ -1,48 +1,51 @@
 # Email Production — Resend
 
-**Provider:** Resend (selected over Postmark, Amazon SES for Next.js DX, API, India deliverability, free tier 100/day, $20/3k, React Email).
+**Provider:** Resend. Transactional sending domain: `mail.zancta.tech`. Display name: `ZANCTA`.
 
-**Why Resend:**
-- **Next.js:** First-class React Email + `resend` SDK, Vercel integration, API not SMTP, no `nodemailer` vuln path.
-- **India:** Global edge, no AWS region lock, SPF/DKIM via DNS, not via AWS SES region.
-- **Postmark:** $15/1k, good deliverability but transactional separate infra, smaller free 100/mo.
-- **SES:** $0.10/1k cheapest, but requires AWS, IAM, SNS, Deliverability Manager extra, not needed for MVP volume.
+**Canonical From (verified sender):** `ZANCTA <noreply@mail.zancta.tech>`
+
+Do not send From `support@zancta.tech` until that exact mailbox is a verified Resend identity. Hostinger owns apex receiving mail; Resend owns `mail.zancta.tech` sending.
+
+**Reply-To (operational, owner-tested Hostinger mailboxes):**
+- Default / support: `support@zancta.tech`
+- Security events: `security@zancta.tech`
+- Billing events: `billing@zancta.tech`
+- Privacy requests: `privacy@zancta.tech`
+
+Override default Reply-To with `EMAIL_REPLY_TO` only if a different proven mailbox is required.
 
 **Env vars:**
 ```
 RESEND_API_KEY=re_... (server secret, never NEXT_PUBLIC)
-EMAIL_FROM=noreply@mail.zancta.tech (verified Resend sender; code sends as ZANCTA <that address>)
-EMAIL_REPLY_TO= # optional; set only after a real mailbox is proven
+EMAIL_FROM=noreply@mail.zancta.tech
+EMAIL_REPLY_TO=support@zancta.tech
 NEXTAUTH_URL=https://zancta.tech
 ```
 
-**Sender requirements:**
-- Verify domain in Resend dashboard (add DNS TXT for verification).
-- Use `noreply@<verified-domain>` (not @gmail).
+**Email body logo (not inbox avatar):**
+- `https://zancta.tech/assets/zancta-brand/email/zancta-email-mark.png`
+- HTML cannot force Gmail/Proton sender avatars. Inbox logos require BIMI + DMARC enforcement + usually a VMC/CMC.
 
-**DNS:**
-- Hostinger apex MX/SPF handles receiving `@zancta.tech` mail.
-- Resend sends from the existing `mail.zancta.tech` domain; do not alter Hostinger apex MX to configure it.
-- Add only the exact SPF/DKIM/DMARC records currently supplied by the Resend dashboard for `mail.zancta.tech`. Never copy records from this document into DNS without comparing them to the dashboard.
-- Verification: Resend dashboard shows `Verified`, then test via `resend.emails.send` to an independent inbox and check `Authentication-Results: dkim=pass spf=pass dmarc=pass`.
+**BIMI:**
+- Hosted SVG Tiny PS: `https://zancta.tech/assets/zancta-brand/bimi/zancta-bimi.svg`
+- Do not publish `default._bimi.zancta.tech` while apex DMARC is `p=none`.
+- Do not buy a VMC/CMC without explicit owner authorization.
+
+**DNS (do not overwrite working Hostinger MX):**
+- Apex MX: Hostinger (`mx1.hostinger.com`, `mx2.hostinger.com`)
+- Apex SPF: Hostinger include
+- Sending SPF/DKIM: Resend records on `mail.zancta.tech`
+- Apex DMARC: currently `p=none` (monitoring). Do not move to quarantine/reject until all legitimate senders are aligned.
 
 **Architecture:**
-- `lib/email/index.ts` — `EmailAdapter { sendVerification(to,url), sendPasswordReset(to,url) }`, `ResendAdapter` (prod), `ConsoleAdapter` (dev), `TestAdapter` (test). Production always selects Resend and fails closed if its key or sender is missing; development/test use local adapters. No provider name in auth logic.
-- Production never logs `token`/`url` (only `url` sent to Resend, no `console.log`). Dev `ConsoleAdapter` logs `Verification ${to}: ${url}` for local/manual.
-
-**Prod flow:**
-- Signup → `generateSecureToken()` → `hashToken()` store `tokenHash` → `ResendAdapter.sendVerification(to, url)` → user clicks `?token=plain` → `hashToken(plain)` lookup → `delete` one-time → `emailVerified`.
-- Same for reset (60min, `usedAt`, session invalidation).
+- `lib/email/layout.ts` — one HTML/text design system
+- `lib/email/templates.ts` — copy for real events
+- `lib/email/index.ts` — Resend/Console/Test adapters
+- Wired events: verification, password reset, password changed, welcome after verify, account deleted, Dodo subscription.active / renewed / cancelled, payment.failed, refund.succeeded
+- Not wired: support/privacy/security inbound acknowledgements (Hostinger mailboxes, no application inbound webhook)
 
 **Security:**
-- `crypto.randomBytes(32).hex` (256-bit), `sha256` hash storage (not plain), `expires` 24h/60m, `delete`/`usedAt` one-time, `HTTPS` links via `NEXTAUTH_URL`, no token in logs/analytics, no password in logs.
-
-**Checklist:**
-- [ ] `RESEND_API_KEY` in Vercel env (Production)
-- [ ] `EMAIL_FROM=noreply@mail.zancta.tech` verified in Resend
-- [ ] Exact Resend SPF/DKIM/DMARC records added for `mail.zancta.tech` and `Verified` in Resend
-- [ ] Role mailboxes exist and are tested before EMAIL_REPLY_TO or public addresses are published as monitored
-- [ ] Test email to Gmail/Outlook → `pass`
-- [ ] Confirm production responses never expose `devToken` (local-host gating only)
-
-**Not yet configured** — dev still uses Console, prod checklist above. No real secrets in repo.
+- HTTPS CTAs only; localhost and `*.vercel.app` rejected
+- Tokens only in one-time URLs, never passwords or secrets in body
+- Password reset: 60 minutes, one-time, session invalidation
+- Verification: 24 hours, one-time

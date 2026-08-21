@@ -1,29 +1,45 @@
 import { Resend } from "resend";
-import { getAppOrigin } from "@/lib/seo";
-import { LEGAL_PUBLIC } from "@/lib/legal-public";
+import type { EmailRole } from "./contacts";
+import { replyToForRole } from "./contacts";
+import { renderEmailHtml, renderEmailText, safeHttpsUrl, type EmailDocument } from "./layout";
+import {
+  accountDeletedEmail,
+  cancellationEmail,
+  passwordChangedEmail,
+  passwordResetEmail,
+  paymentFailedEmail,
+  refundProcessedEmail,
+  securityNotificationEmail,
+  subscriptionActivatedEmail,
+  subscriptionRenewedEmail,
+  verificationEmail,
+  welcomeEmail,
+} from "./templates";
 
 export interface EmailAdapter {
   sendVerification(to: string, url: string): Promise<void>;
   sendPasswordReset(to: string, url: string): Promise<void>;
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => {
-    const entities: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;",
-    };
-    return entities[character];
-  });
-}
-
-function safeUrl(url: string): string {
-  const parsed = new URL(url);
-  if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Email link must use HTTP or HTTPS");
-  return parsed.toString();
+  sendPasswordChanged(to: string): Promise<void>;
+  sendWelcome(to: string): Promise<void>;
+  sendAccountDeleted(to: string): Promise<void>;
+  sendSubscriptionActivated(
+    to: string,
+    input: { planLabel: string; amountLabel: string; periodEnd?: string }
+  ): Promise<void>;
+  sendSubscriptionRenewed(
+    to: string,
+    input: { planLabel: string; amountLabel?: string; periodEnd?: string }
+  ): Promise<void>;
+  sendPaymentFailed(to: string): Promise<void>;
+  sendCancellation(
+    to: string,
+    input: { scheduled: boolean; periodEnd?: string }
+  ): Promise<void>;
+  sendRefundProcessed(
+    to: string,
+    input: { amountLabel?: string; currency?: string; status: string; reference?: string }
+  ): Promise<void>;
+  sendSecurityNotification(to: string, input: { happened: string; when?: string; next: string }): Promise<void>;
 }
 
 function formatFromAddress(from: string): string {
@@ -32,68 +48,9 @@ function formatFromAddress(from: string): string {
   return `ZANCTA <${trimmed}>`;
 }
 
-function optionalReplyTo(): string | undefined {
-  const replyTo = (process.env.EMAIL_REPLY_TO || "").trim();
-  if (!replyTo.includes("@")) return undefined;
-  return replyTo;
-}
-
-function legalFooterText(): string {
-  const origin = getAppOrigin();
-  return `Privacy: ${origin}/privacy\nTerms: ${origin}/terms\nRefund & Cancellation: ${origin}/refund-and-cancellation\nThis is a transactional message from ZANCTA.`;
-}
-
-function emailHtml(params: {
-  preheader: string;
-  eyebrow: string;
-  title: string;
-  intro: string;
-  paragraphs: string[];
-  actionLabel: string;
-  actionUrl: string;
-  expiry: string;
-  warning: string;
-}): string {
-  const origin = escapeHtml(getAppOrigin());
-  const actionUrl = escapeHtml(safeUrl(params.actionUrl));
-  const paragraphs = params.paragraphs
-    .map((paragraph) => `<p style="margin:0 0 16px;color:#d7d0ca">${escapeHtml(paragraph)}</p>`)
-    .join("");
-  return `<!doctype html>
-<html lang="en">
-  <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-  <body style="margin:0;background:#100f11;color:#f7f2ec;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
-    <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(params.preheader)}</div>
-    <div style="padding:32px 16px">
-      <div style="max-width:600px;margin:0 auto;border:1px solid #39343a;background:#171519">
-        <div style="padding:24px 28px;border-bottom:1px solid #39343a">
-          <a href="${origin}" style="color:#f7f2ec;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:.24em">ZANCTA</a>
-        </div>
-        <main style="padding:32px 28px">
-          <p style="margin:0 0 12px;color:#d99a9a;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase">${escapeHtml(params.eyebrow)}</p>
-          <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2">${escapeHtml(params.title)}</h1>
-          <p style="margin:0 0 16px;color:#d7d0ca">${escapeHtml(params.intro)}</p>
-          ${paragraphs}
-          <p style="margin:24px 0 28px"><a href="${actionUrl}" style="display:inline-block;background:#d99a9a;color:#211b1d;padding:13px 20px;border-radius:4px;font-weight:700;text-decoration:none">${escapeHtml(params.actionLabel)}</a></p>
-          <p style="margin:0 0 8px;color:#d7d0ca">If the button does not work, copy this URL into your browser:</p>
-          <p style="margin:0 0 16px;word-break:break-all;color:#aaa1a0;font-size:14px">${actionUrl}</p>
-          <p style="margin:0 0 8px;color:#d7d0ca">This link expires in ${escapeHtml(params.expiry)} and can be used once.</p>
-          <p style="margin:0;color:#aaa1a0;font-size:14px">${escapeHtml(params.warning)}</p>
-        </main>
-        <footer style="padding:20px 28px;border-top:1px solid #39343a;color:#aaa1a0;font-size:12px">
-          <p style="margin:0 0 8px"><a href="${origin}/privacy" style="color:#d99a9a">Privacy</a> · <a href="${origin}/terms" style="color:#d99a9a">Terms</a> · <a href="${origin}/refund-and-cancellation" style="color:#d99a9a">Refund &amp; Cancellation</a></p>
-          <p style="margin:0">© ZANCTA · Operated by ${escapeHtml(LEGAL_PUBLIC.operatorName)} · Transactional message</p>
-        </footer>
-      </div>
-    </div>
-  </body>
-</html>`;
-}
-
 class ResendAdapter implements EmailAdapter {
   private resend: Resend;
   private from: string;
-  private replyTo: string | undefined;
   constructor() {
     const key = process.env.RESEND_API_KEY;
     const from = (process.env.EMAIL_FROM || "").trim();
@@ -103,61 +60,103 @@ class ResendAdapter implements EmailAdapter {
     }
     this.resend = new Resend(key);
     this.from = formatFromAddress(from);
-    this.replyTo = optionalReplyTo();
   }
-  private async sendEmail(params: Parameters<Resend["emails"]["send"]>[0]) {
-    // resend.emails.send() resolves with { data, error } instead of throwing;
-    // surface provider failures so callers never report fake success.
-    const { error } = await this.resend.emails.send(params);
+  private async send(params: { to: string; subject: string; doc: EmailDocument; role?: EmailRole }) {
+    const { error } = await this.resend.emails.send({
+      from: this.from,
+      replyTo: replyToForRole(params.role ?? "support"),
+      to: params.to,
+      subject: params.subject,
+      html: renderEmailHtml(params.doc),
+      text: renderEmailText(params.doc),
+    });
     if (error) {
-      // Resend error messages are safe (e.g. "domain is not verified"); no API keys included.
       throw new Error(`Resend send failed: ${error.name}: ${error.message}`);
     }
   }
   async sendVerification(to: string, url: string) {
-    const link = safeUrl(url);
-    await this.sendEmail({
-      from: this.from,
-      ...(this.replyTo ? { replyTo: this.replyTo } : {}),
+    await this.send({
       to,
-      subject: "Verify your email — ZANCTA",
-      html: emailHtml({
-        preheader: "Confirm your email within 24 hours to finish creating your ZANCTA account.",
-        eyebrow: "Email verification",
-        title: "Verify your ZANCTA email",
-        intro: "ZANCTA needs to confirm this address belongs to you before the account can be used for sign-in and, when checkout is enabled, for paid billing.",
-        paragraphs: [
-          "After you verify, you can sign in with this email. The link works once.",
-        ],
-        actionLabel: "Verify email",
-        actionUrl: link,
-        expiry: "24 hours",
-        warning: "If you did not create this account, ignore this message. No account access is granted until the link is used.",
-      }),
-      text: `Verify your ZANCTA email\n\nZANCTA needs to confirm this address belongs to you before the account can be used for sign-in and, when checkout is enabled, for paid billing.\n\nVerify here:\n${link}\n\nThis link expires in 24 hours and can be used once. After verification, you can sign in with this email.\nIf you did not create this account, ignore this message.\n\n${legalFooterText()}`,
+      subject: "Verify your ZANCTA email address",
+      doc: verificationEmail(safeHttpsUrl(url)),
     });
   }
   async sendPasswordReset(to: string, url: string) {
-    const link = safeUrl(url);
-    await this.sendEmail({
-      from: this.from,
-      ...(this.replyTo ? { replyTo: this.replyTo } : {}),
+    await this.send({
       to,
+      role: "security",
       subject: "Reset your ZANCTA password",
-      html: emailHtml({
-        preheader: "A password reset was requested. This one-time link expires in 60 minutes.",
-        eyebrow: "Account security",
-        title: "Reset your ZANCTA password",
-        intro: "Someone requested a password reset for a ZANCTA account using this email address.",
-        paragraphs: [
-          "The link is one-time. After a successful reset, existing signed-in sessions for that account are ended and you will need to sign in with the new password.",
-        ],
-        actionLabel: "Reset password",
-        actionUrl: link,
-        expiry: "60 minutes",
-        warning: "If you did not request this, ignore this message. Your password will not change unless you use the link. A monitored public security mailbox is not published yet; do not send passwords or tokens in reply.",
-      }),
-      text: `Reset your ZANCTA password\n\nSomeone requested a password reset for a ZANCTA account using this email address.\n\nUse this one-time link:\n${link}\n\nThis link expires in 60 minutes and can be used once. After a successful reset, existing signed-in sessions are ended and you will need to sign in with the new password.\nIf you did not request this, ignore this message — your password will not change unless you use the link.\nA monitored public security mailbox is not published yet; do not send passwords or tokens in reply.\n\n${legalFooterText()}`,
+      doc: passwordResetEmail(safeHttpsUrl(url)),
+    });
+  }
+  async sendPasswordChanged(to: string) {
+    await this.send({
+      to,
+      role: "security",
+      subject: "Your ZANCTA password was changed",
+      doc: passwordChangedEmail(),
+    });
+  }
+  async sendWelcome(to: string) {
+    await this.send({ to, subject: "Welcome to ZANCTA", doc: welcomeEmail() });
+  }
+  async sendAccountDeleted(to: string) {
+    await this.send({
+      to,
+      role: "security",
+      subject: "Your ZANCTA account has been deleted",
+      doc: accountDeletedEmail(),
+    });
+  }
+  async sendSubscriptionActivated(to: string, input: { planLabel: string; amountLabel: string; periodEnd?: string }) {
+    await this.send({
+      to,
+      role: "billing",
+      subject: "Your ZANCTA Premium subscription is active",
+      doc: subscriptionActivatedEmail(input),
+    });
+  }
+  async sendSubscriptionRenewed(to: string, input: { planLabel: string; amountLabel?: string; periodEnd?: string }) {
+    await this.send({
+      to,
+      role: "billing",
+      subject: "Your ZANCTA Premium subscription renewed",
+      doc: subscriptionRenewedEmail(input),
+    });
+  }
+  async sendPaymentFailed(to: string) {
+    await this.send({
+      to,
+      role: "billing",
+      subject: "Action may be required for your ZANCTA subscription",
+      doc: paymentFailedEmail(),
+    });
+  }
+  async sendCancellation(to: string, input: { scheduled: boolean; periodEnd?: string }) {
+    await this.send({
+      to,
+      role: "billing",
+      subject: "Your ZANCTA subscription cancellation is confirmed",
+      doc: cancellationEmail(input),
+    });
+  }
+  async sendRefundProcessed(
+    to: string,
+    input: { amountLabel?: string; currency?: string; status: string; reference?: string }
+  ) {
+    await this.send({
+      to,
+      role: "billing",
+      subject: "Your ZANCTA refund has been processed",
+      doc: refundProcessedEmail(input),
+    });
+  }
+  async sendSecurityNotification(to: string, input: { happened: string; when?: string; next: string }) {
+    await this.send({
+      to,
+      role: "security",
+      subject: "ZANCTA security notification",
+      doc: securityNotificationEmail(input),
     });
   }
 }
@@ -169,19 +168,84 @@ class ConsoleAdapter implements EmailAdapter {
   async sendPasswordReset(to: string, url: string) {
     console.log(`[DEV] Password reset for ${to}: ${url}`);
   }
+  async sendPasswordChanged(to: string) {
+    console.log(`[DEV] Password changed for ${to}`);
+  }
+  async sendWelcome(to: string) {
+    console.log(`[DEV] Welcome email for ${to}`);
+  }
+  async sendAccountDeleted(to: string) {
+    console.log(`[DEV] Account deleted email for ${to}`);
+  }
+  async sendSubscriptionActivated(to: string) {
+    console.log(`[DEV] Subscription activated for ${to}`);
+  }
+  async sendSubscriptionRenewed(to: string) {
+    console.log(`[DEV] Subscription renewed for ${to}`);
+  }
+  async sendPaymentFailed(to: string) {
+    console.log(`[DEV] Payment failed for ${to}`);
+  }
+  async sendCancellation(to: string) {
+    console.log(`[DEV] Cancellation for ${to}`);
+  }
+  async sendRefundProcessed(to: string) {
+    console.log(`[DEV] Refund processed for ${to}`);
+  }
+  async sendSecurityNotification(to: string) {
+    console.log(`[DEV] Security notification for ${to}`);
+  }
 }
 
 class TestAdapter implements EmailAdapter {
-  // For E2E: store last URL in memory, no external send
   lastVerificationUrl: string | null = null;
   lastPasswordResetUrl: string | null = null;
+  lastEvent: string | null = null;
   async sendVerification(to: string, url: string) {
     this.lastVerificationUrl = url;
+    this.lastEvent = "verification";
     console.log(`[TEST] Verification ${to}: ${url}`);
   }
   async sendPasswordReset(to: string, url: string) {
     this.lastPasswordResetUrl = url;
+    this.lastEvent = "password-reset";
     console.log(`[TEST] Reset ${to}: ${url}`);
+  }
+  async sendPasswordChanged(to: string) {
+    this.lastEvent = "password-changed";
+    console.log(`[TEST] Password changed ${to}`);
+  }
+  async sendWelcome(to: string) {
+    this.lastEvent = "welcome";
+    console.log(`[TEST] Welcome ${to}`);
+  }
+  async sendAccountDeleted(to: string) {
+    this.lastEvent = "account-deleted";
+    console.log(`[TEST] Account deleted ${to}`);
+  }
+  async sendSubscriptionActivated(to: string) {
+    this.lastEvent = "subscription-activated";
+    console.log(`[TEST] Subscription activated ${to}`);
+  }
+  async sendSubscriptionRenewed(to: string) {
+    this.lastEvent = "subscription-renewed";
+    console.log(`[TEST] Subscription renewed ${to}`);
+  }
+  async sendPaymentFailed(to: string) {
+    this.lastEvent = "payment-failed";
+    console.log(`[TEST] Payment failed ${to}`);
+  }
+  async sendCancellation(to: string) {
+    this.lastEvent = "cancellation";
+    console.log(`[TEST] Cancellation ${to}`);
+  }
+  async sendRefundProcessed(to: string) {
+    this.lastEvent = "refund";
+    console.log(`[TEST] Refund ${to}`);
+  }
+  async sendSecurityNotification(to: string) {
+    this.lastEvent = "security";
+    console.log(`[TEST] Security ${to}`);
   }
 }
 
@@ -192,16 +256,18 @@ function getAdapter(): EmailAdapter {
     if (!hasResend) throw new Error("RESEND_API_KEY missing in production");
     return new ResendAdapter();
   }
-  // Test explicit
   if (env === "test") return new TestAdapter();
-  // Development default
   return new ConsoleAdapter();
 }
 
-// For E2E, allow forced test adapter via header is handled in routes directly (they check adapter internally)
-// Export helper for routes
 export function getEmailAdapter(): EmailAdapter {
   return getAdapter();
 }
 
-// For production, never log tokens — adapter ensures only URL is sent, no token in logs
+export async function trySendEmail(label: string, send: () => Promise<void>): Promise<void> {
+  try {
+    await send();
+  } catch (error) {
+    console.error(`[email] ${label} failed:`, error instanceof Error ? error.message : String(error));
+  }
+}

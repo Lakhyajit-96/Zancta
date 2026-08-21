@@ -53,7 +53,7 @@ export default async function AccountPage() {
           {ent.plan === "FREE" ? (
             <p className="text-xs text-muted-foreground mt-2">
               <Link href="/pricing" className="text-accent underline underline-offset-4">View pricing</Link>
-              {isLivePaymentsEnabled() ? " — Checkout can process a payment. There is no monitored support channel yet. See " : " — Premium checkout is not available yet. See "}
+              {isLivePaymentsEnabled() ? " — Checkout can process a payment. Billing questions: billing@zancta.tech. See " : " — Premium checkout is not available yet. See "}
               <Link href="/refund-and-cancellation" className="text-accent underline underline-offset-4">refunds and cancellation</Link>.
             </p>
           ) : ent.plan === "PREMIUM" && ent.status === "ACTIVE" && ent.providerBacked ? (

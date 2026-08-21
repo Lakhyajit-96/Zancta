@@ -3,6 +3,12 @@ import prisma from "@/lib/db";
 import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken } from "@/lib/token";
+import { getEmailAdapter, trySendEmail } from "@/lib/email";
+
+async function sendWelcome(email: string | null) {
+  if (!email || !email.includes("@")) return;
+  await trySendEmail("welcome", () => getEmailAdapter().sendWelcome(email));
+}
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
@@ -34,6 +40,7 @@ export async function POST(req: NextRequest) {
   }
 
   await auditEvent({ userId: user.id, action: "email_verified", targetId: user.id, ip });
+  await sendWelcome(user.email);
 
   return NextResponse.json({ ok: true });
 }
@@ -62,5 +69,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
   }
   await auditEvent({ userId: user.id, action: "email_verified", targetId: user.id, ip: getClientIp(req.headers) });
+  await sendWelcome(user.email);
   return NextResponse.json({ ok: true });
 }

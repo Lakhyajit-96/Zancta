@@ -37,7 +37,7 @@ export default function PricingPage() {
             <h2 className="eyebrow">What you are paying for</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
               {checkoutLive
-                ? "Checkout can process a payment through Dodo Payments. Entitlement is activated only after a verified provider webhook creates a provider-backed subscription. Cancel at period end from your account. Premium does not currently include higher file or page limits, extra tools, or live ad-free access. There is no monitored support or security channel yet — this is not a complete commercial launch. Refunds and disputes follow the provider."
+                ? "Checkout can process a payment through Dodo Payments. Entitlement is activated only after a verified provider webhook creates a provider-backed subscription. Cancel at period end from your account. Premium does not currently include higher file or page limits, extra tools, or live ad-free access. Support, privacy, security, and billing mailboxes are listed on Contact. Refunds and disputes follow the provider."
                 : "Premium is not currently purchasable. Before paid access is offered, ZANCTA must verify live product mapping, checkout, webhooks, cancellation, refunds, a monitored support channel, and the final commercial terms."}
             </p>
           </section>

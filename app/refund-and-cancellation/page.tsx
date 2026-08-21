@@ -14,7 +14,7 @@ export default function RefundAndCancellationPage() {
     <ContentPage
       eyebrow="/refund-and-cancellation"
       title="Refunds and cancellation."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. This page describes current product and provider behavior. It is not a lawyer-approved policy and does not invent a ZANCTA refund inbox.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. This page describes current product and provider behavior. It is not a lawyer-approved policy. Billing questions: ${LEGAL_PUBLIC.billingEmail}.`}
     >
       <ContentSection title="What Premium is today">
         <p>
@@ -39,7 +39,8 @@ export default function RefundAndCancellationPage() {
       </ContentSection>
       <ContentSection title="Refunds">
         <p>
-          ZANCTA does not currently operate a monitored public refund inbox. Do not send card numbers, account tokens, or files to an unpublished address.
+          Billing questions: <a href={`mailto:${LEGAL_PUBLIC.billingEmail}`} className="underline">{LEGAL_PUBLIC.billingEmail}</a>.
+          Do not send card numbers, account tokens, or files by email.
         </p>
         <p>
           Provider-initiated refunds, where allowed, are processed by {LEGAL_PUBLIC.paymentProviderName} according to its published refund and dispute rules (including a typical merchant-dashboard window of 30 days from the original transaction, and card-network dispute processes that are separate from any “no refund” wording). Settlement timing depends on the customer’s payment method and bank.
@@ -50,7 +51,7 @@ export default function RefundAndCancellationPage() {
       </ContentSection>
       <ContentSection title="Disputes" className="md:col-span-2">
         <p>
-          Card chargebacks follow the customer’s issuer and card network. {LEGAL_PUBLIC.paymentProviderName} documents merchant response windows for disputes. Until a monitored ZANCTA contact exists, we cannot promise a human reply on a named SLA.
+          Card chargebacks follow the customer’s issuer and card network. {LEGAL_PUBLIC.paymentProviderName} documents merchant response windows for disputes. A response-time SLA is not published.
         </p>
         <p>
           Related pages: <Link href="/pricing" className="underline">Pricing</Link>, <Link href="/terms" className="underline">Terms</Link>, <Link href="/privacy" className="underline">Privacy</Link>, <Link href="/contact" className="underline">Contact</Link>.

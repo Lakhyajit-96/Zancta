@@ -35,7 +35,8 @@ export default function SecurityPage() {
       </ContentSection>
       <ContentSection title="Reporting" className="md:col-span-2">
         <p>
-          A monitored public security contact is not configured yet. Do not send private files, passwords, tokens, or payment information through an unconfigured channel. Publishing a monitored reporting method is a required launch step. See <Link href="/contact" className="underline">Contact</Link>.
+          Report security issues to <a href={`mailto:${LEGAL_PUBLIC.securityEmail}`} className="underline">{LEGAL_PUBLIC.securityEmail}</a>.
+          Do not send passwords, session tokens, private files, or payment information by email. There is no published bounty and no promised response SLA. See <Link href="/contact" className="underline">Contact</Link>.
         </p>
       </ContentSection>
     </ContentPage>

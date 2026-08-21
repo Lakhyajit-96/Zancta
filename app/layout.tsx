@@ -15,24 +15,28 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    default: "ZANCTA — PDF and image tools that run in your browser",
+    default: "ZANCTA — PDF & Image Tools That Run in Your Browser",
     template: "%s — ZANCTA",
   },
   description:
-    "Process supported PDFs and images locally in your browser. No file upload for implemented local workflows.",
+    "Eleven browser-based PDF and image tools. Merge, compress, convert, resize, and OCR locally in this browser — no upload for supported processing. Free to use without an account.",
   icons: {
     icon: [
-      { url: "/icons/favicon.ico", sizes: "32x32", type: "image/x-icon" },
-      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
     ],
-    apple: { url: "/icons/favicon-180.png", sizes: "180x180", type: "image/png" },
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/favicon-180.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "ZANCTA — PDF and image tools that run in your browser",
-    description: "Implemented local workflows process the selected file in your browser. No file upload for processing.",
+    title: "ZANCTA — PDF & Image Tools That Run in Your Browser",
+    description: "Eleven browser-based PDF and image tools with local processing. No upload for supported workflows. Free to use without an account.",
     siteName: "ZANCTA",
     type: "website",
     locale: "en_US",
@@ -47,8 +51,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ZANCTA — Local PDF and image tools",
-    description: "Implemented local processing. No upload for supported tools. No watermark.",
+    title: "ZANCTA — PDF & Image Tools That Run in Your Browser",
+    description: "Eleven local PDF and image tools. Merge, compress, convert, resize, and OCR in this browser.",
     images: ["/assets/zancta-brand/og-images/zancta-og-hero.png"],
   },
   alternates: { canonical: "/" },

@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers,
       },
+      {
+        source: "/assets/zancta-brand/bimi/zancta-bimi.svg",
+        headers: [{ key: "Content-Type", value: "image/svg+xml; charset=utf-8" }],
+      },
     ];
   },
 };

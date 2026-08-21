@@ -22,7 +22,7 @@ const faqs = [
   ["Are files stored?", "Tool outputs are held in the active browser session for review or download. ZANCTA does not store selected file bytes for implemented local processing."],
   ["Does ZANCTA work on mobile?", "The interface adapts to common phone and tablet widths. Large or memory-heavy files may still exceed the capabilities of a particular device or browser."],
   ["Which browsers are supported?", "Support can vary by file format, memory availability, and platform APIs. Use a current desktop or mobile browser; a tool will report when the selected file or browser cannot complete an operation."],
-  ["How do I contact support?", "A monitored public support channel is not configured yet. Help, the FAQ, and individual tool pages provide the current self-service guidance. A real support contact is still required before a complete commercial launch."],
+  ["How do I contact support?", "Email support@zancta.tech for product questions. Use privacy@zancta.tech for privacy requests, security@zancta.tech for security reports, and billing@zancta.tech for billing. Help, this FAQ, and individual tool pages remain the first self-service guidance. A response-time SLA is not published."],
   ["How does account deletion work?", "Authenticated account deletion is available through the account flow. It removes associated application account records; it does not need to delete local tool files because those files are not uploaded for processing."],
 ] as const;
 

@@ -38,7 +38,8 @@ test("P0/P1 launch contract", async ({ page }) => {
 
   await page.goto("/contact");
   const robots = await page.locator('meta[name="robots"]').getAttribute("content");
-  expect(robots || "").toMatch(/noindex/i);
+  expect(robots || "").not.toMatch(/noindex/i);
+  await expect(page.getByRole("link", { name: "support@zancta.tech" })).toBeVisible();
 
   await page.goto("/refund-and-cancellation");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Refunds and cancellation/i);

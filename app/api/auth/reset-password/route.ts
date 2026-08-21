@@ -5,6 +5,7 @@ import { resetSchema } from "@/lib/validators";
 import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken } from "@/lib/token";
+import { getEmailAdapter, trySendEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
@@ -43,6 +44,11 @@ export async function POST(req: NextRequest) {
   }
 
   await auditEvent({ userId: prt.userId, action: "password_reset_completed", targetId: prt.userId, ip });
+
+  const user = await prisma.user.findUnique({ where: { id: prt.userId }, select: { email: true } });
+  if (user?.email) {
+    await trySendEmail("password-changed", () => getEmailAdapter().sendPasswordChanged(user.email));
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -63,7 +63,11 @@ Ads shipped: ${String(PREMIUM_CONTRACT.adsShipped)}. Checkout status: ${checkout
 - Terms: ${LEGAL_PUBLIC.siteUrl}/terms
 - Refunds and cancellation: ${LEGAL_PUBLIC.siteUrl}/refund-and-cancellation
 - Security: ${LEGAL_PUBLIC.siteUrl}/security
-- Contact (no monitored inbox; noindex): ${LEGAL_PUBLIC.siteUrl}/contact
+- Contact: ${LEGAL_PUBLIC.siteUrl}/contact
+- Support: ${LEGAL_PUBLIC.supportEmail}
+- Privacy: ${LEGAL_PUBLIC.privacyEmail}
+- Security: ${LEGAL_PUBLIC.securityEmail}
+- Billing: ${LEGAL_PUBLIC.billingEmail}
 `;
 }
 
