@@ -4,7 +4,7 @@ import { MaskLines } from "@/components/marketing/motion";
 import { jsonLdFaqPage, pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/faq", {
-  title: "FAQ",
+  title: "Frequently asked questions",
   description: "Practical answers about ZANCTA tools, local processing, accounts, limits, and billing availability.",
 });
 

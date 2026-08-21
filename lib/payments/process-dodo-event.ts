@@ -138,6 +138,11 @@ async function resolveUserId(opts: {
 
 async function upsertCustomer(userId: string, customerId: string | null, email: string | null) {
   if (!customerId) return;
+  const owned = await prisma.paymentCustomer.findUnique({ where: { providerCustomerId: customerId } });
+  if (owned && owned.userId !== userId) {
+    console.error("[dodo] refusing PaymentCustomer reassignment");
+    return;
+  }
   const byUser = await prisma.paymentCustomer.findUnique({ where: { userId } });
   if (byUser) {
     await prisma.paymentCustomer.update({
@@ -146,10 +151,8 @@ async function upsertCustomer(userId: string, customerId: string | null, email: 
     }).catch(() => {});
     return;
   }
-  await prisma.paymentCustomer.upsert({
-    where: { providerCustomerId: customerId },
-    create: { userId, provider: "dodo", providerCustomerId: customerId, email: email || undefined },
-    update: { userId, ...(email ? { email } : {}) },
+  await prisma.paymentCustomer.create({
+    data: { userId, provider: "dodo", providerCustomerId: customerId, email: email || undefined },
   }).catch(() => {});
 }
 
@@ -168,6 +171,9 @@ async function upsertSubscription(opts: {
   const existing = await prisma.paymentSubscription.findUnique({
     where: { providerSubscriptionId: opts.subscriptionId },
   });
+  if (existing && existing.userId !== opts.userId) {
+    return "stale";
+  }
   if (isStaleEvent({ incomingTimestamp: opts.eventTimestamp, existingTimestamp: existing?.providerUpdatedAt })) {
     return "stale";
   }
@@ -211,6 +217,7 @@ async function applyEntitlementFromSubscription(opts: {
     where: { providerSubscriptionId: opts.subscriptionId },
   });
   if (!sub) return { applied: false, reason: "missing_subscription" };
+  if (sub.userId !== opts.userId) return { applied: false, reason: "user_mismatch" };
   const derived = deriveFromSubscription({
     status: sub.status,
     currentPeriodEnd: sub.currentPeriodEnd,

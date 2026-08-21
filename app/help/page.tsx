@@ -4,7 +4,7 @@ import { ContentPage, ContentSection } from "@/components/marketing/content-page
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/help", {
-  title: "Help",
+  title: "Help using local PDF and image tools",
   description: "Practical guidance for ZANCTA tools, files, local processing, downloads, accounts, and troubleshooting.",
 });
 

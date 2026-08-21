@@ -5,7 +5,7 @@ import { MaskLines, Reveal } from "@/components/marketing/motion";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/tools", {
-  title: "Tools",
+  title: "Local PDF and image tools",
   description: "Eleven local PDF and image tools for merge, split, compress, convert, resize, OCR, and text extraction — plus one deferred background-removal page.",
 });
 

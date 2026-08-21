@@ -6,7 +6,7 @@ import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/privacy", {
-  title: "Privacy",
+  title: "Privacy notice for local file tools",
   description: "How ZANCTA handles local files, accounts, cookies, payments, email, and the absence of live advertising.",
 });
 

@@ -5,7 +5,7 @@ import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/contact", {
-  title: "Contact",
+  title: "Contact — no monitored inbox yet",
   description: "ZANCTA does not currently have a monitored public support or security contact channel.",
   robots: { index: false, follow: true },
 });

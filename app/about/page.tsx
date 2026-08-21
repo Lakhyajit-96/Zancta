@@ -5,7 +5,7 @@ import { MaskLines, Reveal, StaggerGroup, StaggerItem } from "@/components/marke
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/about", {
-  title: "About",
+  title: "About local-first PDF and image tools",
   description: "Why ZANCTA builds local-first tools for practical document and image work.",
 });
 

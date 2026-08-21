@@ -6,7 +6,7 @@ import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/security", {
-  title: "Security",
+  title: "Security controls currently in place",
   description: "The security controls implemented in the current ZANCTA application.",
 });
 

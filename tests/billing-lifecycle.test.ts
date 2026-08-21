@@ -335,4 +335,32 @@ describe("billing webhook lifecycle", () => {
       prisma.payment.upsert = original;
     }
   });
+
+  it("does not reassign a PaymentCustomer or grant Premium to a second account", async () => {
+    const attacker = await prisma.user.create({ data: { email: `billing-steal-${stamp}@example.com` } });
+    await prisma.entitlement.create({ data: { userId: attacker.id, plan: "FREE", status: "ACTIVE" } });
+    const payload = {
+      event_type: "subscription.active",
+      data: {
+        metadata: { userId: attacker.id, planId: "PREMIUM_MONTHLY" },
+        customer_id: `cus_${stamp}`,
+        subscription_id: subId,
+        status: "active",
+        current_period_end: new Date(Date.now() + 86400000).toISOString(),
+      },
+    };
+    await processVerifiedDodoEvent({
+      webhookId: `wh_${stamp}_steal`,
+      eventType: "subscription.active",
+      timestamp: String(Math.floor(Date.now() / 1000) + 30),
+      payload,
+      rawBody: JSON.stringify(payload),
+    });
+    expect((await prisma.paymentCustomer.findUnique({ where: { providerCustomerId: `cus_${stamp}` } }))?.userId).toBe(userId);
+    expect((await prisma.paymentSubscription.findUnique({ where: { providerSubscriptionId: subId } }))?.userId).toBe(userId);
+    expect((await getEntitlement(attacker.id)).plan).toBe("FREE");
+    await prisma.entitlement.deleteMany({ where: { userId: attacker.id } });
+    await prisma.webhookEvent.deleteMany({ where: { providerEventId: `wh_${stamp}_steal` } }).catch(() => {});
+    await prisma.user.delete({ where: { id: attacker.id } });
+  });
 });

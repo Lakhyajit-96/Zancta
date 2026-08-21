@@ -33,4 +33,31 @@ describe("public legal and AI-search facts", () => {
     expect(body).toMatch(/11 available|11 working|11 available tools/i);
     expect(body).not.toMatch(/#1|most secure|guaranteed indexing|guaranteed ChatGPT/i);
   });
+
+  it("marketing page titles are unique and not one-word stubs", async () => {
+    const { readFile } = await import("fs/promises");
+    const path = await import("path");
+    const files = [
+      "app/tools/page.tsx",
+      "app/pricing/page.tsx",
+      "app/faq/page.tsx",
+      "app/help/page.tsx",
+      "app/about/page.tsx",
+      "app/privacy/page.tsx",
+      "app/terms/page.tsx",
+      "app/security/page.tsx",
+      "app/contact/page.tsx",
+      "app/how-it-works/page.tsx",
+      "app/refund-and-cancellation/page.tsx",
+    ];
+    const titles: string[] = [];
+    for (const rel of files) {
+      const src = await readFile(path.join(process.cwd(), rel), "utf8");
+      const match = src.match(/title:\s*"([^"]+)"/);
+      expect(match?.[1], rel).toBeTruthy();
+      expect(match![1].split(/\s+/).length, rel).toBeGreaterThan(1);
+      titles.push(match![1]);
+    }
+    expect(new Set(titles).size).toBe(titles.length);
+  });
 });

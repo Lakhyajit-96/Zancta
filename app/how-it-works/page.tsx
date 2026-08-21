@@ -6,7 +6,7 @@ import Link from "next/link";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/how-it-works", {
-  title: "How it works",
+  title: "How local PDF and image processing works",
   description: "How ZANCTA validates, processes, and returns supported files in the browser.",
 });
 

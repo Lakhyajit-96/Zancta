@@ -7,7 +7,7 @@ import { isLivePaymentsEnabled } from "@/lib/payments/live";
 export const dynamic = "force-dynamic";
 
 export const metadata = pageMeta("/pricing", {
-  title: "Pricing",
+  title: "Free tools and optional Premium in INR",
   description: "Free local PDF and image tools. Optional Premium checkout at ₹199/month or ₹999/year currently matches Free tools and limits.",
 });
 

@@ -30,6 +30,18 @@ describe("dev-only token routes", () => {
     expect(isLocalDevRequest({ headers: new Headers({ host: "zancta.tech" }), nextUrl: new URL("https://zancta.tech/api/auth/signup") })).toBe(false);
   });
 
+  it("does not fail open on a public host when VERCEL_ENV is unset", async () => {
+    delete process.env.VERCEL_ENV;
+    expect(isDevOnlyRouteEnabled("zancta.tech")).toBe(false);
+    expect(isDevOnlyRouteEnabled("app.railway.app")).toBe(false);
+    expect(allowDevTokenExposure(undefined)).toBe(false);
+    const { isLocalDevRequest } = await import("@/lib/dev-only");
+    expect(isLocalDevRequest({
+      headers: new Headers({ host: "app.railway.app" }),
+      nextUrl: new URL("https://app.railway.app/api/auth/signup"),
+    })).toBe(false);
+  });
+
   it("dev token HTTP handlers consult the Vercel gate", async () => {
     const resetSrc = await readFile(path.join(process.cwd(), "app/api/dev/password-reset-tokens/route.ts"), "utf8");
     const verifySrc = await readFile(path.join(process.cwd(), "app/api/dev/verification-tokens/route.ts"), "utf8");
