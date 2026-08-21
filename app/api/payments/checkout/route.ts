@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/db";
 import { getPaymentProvider, isLivePaymentsEnabled } from "@/lib/payments";
 import type { PlanId } from "@/lib/payments/types";
 import { rateLimitAsync } from "@/lib/rate-limit";
@@ -51,6 +52,20 @@ export async function POST(req: NextRequest) {
       email: session.user.email,
       planId,
       currency: (body?.currency as "INR" | "USD") || undefined,
+    });
+
+    await prisma.paymentCheckout.upsert({
+      where: { providerCheckoutId: result.providerCheckoutId },
+      create: {
+        userId: session.user.id,
+        provider: result.provider,
+        providerCheckoutId: result.providerCheckoutId,
+        planId,
+        status: "created",
+      },
+      update: { userId: session.user.id, planId, status: "created" },
+    }).catch((e) => {
+      console.error("[checkout] local checkout persist failed", e instanceof Error ? e.message : String(e));
     });
 
     await auditEvent({

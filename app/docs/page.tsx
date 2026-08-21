@@ -33,7 +33,7 @@ const sections = [
   {
     id: "accounts",
     title: "Accounts and subscriptions",
-    body: <>Local tool use is available without an account. Accounts support authentication and entitlement records. Premium and payment behavior are presented on <Link href="/pricing" className="text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">Pricing</Link> only when provider configuration makes those actions available.</>,
+    body: <>Local tool use is available without an account. Accounts support authentication and entitlement records. Free and Premium currently use the same tool limits. Premium and payment behavior are presented on <Link href="/pricing" className="text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent">Pricing</Link> when the live provider is configured.</>,
   },
   {
     id: "limitations",

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
+import { FREE_BENEFITS, PREMIUM_BENEFITS } from "@/lib/payments/premium-contract";
+
 type PlanId = "PREMIUM_MONTHLY" | "PREMIUM_ANNUAL";
 
 export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
@@ -63,10 +65,9 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">$0</p>
             <p className="mt-1 text-xs text-muted-foreground">forever</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> All implemented local tools</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> No sign-up required</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Works offline once loaded</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> No watermark, no upload</li>
+              {FREE_BENEFITS.map((item) => (
+                <li key={item} className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> {item}</li>
+              ))}
             </ul>
             <Link href="/tools" className="premium-button premium-button-primary mt-8">
               Get started <span aria-hidden>→</span>
@@ -89,9 +90,9 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹199</p>
             <p className="mt-1 text-xs text-muted-foreground">/month</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free — same tools, same local processing</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Reserved ad-free when ads are introduced</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Supports the product ahead of larger limits</li>
+              {PREMIUM_BENEFITS.map((item) => (
+                <li key={item} className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> {item}</li>
+              ))}
             </ul>
             {checkoutLive ? (
               <button
@@ -122,9 +123,10 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹999</p>
             <p className="mt-1 text-xs text-muted-foreground">/year</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Everything in Free — same tools, same local processing</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Seven months free vs monthly</li>
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Reserved ad-free when ads are introduced</li>
+              {PREMIUM_BENEFITS.map((item) => (
+                <li key={`annual-${item}`} className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> {item}</li>
+              ))}
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Seven months free vs monthly at the listed INR prices</li>
             </ul>
             {checkoutLive ? (
               <button
@@ -148,8 +150,8 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         {checkoutLive
-          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools as Free plus a reserved ad-free experience once ads launch; higher limits are not part of Premium yet."
-          : "Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium currently includes the same local tools as Free plus a reserved ad-free experience once ads launch; higher limits are not part of Premium yet. Premium checkout is not available at the moment."}
+          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later."
+          : "Prices reflect the configured provider products; final amount and currency are confirmed at checkout. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
       </p>
     </div>
   );

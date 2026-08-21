@@ -22,3 +22,4 @@ export function getActiveProviderName(): ProviderName {
 
 export * from "./types";
 export { isLivePaymentsEnabled } from "./live";
+export { PREMIUM_CONTRACT, FREE_BENEFITS, PREMIUM_BENEFITS } from "./premium-contract";

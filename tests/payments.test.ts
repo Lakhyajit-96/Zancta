@@ -51,6 +51,7 @@ describe("payments lifecycle (sandbox code paths, no live Dodo)", () => {
     const res = await p.verifyWebhook({ rawBody: raw, headers: { "webhook-id": id, "webhook-timestamp": ts, "webhook-signature": `v1,${sig}` } });
     expect(res.ok).toBe(true);
     expect(res.eventType).toBe("payment.succeeded");
+    expect(res.providerEventId).toBe(id);
   });
 
   it("Dodo webhook: modified body rejected (raw-body requirement)", async () => {
@@ -110,10 +111,33 @@ describe("payments lifecycle (sandbox code paths, no live Dodo)", () => {
   it("Entitlement activation: FREE -> PREMIUM ACTIVE via syncEntitlement", async () => {
     let ent = await getEntitlement(userId);
     expect(ent.plan).toBe("FREE");
-    await syncEntitlement({ userId, provider: "dodo", plan: "PREMIUM", status: "ACTIVE", currentPeriodStart: new Date(), currentPeriodEnd: new Date(Date.now()+30*86400000), providerEventId: `test_${userId}_act` });
+    const subId = `sub_act_${userId}`;
+    const periodEnd = new Date(Date.now()+30*86400000);
+    await prisma.paymentSubscription.create({
+      data: {
+        userId,
+        provider: "dodo",
+        providerSubscriptionId: subId,
+        plan: "PREMIUM_MONTHLY",
+        status: "active",
+        currentPeriodEnd: periodEnd,
+      },
+    });
+    await syncEntitlement({
+      userId,
+      provider: "dodo",
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      providerSubscriptionId: subId,
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: periodEnd,
+      providerEventId: `test_${userId}_act`,
+      eventTimestamp: Math.floor(Date.now() / 1000),
+    });
     ent = await getEntitlement(userId);
     expect(ent.plan).toBe("PREMIUM");
     expect(ent.status).toBe("ACTIVE");
+    expect(ent.providerBacked).toBe(true);
     expect(hasEntitlement(ent, "PREMIUM")).toBe(true);
     expect(canShowAds(ent)).toBe(false);
   });
@@ -130,39 +154,96 @@ describe("payments lifecycle (sandbox code paths, no live Dodo)", () => {
 
   it("Entitlement: cancel at period end keeps ACTIVE until expiry", async () => {
     const future = new Date(Date.now()+10*86400000);
-    await syncEntitlement({ userId, provider: "dodo", plan: "PREMIUM", status: "ACTIVE", currentPeriodEnd: future, cancelAtPeriodEnd: true, providerEventId: `test_${userId}_cancel` });
+    const sub = await prisma.paymentSubscription.findFirst({ where: { userId } });
+    if (sub) {
+      await prisma.paymentSubscription.update({
+        where: { id: sub.id },
+        data: { status: "cancelled", cancelAtPeriodEnd: true, currentPeriodEnd: future },
+      });
+    }
+    await syncEntitlement({
+      userId,
+      provider: "dodo",
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      providerSubscriptionId: sub?.providerSubscriptionId,
+      currentPeriodEnd: future,
+      cancelAtPeriodEnd: true,
+      providerEventId: `test_${userId}_cancel`,
+      eventTimestamp: Math.floor(Date.now() / 1000),
+    });
     let ent = await getEntitlement(userId);
     expect(ent.plan).toBe("PREMIUM");
     expect(ent.status).toBe("ACTIVE");
     expect(ent.cancelAtPeriodEnd).toBe(true);
-    // Simulate expiry job: after period, status should become EXPIRED via getEntitlement logic when expiresAt < now
-    // Our sync sets currentPeriodEnd but getEntitlement only checks expiresAt — so we also set expiresAt
     await prisma.entitlement.update({ where: { userId }, data: { expiresAt: future } });
+    if (sub) {
+      await prisma.paymentSubscription.update({
+        where: { id: sub.id },
+        data: { currentPeriodEnd: future, status: "cancelled", cancelAtPeriodEnd: true },
+      });
+    }
     ent = await getEntitlement(userId);
-    expect(ent.status).toBe("ACTIVE"); // future in future
-    // Now push past expiry
+    expect(ent.status).toBe("ACTIVE");
     await prisma.entitlement.update({ where: { userId }, data: { expiresAt: new Date(Date.now()-1000) } });
+    if (sub) {
+      await prisma.paymentSubscription.update({
+        where: { id: sub.id },
+        data: { currentPeriodEnd: new Date(Date.now()-1000), status: "expired" },
+      });
+    }
     ent = await getEntitlement(userId);
     expect(ent.status).toBe("EXPIRED");
   });
 
   it("Out-of-order: older webhook must not downgrade newer ACTIVE period", async () => {
-    // Newer period first
     const newerEnd = new Date(Date.now()+30*86400000);
     const olderEnd = new Date(Date.now()+5*86400000);
-    await syncEntitlement({ userId, provider: "dodo", plan: "PREMIUM", status: "ACTIVE", currentPeriodEnd: newerEnd, providerEventId: `test_${userId}_newer` });
+    const sub = await prisma.paymentSubscription.findFirst({ where: { userId } });
+    if (sub) {
+      await prisma.paymentSubscription.update({
+        where: { id: sub.id },
+        data: { status: "active", cancelAtPeriodEnd: false, currentPeriodEnd: newerEnd },
+      });
+    }
+    await syncEntitlement({
+      userId,
+      provider: "dodo",
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      providerSubscriptionId: sub?.providerSubscriptionId,
+      currentPeriodEnd: newerEnd,
+      providerEventId: `test_${userId}_newer`,
+      eventTimestamp: 2_000,
+    });
     let ent = await getEntitlement(userId);
     expect(ent.currentPeriodEnd?.getTime()).toBe(newerEnd.getTime());
-    // Older event arrives — application should not blindly overwrite with older end if timestamp older.
-    // Our current webhook handler upserts naively; so we test the guard we need:
-    // Document that without timestamp comparison, older would overwrite — we assert that caller must compare.
-    // For now verify DB would overwrite if we call sync again with older — this is the gap to document.
-    await syncEntitlement({ userId, provider: "dodo", plan: "PREMIUM", status: "ACTIVE", currentPeriodEnd: olderEnd, providerEventId: `test_${userId}_older` });
+    const stale = await syncEntitlement({
+      userId,
+      provider: "dodo",
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      providerSubscriptionId: sub?.providerSubscriptionId,
+      currentPeriodEnd: olderEnd,
+      providerEventId: `test_${userId}_older`,
+      eventTimestamp: 1_000,
+    });
+    expect(stale.applied).toBe(false);
+    expect(stale.reason).toBe("stale_event");
     ent = await getEntitlement(userId);
-    // Naively overwrites — we flag as needing ordering guard (stale protection not yet versioned)
-    expect(ent.currentPeriodEnd?.getTime()).toBe(olderEnd.getTime());
-    // Restore newer for cleanup
-    await syncEntitlement({ userId, provider: "dodo", plan: "PREMIUM", status: "ACTIVE", currentPeriodEnd: newerEnd, providerEventId: `test_${userId}_restore` });
+    expect(ent.currentPeriodEnd?.getTime()).toBe(newerEnd.getTime());
+  });
+
+  it("refuses PREMIUM without a provider subscription id", async () => {
+    const result = await syncEntitlement({
+      userId,
+      provider: "dodo",
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      providerEventId: `test_${userId}_noids`,
+    });
+    expect(result.applied).toBe(false);
+    expect(result.reason).toBe("refused_premium_without_provider_subscription");
   });
 
   it("Subscription + Payment records: minimal fields only", async () => {

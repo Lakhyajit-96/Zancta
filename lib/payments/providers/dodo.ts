@@ -233,13 +233,13 @@ export class DodoProvider implements PaymentProvider {
     }
 
     const p = payload as Record<string, unknown>;
-    // Dodo webhook wraps: { event_type, data: { ... } } or { type, payload } — normalize
     const eventType = String((p.event_type as string) || (p.type as string) || (p.event as string) || "unknown");
-    const data = (p.data as Record<string, unknown>) || p;
-    const providerEventId =
-      String((p.event_id as string) || (p.id as string) || (data.payment_id as string) || (data.subscription_id as string) || (data.id as string) || `${eventType}:${Date.now()}`);
+    const headerId = req.headers["webhook-id"] || req.headers["Webhook-Id"] || req.headers["webhook_id"];
+    if (!headerId) {
+      return { ok: false, provider: "dodo", eventType, providerEventId: "unknown", payload: null, error: "Missing webhook-id" };
+    }
     const ts = (req.headers["webhook-timestamp"] || req.headers["Webhook-Timestamp"]) as string | undefined;
 
-    return { ok: true, provider: "dodo", eventType, providerEventId, timestamp: ts, payload };
+    return { ok: true, provider: "dodo", eventType, providerEventId: String(headerId), timestamp: ts, payload };
   }
 }

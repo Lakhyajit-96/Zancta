@@ -1,9 +1,10 @@
 /**
- * Entitlement sync — authoritative writer for Entitlement from payment/subscription state.
- * No file bytes, no card data.
+ * Authoritative writer for Entitlement from provider-backed billing state.
+ * Never grants PREMIUM without a provider subscription id.
  */
 import prisma from "@/lib/db";
 import { auditEvent } from "@/lib/audit";
+import { isStaleEvent } from "@/lib/payments/billing-state";
 
 type SyncInput = {
   userId: string;
@@ -16,11 +17,38 @@ type SyncInput = {
   currentPeriodEnd?: Date | null;
   cancelAtPeriodEnd?: boolean;
   providerEventId?: string;
+  eventTimestamp?: number | null;
   ip?: string | null;
 };
 
-export async function syncEntitlement(input: SyncInput) {
-  const { userId, provider, providerCustomerId, providerSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd, cancelAtPeriodEnd, providerEventId, ip } = input;
+export type SyncResult = { applied: boolean; reason: string };
+
+export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
+  const {
+    userId,
+    provider,
+    providerCustomerId,
+    providerSubscriptionId,
+    plan,
+    status,
+    currentPeriodStart,
+    currentPeriodEnd,
+    cancelAtPeriodEnd,
+    providerEventId,
+    eventTimestamp,
+    ip,
+  } = input;
+
+  if (plan === "PREMIUM" && status === "ACTIVE" && !providerSubscriptionId) {
+    return { applied: false, reason: "refused_premium_without_provider_subscription" };
+  }
+
+  const existing = await prisma.entitlement.findUnique({ where: { userId } });
+  if (isStaleEvent({ incomingTimestamp: eventTimestamp, existingTimestamp: existing?.providerUpdatedAt })) {
+    return { applied: false, reason: "stale_event" };
+  }
+
+  const providerUpdatedAt = eventTimestamp != null ? new Date(eventTimestamp * 1000) : new Date();
 
   await prisma.entitlement.upsert({
     where: { userId },
@@ -35,6 +63,8 @@ export async function syncEntitlement(input: SyncInput) {
       currentPeriodEnd: currentPeriodEnd || undefined,
       cancelAtPeriodEnd: !!cancelAtPeriodEnd,
       expiresAt: currentPeriodEnd || undefined,
+      providerUpdatedAt,
+      lastWebhookId: providerEventId,
     },
     update: {
       plan,
@@ -46,6 +76,8 @@ export async function syncEntitlement(input: SyncInput) {
       currentPeriodEnd: currentPeriodEnd || undefined,
       cancelAtPeriodEnd: !!cancelAtPeriodEnd,
       expiresAt: currentPeriodEnd || undefined,
+      providerUpdatedAt,
+      ...(providerEventId ? { lastWebhookId: providerEventId } : {}),
     },
   });
 
@@ -53,24 +85,36 @@ export async function syncEntitlement(input: SyncInput) {
     userId,
     action: `payment.entitlement_${status.toLowerCase()}`,
     targetId: providerEventId || providerSubscriptionId || userId,
-    metadata: JSON.stringify({ provider, plan, status, providerEventId }),
+    metadata: JSON.stringify({ provider, plan, status, providerEventId, reason: "applied" }),
     ...(ip ? { ip } : {}),
-  } as Parameters<typeof auditEvent>[0]);
+  });
+
+  return { applied: true, reason: "applied" };
 }
 
-export async function revokeToFree(userId: string, provider: string, reason: string, providerEventId?: string) {
+export async function revokeToFree(userId: string, provider: string, reason: string, providerEventId?: string, eventTimestamp?: number | null) {
+  const existing = await prisma.entitlement.findUnique({ where: { userId } });
+  if (isStaleEvent({ incomingTimestamp: eventTimestamp, existingTimestamp: existing?.providerUpdatedAt })) {
+    return { applied: false, reason: "stale_event" };
+  }
   await syncEntitlement({
     userId,
     provider,
     plan: "EXPIRED",
     status: "EXPIRED",
+    providerSubscriptionId: existing?.providerSubscriptionId,
+    providerCustomerId: existing?.providerCustomerId,
+    currentPeriodEnd: existing?.currentPeriodEnd,
+    currentPeriodStart: existing?.currentPeriodStart,
+    cancelAtPeriodEnd: true,
     providerEventId,
+    eventTimestamp,
   });
-  // Keep audit with reason
   await auditEvent({
     userId,
     action: "payment.entitlement_expired",
     targetId: providerEventId || userId,
     metadata: JSON.stringify({ provider, reason, providerEventId }),
-  } as Parameters<typeof auditEvent>[0]);
+  });
+  return { applied: true, reason };
 }

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { CornerTicks, MaskLines, Reveal } from "@/components/marketing/motion";
+import { isLivePaymentsEnabled } from "@/lib/payments/live";
 
 export function PremiumPreviewSection() {
+  const checkoutLive = isLivePaymentsEnabled();
   return (
     <section className="relative overflow-hidden border-t border-border">
       <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-64 perspective-floor opacity-30" />
@@ -15,8 +17,10 @@ export function PremiumPreviewSection() {
           />
           <Reveal delay={0.2}>
             <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground">
-              Every implemented local tool is free to use right now. Premium plans are designed — monthly and annual —
-              and will open only once live checkout, entitlements, and support are verified end to end.
+              Every implemented local tool is free to use right now, within the limits shown on each tool.
+              {checkoutLive
+                ? " Premium checkout is available on the pricing page. Premium currently matches Free tool access and reserves an ad-free experience if ads are introduced later."
+                : " Premium checkout is not available at the moment."}
             </p>
           </Reveal>
         </div>
@@ -25,8 +29,12 @@ export function PremiumPreviewSection() {
           <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-accent/60" />
           <ul className="space-y-4 text-sm text-muted-foreground">
             <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">01</span> Free: all implemented local workflows, no account required.</li>
-            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">02</span> Premium monthly and annual tiers are published on the pricing page.</li>
-            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">03</span> Premium checkout is not available at the moment — we say so plainly.</li>
+            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">02</span> Premium uses the same tools and the same limits as Free.</li>
+            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">03</span>
+              {checkoutLive
+                ? "Premium monthly and annual checkout is live on the pricing page."
+                : "Premium checkout is not available at the moment — we say so plainly."}
+            </li>
           </ul>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/pricing" className="premium-button premium-button-primary">

@@ -67,8 +67,8 @@ export function validateFiles(
   if (files.length > opts.maxFiles) {
     errors.push({
       code: "TOO_MANY_FILES",
-      message: `Too many files — ${files.length} selected, max ${opts.maxFiles} free.`,
-      hint: `Select up to ${opts.maxFiles} files. Premium supports more.`,
+      message: `Too many files — ${files.length} selected, max ${opts.maxFiles}.`,
+      hint: `Select up to ${opts.maxFiles} files.`,
     });
   }
 

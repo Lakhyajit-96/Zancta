@@ -31,6 +31,7 @@ model User {
   paymentCustomers PaymentCustomer[]
   paymentSubscriptions PaymentSubscription[]
   payments        Payment[]
+  paymentCheckouts PaymentCheckout[]
 
   @@index([email])
   @@index([deletedAt])
@@ -112,6 +113,8 @@ model Entitlement {
   cancelAtPeriodEnd      Boolean   @default(false)
   startsAt               DateTime  @default(now())
   expiresAt              DateTime?
+  providerUpdatedAt      DateTime?
+  lastWebhookId          String?
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
   user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -164,6 +167,8 @@ model PaymentSubscription {
   currentPeriodEnd       DateTime?
   cancelAtPeriodEnd      Boolean   @default(false)
   trialEndsAt            DateTime?
+  providerUpdatedAt      DateTime?
+  lastWebhookId          String?
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
   user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -189,17 +194,37 @@ model Payment {
   @@index([provider, status])
 }
 
+model PaymentCheckout {
+  id                  String   @id @default(cuid())
+  userId              String
+  provider            String
+  providerCheckoutId  String   @unique
+  planId              String
+  status              String   @default("created") // created | completed | abandoned
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
 model WebhookEvent {
-  id              String    @id @default(cuid())
-  provider        String    // dodo | paddle
-  providerEventId String    @unique
-  eventType       String    // e.g., payment.succeeded, subscription.active
-  status          String    @default("processed") // processed | duplicate | failed
-  payloadHash     String?   // sha256 of raw payload (not raw payload)
-  processedAt     DateTime? @default(now())
-  createdAt       DateTime  @default(now())
+  id                   String    @id @default(cuid())
+  provider             String    // dodo | paddle
+  providerEventId      String    @unique // Standard Webhooks webhook-id
+  eventType            String    // e.g., payment.succeeded, subscription.active
+  status               String    @default("received") // received | processing | succeeded | failed | processed | duplicate
+  payloadHash          String?   // sha256 of raw payload (not raw payload)
+  eventTimestamp       Int?      // unix seconds from webhook-timestamp
+  attemptCount         Int       @default(0)
+  lastError            String?
+  processingStartedAt  DateTime?
+  processedAt          DateTime?
+  createdAt            DateTime  @default(now())
 
   @@index([provider, eventType])
+  @@index([status])
   @@index([createdAt])
 }
 

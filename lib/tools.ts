@@ -149,7 +149,7 @@ export const TOOLS: ToolMeta[] = [
     h1: "Images to PDF — build locally",
     available: true,
     related: ["pdf-to-images", "pdf-merge", "image-compress"],
-    faq: [{ q: "Max images?", a: "20 per batch free. Premium 50." }],
+    faq: [{ q: "Max images?", a: "20 per batch. Premium uses the same limit." }],
   },
   {
     slug: "image-compress",

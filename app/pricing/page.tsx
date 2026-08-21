@@ -28,8 +28,8 @@ export default function PricingPage() {
             <Reveal delay={0.2}>
               <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
                 {checkoutLive
-                  ? "Implemented local tools stay in the browser. Premium checkout is live for the listed INR plans."
-                  : "The implemented local tools are available within their displayed limits. Paid checkout remains unavailable until its live provider and subscription lifecycle are verified."}
+                ? "Implemented local tools stay in the browser. Premium checkout is live for the listed INR plans. Premium currently matches Free tool access and limits."
+                : "The implemented local tools are available within their displayed limits. Paid checkout remains unavailable until its live provider and subscription lifecycle are verified."}
               </p>
             </Reveal>
           </div>
@@ -42,7 +42,7 @@ export default function PricingPage() {
             <h2 className="eyebrow">Paid access status</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
               {checkoutLive
-                ? "Premium is purchasable through Dodo Payments. Entitlement is activated only after a verified provider webhook, not by a local grant. Cancel at period end from your account. Refunds and disputes follow the provider."
+                ? "Premium is purchasable through Dodo Payments. Entitlement is activated only after a verified provider webhook creates a provider-backed subscription. Cancel at period end from your account. Premium does not currently include higher file or page limits. Refunds and disputes follow the provider."
                 : "Premium is not currently purchasable. Before paid access is offered, ZANCTA must verify live product mapping, checkout, webhooks, entitlements, cancellation, refunds, support, and the final commercial terms. This page will show only benefits that are active and verifiable."}
             </p>
           </Reveal>
