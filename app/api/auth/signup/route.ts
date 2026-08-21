@@ -20,9 +20,9 @@ async function createAndSendVerification(userId: string, email: string): Promise
   await prisma.verificationToken.create({ data: { identifier: email, token: tokenHash, expires, userId } });
 
   const url = `${getAppOrigin()}/verify-email?token=${plainToken}`;
-  const { getEmailAdapter } = await import("@/lib/email/index");
-  const emailer = getEmailAdapter();
   try {
+    const { getEmailAdapter } = await import("@/lib/email/index");
+    const emailer = getEmailAdapter();
     await emailer.sendVerification(email, url);
     return { ok: true, plainToken };
   } catch (sendErr) {

@@ -1,11 +1,19 @@
 import "dotenv/config";
 import { createCanvas, loadImage } from "canvas";
+import { TEST_DATABASE_URL } from "./postgres-url";
 
+// Prisma schema provider is postgresql. Tests must not use the SQLite fallback
+// and must not mutate production DATABASE_URL.
+process.env.DATABASE_URL = TEST_DATABASE_URL;
+process.env.PAYMENTS_LIVE_ENABLED = "false";
 if (!process.env.NEXT_PUBLIC_APP_URL) {
   process.env.NEXT_PUBLIC_APP_URL = "https://zancta.tech";
 }
 if (!process.env.NEXTAUTH_URL) {
   process.env.NEXTAUTH_URL = "https://zancta.tech";
+}
+if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
+  process.env.AUTH_SECRET = "test-only-auth-secret-not-for-production";
 }
 
 if (typeof globalThis.createImageBitmap === "undefined") {

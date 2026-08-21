@@ -54,18 +54,29 @@ function normalizePostgresUrl(raw: string): string {
   return scheme + user + ":" + password + "@" + rest;
 }
 
+function postgresSsl(connectionString: string): { rejectUnauthorized: boolean } | undefined {
+  if (process.env.DATABASE_SSL === "disable" || process.env.DATABASE_SSL === "false") return undefined;
+  try {
+    const host = new URL(connectionString.replace(/^postgres(ql)?:/i, "http:")).hostname;
+    if (host === "127.0.0.1" || host === "localhost" || host === "::1") return undefined;
+  } catch {
+    /* keep hosted-TLS default when the URL cannot be parsed */
+  }
+  return { rejectUnauthorized: false };
+}
+
 function createClient() {
   const url = (process.env.DATABASE_URL || "file:./prisma/dev.db").trim();
   // Handle both SQLite (dev) and PostgreSQL (production) — provider selection via DATABASE_URL
   const isPostgres = /^postgres(ql)?:\/\//i.test(url);
   if (isPostgres) {
     const connectionString = normalizePostgresUrl(url);
-    // Explicit TLS: Supabase (and most managed Postgres) require encryption in
-    // transit but present a self-signed CA chain, so rejectUnauthorized=false
-    // (equivalent to libpq sslmode=require). Verified against production DB.
+    // Hosted Postgres (Supabase and similar) needs TLS. Loopback test/dev Postgres
+    // typically has no SSL; forcing ssl there fails with "server does not support SSL".
+    const ssl = postgresSsl(connectionString);
     const adapter = new PrismaPg({
       connectionString,
-      ssl: { rejectUnauthorized: false },
+      ...(ssl ? { ssl } : {}),
     });
     return new PrismaClient({ adapter, log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"] } as unknown as never);
   }

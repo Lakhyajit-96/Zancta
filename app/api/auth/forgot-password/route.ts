@@ -41,9 +41,9 @@ export async function POST(req: NextRequest) {
 
     stage = "email-send";
     const url = `${getAppOrigin()}/reset-password?token=${plainToken}`;
-    const { getEmailAdapter } = await import("@/lib/email/index");
-    const emailer = getEmailAdapter();
     try {
+      const { getEmailAdapter } = await import("@/lib/email/index");
+      const emailer = getEmailAdapter();
       await emailer.sendPasswordReset(email, url);
     } catch (sendErr) {
       console.error("[auth/forgot-password] reset email send failed", sendErr instanceof Error ? sendErr.message : String(sendErr));
