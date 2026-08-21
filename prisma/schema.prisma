@@ -21,6 +21,7 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime? // soft delete for audit, hard delete after retention
+  authVersion     Int       @default(0) // incremented on password reset to revoke JWTs
 
   sessions        Session[]
   accounts        Account[]

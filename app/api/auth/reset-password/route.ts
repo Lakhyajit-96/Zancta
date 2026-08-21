@@ -23,14 +23,24 @@ export async function POST(req: NextRequest) {
   const passwordHash = await bcrypt.hash(password, 12);
   try {
     await prisma.$transaction(async (tx) => {
-      await tx.user.update({ where: { id: prt.userId }, data: { passwordHash } });
-      await tx.passwordResetToken.update({ where: { token: prt.token }, data: { usedAt: new Date() } });
+      const claimed = await tx.passwordResetToken.updateMany({
+        where: { token: prt.token, usedAt: null, expires: { gt: new Date() } },
+        data: { usedAt: new Date() },
+      });
+      if (claimed.count !== 1) throw new Error("token-consumed");
+      await tx.passwordResetToken.updateMany({
+        where: { userId: prt.userId, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      await tx.user.update({
+        where: { id: prt.userId },
+        data: { passwordHash, authVersion: { increment: 1 } },
+      });
       await tx.session.deleteMany({ where: { userId: prt.userId } });
     });
   } catch {
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
   }
-  // Sessions invalidated in transaction above
 
   await auditEvent({ userId: prt.userId, action: "password_reset_completed", targetId: prt.userId, ip });
 

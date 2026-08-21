@@ -82,6 +82,6 @@ export async function POST(req: NextRequest) {
     const msg = (e as Error).message || "Checkout failed";
     // Do not leak raw provider key errors with secrets
     console.error("[checkout] failed", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }

@@ -4,10 +4,14 @@ import prisma from "@/lib/db";
 import { getEntitlement } from "@/lib/entitlement";
 import { refreshSubscriptionFromProvider } from "@/lib/payments/subscription-sync";
 import { detectLocalBillingDrift } from "@/lib/payments/reconciliation";
+import { rateLimitAsync } from "@/lib/rate-limit";
 
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+
+  const rl = await rateLimitAsync(`status:${session.user.id}`, 30, 15 * 60 * 1000);
+  if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
 
   try {
     await refreshSubscriptionFromProvider(session.user.id);

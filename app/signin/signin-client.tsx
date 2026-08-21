@@ -7,6 +7,7 @@ import { Suspense, useState } from "react";
 import { AuthShell } from "@/components/marketing/auth-shell";
 import { OAuthButtons } from "@/components/marketing/oauth-buttons";
 import { describeAuthError } from "@/lib/auth-errors";
+import { safeInternalPath } from "@/lib/safe-redirect";
 
 function SigninInner({ google, github }: { google: boolean; github: boolean }) {
   const router = useRouter();
@@ -15,7 +16,7 @@ function SigninInner({ google, github }: { google: boolean; github: boolean }) {
   const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
   // Auth.js returns here with ?error=<code> when an OAuth flow fails or is denied.
   const providerError = describeAuthError(params.get("error"));
-  const callbackUrl = params.get("callbackUrl") || "/account";
+  const callbackUrl = safeInternalPath(params.get("callbackUrl"));
   const submit = async (e: React.FormEvent) => {
     e.preventDefault(); setError(""); setLoading(true);
     try {

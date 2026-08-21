@@ -12,10 +12,10 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const session = await auth();
-  if (!session?.user) redirect("/signin?callbackUrl=/account");
-  const userId = (session.user as unknown as { id: string }).id;
+  const userId = (session?.user as unknown as { id?: string } | undefined)?.id;
+  if (!session?.user || !userId) redirect("/signin?callbackUrl=/account");
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) redirect("/signin");
+  if (!user || user.deletedAt) redirect("/signin");
   // Throttled provider reconciliation before rendering billing state, so a
   // provider-side cancellation without webhook still shows here. Best-effort.
   try {

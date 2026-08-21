@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPaymentProvider } from "@/lib/payments";
 import { processVerifiedDodoEvent } from "@/lib/payments/process-dodo-event";
+import { getClientIp, rateLimitAsync } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -15,6 +16,9 @@ export async function POST(req: NextRequest) {
   const provider = getPaymentProvider("dodo");
   const verified = await provider.verifyWebhook({ rawBody, headers });
   if (!verified.ok) {
+    const ip = getClientIp(req.headers);
+    const rl = await rateLimitAsync(`webhook-fail:${ip}`, 60, 60 * 1000);
+    if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
     console.error("[webhook:dodo] signature failed", verified.error);
     return NextResponse.json({ error: verified.error || "Invalid signature" }, { status: 401 });
   }

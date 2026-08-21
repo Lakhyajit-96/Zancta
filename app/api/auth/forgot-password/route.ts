@@ -6,6 +6,7 @@ import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
 import { getAppOrigin } from "@/lib/seo";
+import { isLocalDevRequest } from "@/lib/dev-only";
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
@@ -30,7 +31,13 @@ export async function POST(req: NextRequest) {
     const plainToken = generateSecureToken();
     const tokenHash = hashToken(plainToken);
     const expires = new Date(Date.now() + 60 * 60 * 1000);
-    await prisma.passwordResetToken.create({ data: { userId: user.id, token: tokenHash, expires } });
+    await prisma.$transaction(async (tx) => {
+      await tx.passwordResetToken.updateMany({
+        where: { userId: user.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      await tx.passwordResetToken.create({ data: { userId: user.id, token: tokenHash, expires } });
+    });
 
     stage = "email-send";
     const url = `${getAppOrigin()}/reset-password?token=${plainToken}`;
@@ -39,16 +46,23 @@ export async function POST(req: NextRequest) {
     try {
       await emailer.sendPasswordReset(email, url);
     } catch (sendErr) {
-      // Token exists; only delivery failed. Return a generic, truthful retry
-      // message instead of a raw 500. No existence information is leaked.
       console.error("[auth/forgot-password] reset email send failed", sendErr instanceof Error ? sendErr.message : String(sendErr));
-      return NextResponse.json({ ok: true, message: "We couldn't send the email right now. Please try again in a few minutes." });
+      return NextResponse.json({
+        ok: true,
+        message: "We couldn't send the email right now. Please try again in a few minutes.",
+        ...(isLocalDevRequest(req) ? { devToken: plainToken } : {}),
+      });
     }
 
     stage = "audit";
     await auditEvent({ userId: user.id, action: "password_reset_requested", targetId: user.id, ip });
 
-    return NextResponse.json({ ok: true, message: "If that email exists, a reset link has been sent." });
+    const allowDevToken = isLocalDevRequest(req);
+    return NextResponse.json({
+      ok: true,
+      message: "If that email exists, a reset link has been sent.",
+      ...(allowDevToken ? { devToken: plainToken } : {}),
+    });
   } catch (err) {
     return safeServerError("auth/forgot-password", stage, err);
   }

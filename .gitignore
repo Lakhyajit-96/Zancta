@@ -73,3 +73,5 @@ test-screenshots/
 *.tsbuildinfo
 
 .vercel
+audit-phase12b/
+brand-export/

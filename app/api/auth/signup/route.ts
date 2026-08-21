@@ -7,6 +7,7 @@ import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
 import { getAppOrigin } from "@/lib/seo";
+import { isLocalDevRequest } from "@/lib/dev-only";
 
 async function createAndSendVerification(userId: string, email: string): Promise<{ ok: boolean; plainToken: string }> {
   // Replace any stale tokens for this account, then issue a fresh one-time
@@ -89,8 +90,7 @@ export async function POST(req: NextRequest) {
     await auditEvent({ userId: user.id, action: "signup", targetId: user.id, ip, userAgent: req.headers.get("user-agent") });
 
     // Dev token exposure only outside any Vercel environment (local E2E without Resend).
-    const isDev = process.env.NODE_ENV !== "production" || !process.env.VERCEL_ENV;
-    const allowDevToken = (isDev || req.headers.get("host")?.includes("localhost")) && !process.env.RESEND_API_KEY;
+    const allowDevToken = isLocalDevRequest(req);
     if (!sent.ok) {
       // Account + entitlement + token exist; only delivery failed. Return a
       // truthful 200 with recovery guidance instead of a trapping 500.

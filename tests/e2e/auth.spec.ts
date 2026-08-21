@@ -1,12 +1,19 @@
 import { test, expect } from "@playwright/test";
 
+function uniqueIp() {
+  return `10.${1 + (Date.now() % 250)}.${1 + Math.floor(Math.random() * 250)}.${1 + Math.floor(Math.random() * 250)}`;
+}
+
 test.describe("Auth — real flows", () => {
   const password = "Test12345!";
 
   test("signup → verify → signin → account → delete", async ({ page, request }) => {
     const email = `test-${Date.now()}-${Math.random().toString(36).slice(2,6)}@example.com`;
     // Signup via API to capture devToken reliably
-    const resSignup = await request.post("/api/auth/signup", { data: { email, password, name: "Test User" } });
+    const resSignup = await request.post("/api/auth/signup", {
+      headers: { "x-forwarded-for": uniqueIp() },
+      data: { email, password, name: "Test User" },
+    });
     const jSignup = await resSignup.json().catch(()=>({ error: "no json", status: resSignup.status() }));
     // Debug: log if no devToken
     if (!jSignup.devToken) console.log("Signup response", resSignup.status(), JSON.stringify(jSignup).slice(0,500));
@@ -36,7 +43,7 @@ test.describe("Auth — real flows", () => {
     await expect(page.getByText(email)).toBeVisible();
 
     // Account shows entitlement
-    await expect(page.getByText(/FREE/i)).toBeVisible();
+    await expect(page.getByText("FREE", { exact: true })).toBeVisible();
 
     // Delete
     await page.fill('input[placeholder="Type DELETE"]', "DELETE");
@@ -55,7 +62,10 @@ test.describe("Auth — real flows", () => {
 
   test("deleted credentials account cannot be used to sign in", async ({ page, request }) => {
     const email = `gone-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@example.com`;
-    const signup = await request.post("/api/auth/signup", { data: { email, password, name: "Gone" } });
+    const signup = await request.post("/api/auth/signup", {
+      headers: { "x-forwarded-for": uniqueIp() },
+      data: { email, password, name: "Gone" },
+    });
     const body = await signup.json();
     let token = body.devToken || "";
     if (!token) {
@@ -73,9 +83,11 @@ test.describe("Auth — real flows", () => {
     await page.waitForURL(/\/account/, { timeout: 10000 });
     await page.fill('input[placeholder="Type DELETE"]', "DELETE");
     await page.getByRole("button", { name: /Delete account/i }).click();
-    await page.waitForURL(/\//, { timeout: 10000 });
-    const accountRes = await page.request.get("/account");
-    expect(accountRes.url()).toMatch(/signin/);
+    await page.waitForURL((url) => new URL(url).pathname === "/", { timeout: 10000 });
+    const accountRes = await page.request.get("/account", { maxRedirects: 0 });
+    expect(accountRes.status()).toBeGreaterThanOrEqual(300);
+    expect(accountRes.status()).toBeLessThan(400);
+    expect(accountRes.headers()["location"] || accountRes.url()).toMatch(/signin/);
     await page.goto("/signin");
     await page.fill("#email", email);
     await page.fill("#password", password);

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { safeInternalPath } from "@/lib/safe-redirect";
 
 // Official brand marks, bundled locally (no runtime CDN).
 // Google: the standard four-color "G" from the Sign in with Google branding
@@ -58,7 +59,7 @@ export function OAuthButtons({
         setPending(null);
         return;
       }
-      await signIn(provider, { callbackUrl: callbackUrl || "/account" });
+      await signIn(provider, { callbackUrl: safeInternalPath(callbackUrl) });
     } catch {
       setError("We couldn’t start that sign-in. Please try again.");
       setPending(null);

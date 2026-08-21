@@ -5,13 +5,16 @@ import GitHub from "next-auth/providers/github";
 import type { Provider } from "next-auth/providers";
 import type { Adapter } from "next-auth/adapters";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { signinSchema } from "@/lib/validators";
 import { auditEvent } from "@/lib/audit";
 import { oauthIntentCookieName, verifyOAuthIntent } from "@/lib/oauth-intent";
 import { consumeDeletedProviderIdentity, hasDeletedProviderIdentity } from "@/lib/deleted-identity";
+import { tokenMatchesAuthVersion } from "@/lib/auth-version";
+import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
+import { safeInternalPath } from "@/lib/safe-redirect";
 
 export function hasGoogleOAuth(): boolean {
   return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
@@ -96,6 +99,15 @@ function buildProviders(): Provider[] {
       async authorize(credentials) {
         const parsed = signinSchema.safeParse(credentials);
         if (!parsed.success) return null;
+        try {
+          const hdrs = await headers();
+          const ip = getClientIp(hdrs);
+          const rlEmail = await rateLimitAsync(`signin-email:${parsed.data.email}`, 10, 15 * 60 * 1000);
+          const rlIp = await rateLimitAsync(`signin-ip:${ip}`, 60, 15 * 60 * 1000);
+          if (!rlEmail.ok || !rlIp.ok) return null;
+        } catch {
+          // headers() is unavailable outside a request (unit tests).
+        }
         return verifyCredentialsUser(parsed.data.email, parsed.data.password);
       },
     }),
@@ -147,6 +159,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${safeInternalPath(url, "/")}`;
+      try {
+        const target = new URL(url);
+        if (target.origin === baseUrl) return `${target.origin}${safeInternalPath(`${target.pathname}${target.search}`, "/")}`;
+      } catch {
+        // fall through
+      }
+      return baseUrl;
+    },
     async signIn({ account }) {
       if (!account || account.provider === "credentials") return true;
       const existing = await prisma.account.findUnique({
@@ -159,22 +181,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return deleted ? "/signin?error=OAuthAccountDeleted" : "/signin?error=OAuthAccountNotFound";
     },
     async jwt({ token, user }) {
-      if (user) {
-        token.id = (user as { id: string }).id;
-        token.emailVerified = (user as { emailVerified?: Date | null }).emailVerified ?? null;
-      }
-      const userId = (token.id as string | undefined) || (token.sub as string | undefined);
-      if (userId) {
+      try {
+        const userId =
+          (user as { id?: string } | undefined)?.id ||
+          (token.id as string | undefined) ||
+          (token.sub as string | undefined);
+        if (!userId) return null;
         const live = await prisma.user.findUnique({
           where: { id: String(userId) },
-          select: { id: true, deletedAt: true },
+          select: { id: true, deletedAt: true, authVersion: true, emailVerified: true },
         });
-        if (!live || live.deletedAt) {
-          return null;
+        if (!live || live.deletedAt) return null;
+        if (user) {
+          token.id = live.id;
+          token.emailVerified = live.emailVerified ?? (user as { emailVerified?: Date | null }).emailVerified ?? null;
+          token.authVersion = live.authVersion;
+          return token;
         }
+        if (!tokenMatchesAuthVersion(token.authVersion, live.authVersion)) return null;
         token.id = live.id;
+        token.authVersion = live.authVersion;
+        return token;
+      } catch {
+        return null;
       }
-      return token;
     },
     async session({ session, token }) {
       if (!token?.id) {

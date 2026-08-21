@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const userId = (session.user as unknown as { id: string }).id;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session?.user as unknown as { id?: string } | undefined)?.id;
+  if (!session?.user || !userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const ip = getClientIp(req.headers);
-  const rl = rateLimit(`delete:${userId}`, 3, 60 * 60 * 1000);
+  const rl = await rateLimitAsync(`delete:${userId}`, 3, 60 * 60 * 1000);
   if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
 
   const { confirm } = await req.json().catch(() => ({}));
