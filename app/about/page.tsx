@@ -106,14 +106,12 @@ export default function AboutPage() {
                   restrained so the task, not the interface, remains in focus.
                 </p>
               </ContentSection>
-              <ContentSection title="Operator">
+              <ContentSection title="Support and identity">
                 <p>
-                  ZANCTA is operated by {LEGAL_PUBLIC.operatorName}, an individual operator. No company or registered
-                  entity is represented here. A public postal address is not published because, based on current
-                  research into the Consumer Protection (E-Commerce) Rules, 2020 and India&apos;s Digital Personal
-                  Data Protection Rules, 2025, neither rule&apos;s address-disclosure duty appears to reach this
-                  unincorporated, individual-operator structure today. See <Link href="/contact" className="underline">Contact</Link>{" "}
-                  for the reasoning and for how to reach a person.
+                  {LEGAL_PUBLIC.identitySummary} Support, privacy, security, and billing contacts are on{" "}
+                  <Link href="/contact" className="underline">Contact</Link>. Legal identity and product terms are on{" "}
+                  <Link href="/terms" className="underline">Terms</Link> and{" "}
+                  <Link href="/privacy" className="underline">Privacy</Link>.
                 </p>
               </ContentSection>
               <ContentSection title="Responsible scope" className="md:col-span-2">

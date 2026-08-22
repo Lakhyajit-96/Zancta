@@ -249,7 +249,7 @@ export function Footer() {
               <span className="text-sm font-semibold tracking-[0.22em]">ZANCTA</span>
             </Link>
             <p className="mt-5 max-w-xs text-sm leading-7 text-muted-foreground">
-              PDF and image tools that run in your browser.
+              Independently operated PDF and image tools that run in your browser.
             </p>
           </div>
           <nav className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4" aria-label="Footer">

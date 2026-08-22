@@ -14,7 +14,7 @@ export default function RefundAndCancellationPage() {
     <ContentPage
       eyebrow="/refund-and-cancellation"
       title="Refunds and cancellation."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. This page describes current product and provider behavior. It is not a lawyer-approved policy. Billing questions: ${LEGAL_PUBLIC.billingEmail}.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. This page describes current product and provider behavior. Billing questions: ${LEGAL_PUBLIC.billingEmail}.`}
     >
       <ContentSection title="What Premium is today">
         <p>

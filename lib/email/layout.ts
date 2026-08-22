@@ -57,7 +57,7 @@ export const EMAIL_LOGO_URL = "https://zancta.tech/assets/zancta-brand/email/zan
 
 function footerHtml(origin: string): string {
   return `<p style="margin:0 0 10px;letter-spacing:.24em;font-weight:700;color:#f7f2ec">ZANCTA</p>
-          <p style="margin:0 0 14px;color:#aaa1a0">Browser-based PDF and image tools.</p>
+          <p style="margin:0 0 14px;color:#aaa1a0">Independently operated PDF and image tools.</p>
           <p style="margin:0 0 6px">Support: <a href="mailto:${EMAIL_CONTACTS.support}" style="color:#d99a9a">${EMAIL_CONTACTS.support}</a></p>
           <p style="margin:0 0 6px">Privacy: <a href="mailto:${EMAIL_CONTACTS.privacy}" style="color:#d99a9a">${EMAIL_CONTACTS.privacy}</a></p>
           <p style="margin:0 0 6px">Security: <a href="mailto:${EMAIL_CONTACTS.security}" style="color:#d99a9a">${EMAIL_CONTACTS.security}</a></p>
@@ -133,7 +133,7 @@ ${action}
 ${notes}
 
 ZANCTA
-Browser-based PDF and image tools.
+Independently operated PDF and image tools.
 
 Support: ${EMAIL_CONTACTS.support}
 Privacy: ${EMAIL_CONTACTS.privacy}

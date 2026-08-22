@@ -44,7 +44,10 @@ test("P0/P1 launch contract", async ({ page }) => {
     await expect(page.getByRole("button", { name: "Send enquiry" })).toBeVisible();
     await expect(page.getByRole("link", { name: "support@zancta.tech" }).first()).toBeVisible();
     await expect(page.locator("main header")).not.toContainText("Lakhyajit Changmai");
-    await expect(page.getByRole("heading", { name: "Operator" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Legal identity" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Contact channels" })).toBeVisible();
+    await expect(page.locator("main header")).toContainText("Independently operated PDF and image software");
+    await expect(page.locator("body")).not.toContainText("not legal advice");
     await expect(page.locator("body")).not.toContainText("24/7");
     await expect(page.locator("body")).not.toContainText("live chat");
 

@@ -17,29 +17,39 @@ Classification scale used below: **APPLIES**, **LIKELY APPLIES**, **MAY APPLY**,
 
 ## 1. Consumer Protection (E-Commerce) Rules, 2020 (Dept. of Consumer Affairs)
 
-**Source:** Consumer Protection (E-Commerce) Rules, 2020, Rules 2–7 (consumeraffairs.nic.in;
-cross-checked against Mondaq's rule-by-rule commentary and the consumerhelpline.gov.in
-INGRAM FAQ).
+**Source:** Consumer Protection (E-Commerce) Rules, 2020, G.S.R. 462(E); Consumer Protection
+(E-Commerce) (Amendment) Rules, 2021, G.S.R. 328(E), 17 May 2021; Consumer Protection Act,
+2019 s.2(16); NCH/INGRAM FAQ (consumerhelpline.gov.in).
 
-- **Rule 2 (scope):** applies to goods/services transacted over a digital network, but
-  **excludes** "any activity of a natural person carried out in a personal capacity not
-  being part of any professional or commercial activity undertaken on a regular or
-  systematic basis." ZANCTA's recurring subscription business is commercial and systematic,
-  so this personal-capacity carve-out **does not, by itself, exclude ZANCTA**.
-- **Rule 4 (duties of e-commerce entities, incl. grievance officer):** the Rules define the
-  entities these duties bind by requiring the entity to be **incorporated under the
-  Companies Act, 1956/2013, a foreign company, or an Indian-resident-controlled foreign
-  branch/office/agency**. An unincorporated individual sole operator does not meet this
-  threshold definition of "e-commerce entity" for Rule 4 purposes.
+**Correction (23 August 2026):** The 12H-9 reading treated Rule 4 as applying only to
+incorporated companies. That collapsed the **2021 Rule 4(1) nodal-officer duty** (which
+applies *where* the entity *is* a company / specified foreign structure) into the rest of
+Rule 4. Rule 3 defines an e-commerce entity as **any person** who owns, operates, or
+manages a digital facility for electronic commerce. Rule 4(2) (legal name, principal
+geographic address, website, customer-care and grievance-officer contacts) and Rule 4(4)
+(named Grievance Officer) are written as duties of **every** e-commerce entity.
 
-**Conclusion:** The Rule 4 duties that would otherwise require appointing a named
-"Grievance Officer," publishing a registered office address, and displaying a legal
-entity name — **DOES NOT APPEAR TO APPLY** to ZANCTA's current unincorporated,
-individual-operator structure, because the rule's own definition of a bound
-"e-commerce entity" presumes corporate/company form. This is a structural finding, not a
-"we are too small" argument — if the operator ever incorporates a company (Pvt Ltd,
-LLP treated as covered, or otherwise) to run ZANCTA, this conclusion must be
-revisited and likely flips to **LIKELY APPLIES**.
+- **Rule 2 (scope):** applies to goods/services transacted over a digital network,
+  including digital products, but **excludes** a natural person acting in a personal
+  capacity not being professional/commercial activity on a regular or systematic basis.
+  Paid Premium on a public site is commercial and systematic, so this carve-out **does
+  not, by itself, exclude ZANCTA**.
+- **Rule 4(1) as amended 2021:** nodal officer resident in India — **DOES NOT APPEAR TO
+  APPLY** to an unincorporated individual (company / foreign-company structures only).
+- **Rule 4(2) and 4(4):** legal name, geographic address of headquarters, and a named
+  Grievance Officer — **MAY APPLY / PROFESSIONAL DETERMINATION REQUIRED** if ZANCTA is
+  classified as an e-commerce entity. Dodo Payments as Merchant of Record (legal seller
+  of covered Premium transactions) creates genuine ambiguity about who is the inventory
+  seller; it does **not** automatically remove the platform-operator from Rule 3.
+- **GSTIN on the website:** not a Rule 4(2) item. Invoice GSTIN is a separate tax duty
+  **if registered**. No GSTIN exists to publish.
+
+**Public-copy rule:** do not invent a company, address, GSTIN, or Grievance Officer. Do
+not tell visitors that Rule 4 “only applies to companies.” Keep the operator’s legal name
+in legal disclosure (Contact legal-identity section, Terms, Privacy). A geographic
+address remains unpublished because none has been provided for publication; whether one
+**must** be published is **PROFESSIONAL DETERMINATION REQUIRED** and is not a brand
+decision.
 
 General Consumer Protection Act, 2019 consumer rights (District/State/National Consumer
 Disputes Redressal Commissions, National Consumer Helpline 1915 / INGRAM, e-Daakhil
@@ -129,21 +139,22 @@ instructions).
 See dedicated section in `/contact` and `/about`. Findings, cross-referencing items 1–4
 above:
 
-- Consumer Protection (E-Commerce) Rules Rule 4 office-address disclosure duty is scoped to
-  incorporated "e-commerce entities" (see §1) — not triggered by the current unincorporated
-  structure.
+- Consumer Protection (E-Commerce) Rules Rule 4(2) geographic-address duty: **MAY APPLY**
+  if ZANCTA is an e-commerce entity (see §1). This is **PROFESSIONAL DETERMINATION
+  REQUIRED**. No address is invented or published.
 - DPDP Rule 9 requires *business contact information*, which an email mailbox satisfies; it
   does not specify a postal address, and in any case is not yet in force (see §2).
 - No GDPR/CCPA representative-address duty is triggered because neither regime currently
   applies (see §3–4).
+- IT Rules 2021 physical contact address is significant-social-media-intermediary only and
+  **DOES NOT APPEAR TO APPLY**.
 
-**Conclusion: a public physical/postal address is DOES NOT APPEAR TO APPLY as a legal
-requirement for the current unincorporated, India-based, individually operated digital
-subscription model.** No address is invented or published. If Dodo, a bank, or a future
+**Conclusion:** No public physical/postal address is published because none has been
+provided. Whether Rule 4(2) *requires* one is **PROFESSIONAL DETERMINATION REQUIRED** —
+not a finding that the duty is limited to companies. If Dodo, a bank, or a future
 incorporation step requires a private/verification-only address, that is separate from
-public disclosure and does not change this conclusion. Re-run this determination if the
-operator incorporates a company, or after 14 May 2027 when DPDP's substantive obligations
-commence.
+public disclosure. Re-run this determination with Indian consumer-law counsel, or if the
+operator incorporates.
 
 ## 8. Governing law / dispute forum
 
@@ -156,6 +167,15 @@ before publishing a governing-law clause. In the interim, `/terms` and
 clause.
 
 ## 9. What changed as a result of this audit
+
+**23 August 2026 (public identity refinement):** Contact, About, Terms, Privacy, Refunds,
+llms.txt, footer, and email identity copy now lead with ZANCTA as independently operated
+PDF and image software. Operator legal name remains in Contact legal identity, Terms,
+Privacy, llms.txt, and Organization `founder`. The incorrect public claim that E-Commerce
+Rule 4 applies only to companies was removed from Contact and About. No company, address,
+GSTIN, DPO, or Grievance Officer was invented. Internal §1 and §7 were corrected as above.
+
+**12H-9 original public-page changes:**
 
 - `/privacy`: corrected the DPDP reference to state the accurate, staggered commencement
   timeline (Rule 9 not yet in force; commences 14 May 2027) instead of an undated "whether

@@ -8,7 +8,11 @@ export const LEGAL_PUBLIC = {
   brand: "ZANCTA",
   siteUrl: "https://zancta.tech",
   operatorName: "Lakhyajit Changmai",
-  lastUpdated: "August 22, 2026",
+  operatorForm: "Unincorporated individual",
+  productDescriptor: "Independently operated PDF and image software",
+  identitySummary:
+    "ZANCTA is independently operated privacy-first document software. Supported tools process selected files in the browser.",
+  lastUpdated: "August 23, 2026",
   lawyerReviewed: false,
   operatorLegalNamePublished: true,
   operatorAddressPublished: false,

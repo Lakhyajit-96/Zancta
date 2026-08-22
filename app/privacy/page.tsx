@@ -15,7 +15,7 @@ export default function PrivacyPage() {
     <ContentPage
       eyebrow="/privacy"
       title="How ZANCTA handles privacy."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ZANCTA is operated by ${LEGAL_PUBLIC.operatorName}, an individual operator. This page describes current product behavior. It is not a lawyer-approved privacy notice and does not publish a company/entity, postal address, or data-protection officer because those have not been provided.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ${LEGAL_PUBLIC.identitySummary} ${LEGAL_PUBLIC.brand} is operated by ${LEGAL_PUBLIC.operatorName}, an ${LEGAL_PUBLIC.operatorForm.toLowerCase()}. This page describes current product behavior.`}
       visual={<ShieldVisual />}
     >
       <ContentSection title="Local file processing">
@@ -76,8 +76,7 @@ export default function PrivacyPage() {
           their commencement 18 months after notification, in mid-2027. Publishing{" "}
           {LEGAL_PUBLIC.privacyEmail} as the privacy contact today is a voluntary step
           taken ahead of that date, not a claim of present-day statutory designation. No
-          Data Protection Officer or grievance officer is designated here. This notice
-          is not legal advice and has not been lawyer-reviewed.
+          Data Protection Officer is designated.
         </p>
       </ContentSection>
     </ContentPage>
