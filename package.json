@@ -2,7 +2,7 @@
   "name": "zancta",
   "version": "0.1.0",
   "private": true,
-  "description": "ZANCTA — privacy-first local file suite. Premium dark tool website.",
+  "description": "Privacy-first PDF and image tools that run in your browser.",
   "type": "module",
   "engines": {
     "node": ">=20 <25",

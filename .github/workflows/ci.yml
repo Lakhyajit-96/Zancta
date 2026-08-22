@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PAYMENTS_LIVE_ENABLED: "false"
+      NEXT_PUBLIC_ADS_ENABLED: "false"
+      NEXT_PUBLIC_APP_URL: "https://zancta.tech"
+      NEXTAUTH_URL: "https://zancta.tech"
+      AUTH_SECRET: "ci-only-auth-secret-not-for-production"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+        env:
+          DATABASE_URL: postgresql://zancta:zancta@127.0.0.1:54329/zancta_test
+      - run: npm run build
+        env:
+          DATABASE_URL: postgresql://zancta:zancta@127.0.0.1:54329/zancta_test

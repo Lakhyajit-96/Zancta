@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/lakhyajitchangmai77/Zancta/blob/main/SECURITY.md
+    about: Do not file public issues for unfixed vulnerabilities. Email security@zancta.tech.
+  - name: Live site
+    url: https://zancta.tech
+    about: Product and help pages
