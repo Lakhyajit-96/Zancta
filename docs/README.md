@@ -5,7 +5,11 @@
 | [Architecture](architecture/overview.md) | Local vs server, modules |
 | [Development](development/setup.md) | Local commands and tests |
 | [Deployment](deployment/production.md) | Vercel Production |
+| [Operations index](operations/README.md) | Environment, Vercel, releases, observability, email |
+| [Vercel](operations/vercel.md) | Project settings, domains, unused products |
 | [Environment](operations/environment.md) | Variable inventory (no secrets) |
+| [Releases / rollback](operations/releases.md) | Current deploy and rollback target |
+| [Observability](operations/observability.md) | Logs, GA4, Speed Insights, Sentry policy |
 | [Email](operations/email.md) | Resend production notes |
 | [BIMI](operations/email-bimi.md) | Sender-identity diagnosis (not purchased) |
 | [Security](security/overview.md) | Engineering notes; policy is [SECURITY.md](../SECURITY.md) |

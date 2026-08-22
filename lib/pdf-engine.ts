@@ -55,7 +55,7 @@ function assertPageLimit(pages: number, filename: string) {
 function safePdfError(e: unknown, filename: string, what: string): Error {
   const msg = e instanceof Error ? e.message : String(e);
   if (SAFE_PATTERNS.some((p) => p.test(msg))) return e instanceof Error ? e : new Error(msg);
-  console.warn(`[pdf-engine] unexpected error while ${what} "${filename}": ${msg}`);
+  console.warn(`[pdf-engine] unexpected error while ${what}: ${msg}`);
   return new Error(`That PDF couldn't be read. It may be corrupted, malformed, or unsupported (${filename}).`);
 }
 
@@ -70,7 +70,7 @@ async function loadPdf(bytes: Uint8Array, filename: string): Promise<PDFDocument
     }
     // Never surface raw parser internals to the user — keep the detail
     // on the console for debugging and show one safe message instead.
-    console.warn(`[pdf-engine] Failed to parse "${filename}": ${msg}`);
+    console.warn(`[pdf-engine] Failed to parse PDF: ${msg}`);
     throw new Error(`That PDF couldn't be read. It may be corrupted, malformed, or unsupported (${filename}).`);
   }
 }

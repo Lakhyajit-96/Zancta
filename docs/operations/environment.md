@@ -216,6 +216,14 @@ Older leftover: `.env.bak12c` (19 Aug 2026) — same auth/database/OAuth/Resend/
 
 ### Vercel scopes (`vercel env ls`)
 
+### Preview safety
+
+Preview is **not** a separate data plane. `DATABASE_URL`, `RESEND_API_KEY`, Dodo keys, and Upstash are present on Preview as well as Production. A Preview signup can mutate production Postgres and send real Resend mail. `*.vercel.app` URLs require Vercel login, which only limits who can *open* the preview.
+
+Checkout stays off unless `PAYMENTS_LIVE_ENABLED` is the string `true` (Production-only today; unset on Preview still means off). Do not copy production OAuth to Preview without dedicated callback URLs. Do not delete Preview `DATABASE_URL` without a replacement database.
+
+**Owner action:** provision a non-production Postgres (and optionally Resend test) for Preview, or disable Preview env copies of production secrets.
+
 **Development (Vercel):** no environment variables.
 
 **Preview:** names present (Encrypted): `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `PAYMENTS_PROVIDER`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`.

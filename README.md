@@ -143,7 +143,7 @@ npm run build
 npm run test:e2e -- --project=chromium
 ```
 
-Deployment is Vercel Production for `https://zancta.tech`. See [docs/deployment/production.md](docs/deployment/production.md).
+Deployment is Vercel Production for `https://zancta.tech`. See [docs/deployment/production.md](docs/deployment/production.md) and [docs/operations/vercel.md](docs/operations/vercel.md).
 
 ## Contributing and license
 
