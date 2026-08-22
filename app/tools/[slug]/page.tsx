@@ -3,6 +3,7 @@ import { getTool, relatedToolsFor, TOOLS } from "@/lib/tools";
 import { buildMetadata, jsonLdBreadcrumbList, jsonLdSoftwareApp } from "@/lib/seo";
 import { ToolShell } from "@/components/ui/tool-shell";
 import { TrackView } from "@/components/analytics/track-view";
+import { TOOL_GUIDES } from "@/lib/tool-next-steps";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -66,6 +67,13 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
               ))}
             </ul>
           </section>
+        )}
+
+        {TOOL_GUIDES[tool.slug] && (
+          <p className="mt-8 text-sm text-muted-foreground">
+            Related reading:{" "}
+            <Link href={TOOL_GUIDES[tool.slug]!.href} className="underline">{TOOL_GUIDES[tool.slug]!.label}</Link>
+          </p>
         )}
 
         <section className="mt-12 border-t pt-8 max-w-3xl">

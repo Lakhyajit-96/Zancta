@@ -16,16 +16,18 @@ function imageFile(name: string, type: string, size = 10): File {
 describe("OCR input contract", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("exposes only the bundled English language pack", () => {
-    expect(OCR_LANGUAGE_PACKS).toEqual([{ code: "eng", name: "English" }]);
+  it("exposes English as free and six Premium language packs", () => {
+    expect(OCR_LANGUAGE_PACKS.map((pack) => pack.code)).toEqual(["eng", "hin", "ben", "tam", "spa", "fra", "deu"]);
     expect(isOcrLanguage("eng")).toBe(true);
-    expect(isOcrLanguage("spa")).toBe(false);
+    expect(isOcrLanguage("spa")).toBe(true);
+    expect(isOcrLanguage("chi_sim")).toBe(false);
   });
 
   it.each([
     ["image.jpg", "image/jpeg"],
     ["image.png", "image/png"],
     ["image.webp", "image/webp"],
+    ["scan.pdf", "application/pdf"],
   ])("accepts supported %s input", (name, type) => {
     expect(validateOcrInput(imageFile(name, type))).toBeNull();
   });
@@ -43,7 +45,9 @@ describe("OCR input contract", () => {
   });
 
   it("uses meaningful worker progress labels and a real text output name", () => {
-    expect(ocrProgressLabel("recognizing text")).toBe("Recognizing text locally…");
+    expect(ocrProgressLabel("loading language traineddata")).toBe("Downloading language data…");
+    expect(ocrProgressLabel("initializing api")).toBe("Preparing OCR…");
+    expect(ocrProgressLabel("recognizing text")).toBe("Processing locally…");
     expect(ocrProgressLabel("unknown stage")).toBe("Processing locally…");
     expect(ocrOutputName("scan.final.png")).toBe("scan.final-ocr.txt");
   });

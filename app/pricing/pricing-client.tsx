@@ -124,12 +124,12 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
               <span className="text-xs text-muted-foreground">₹999 INR / year</span>
             </div>
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹999</p>
-            <p className="mt-1 text-xs text-muted-foreground">/year</p>
+            <p className="mt-1 text-xs text-muted-foreground">/year · saves ₹1,389 versus 12 × ₹199</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
               {PREMIUM_BENEFITS.map((item) => (
                 <li key={`annual-${item}`} className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> {item}</li>
               ))}
-              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Seven months free vs monthly at the listed INR prices</li>
+              <li className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> Saves ₹1,389 per year versus 12 × ₹199</li>
             </ul>
             {checkoutLive ? (
               <button
@@ -153,8 +153,8 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         {checkoutLive
-          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium currently includes the same local tools and the same limits as Free. Ad-free access is reserved for if ads launch later — ads are not live today. Cancel at period end from Account. Billing questions: billing@zancta.tech."
-          : "Prices are listed in INR. Premium currently includes the same local tools and the same limits as Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
+          ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free. Ad-free access is reserved for if ads launch later — ads are not live today. Cancel at period end from Account. Billing questions: billing@zancta.tech."
+          : "Prices are listed in INR. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
       </p>
     </div>
   );

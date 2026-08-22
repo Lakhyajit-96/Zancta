@@ -165,6 +165,9 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
     title: "Resources",
     links: [
       { href: "/guides/local-processing", label: "Local processing" },
+      { href: "/guides/merge-pdf-without-uploading", label: "Merge PDFs locally" },
+      { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
+      { href: "/guides/browser-ocr-without-uploading", label: "Browser OCR" },
       { href: "/help", label: "Help" },
       { href: "/faq", label: "FAQ" },
       { href: "/security", label: "Security" },

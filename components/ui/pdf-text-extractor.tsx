@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { downloadBlob } from "@/lib/download";
 import {
   joinPdfTextPages,
@@ -204,7 +205,7 @@ export function PdfTextExtractor() {
           </div>
         </div>
 
-        {!text ? <p role="status" className="mt-4 border border-border bg-elevated p-4 text-sm text-muted-foreground">No embedded text was found. This PDF may be scanned or image-only. This tool extracts existing PDF text and does not OCR scanned documents.</p> : <>
+        {!text ? <p role="status" className="mt-4 border border-border bg-elevated p-4 text-sm text-muted-foreground">No embedded text was found. This PDF may be scanned or image-only. This tool extracts existing PDF text and does not OCR scanned documents. For scanned PDFs, use <Link href="/tools/ocr" className="underline">Image OCR</Link> Local OCR Power (Premium, up to 20 pages).</p> : <>
           <div className="mt-5 border-y border-border py-4">
             <label htmlFor="pdf-text-search" className="text-sm font-medium">Search extracted text</label>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -225,7 +226,7 @@ export function PdfTextExtractor() {
         </>}
       </div>}
 
-      <p className="mt-6 text-xs leading-5 text-muted-foreground">PDF bytes and extracted text remain in this browser. This tool reads embedded PDF text only; it does not OCR scanned documents.</p>
+      <p className="mt-6 text-xs leading-5 text-muted-foreground">PDF bytes and extracted text remain in this browser. This tool reads embedded PDF text only; it does not OCR scanned documents. Scanned-page OCR lives on <Link href="/tools/ocr" className="underline">Image OCR</Link>.</p>
     </section>
   );
 }

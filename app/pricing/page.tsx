@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = pageMeta("/pricing", {
   title: "Free tools and optional Premium in INR",
-  description: "Free local PDF and image tools. Optional Premium checkout at ₹199/month or ₹999/year currently matches Free tools and limits.",
+  description: "Free local PDF and image tools. Optional Premium at ₹199/month or ₹999/year adds Local OCR Power. File and page limits otherwise match Free.",
 });
 
 export default function PricingPage() {
@@ -27,7 +27,7 @@ export default function PricingPage() {
               lines={[<>Start free.</>, <>Premium is optional support.</>]}
             />
             <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
-              Implemented local tools stay in the browser. Free and Premium currently use the same tools and the same limits. Premium is optional financial support for development, plus a reserved ad-free experience if ads are introduced later. Ads are not live today.
+              Implemented local tools stay in the browser. English image OCR is free. Premium adds Local OCR Power — Hindi, Bengali, Tamil, Spanish, French, German, and scanned PDF OCR up to 20 pages. Other file and page limits match Free. Ads are not live today.
             </p>
           </div>
         </section>
@@ -39,8 +39,8 @@ export default function PricingPage() {
             <h2 className="eyebrow">What you are paying for</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
               {checkoutLive
-                ? "Checkout can process a payment through Dodo Payments. Entitlement is activated only after a verified provider webhook creates a provider-backed subscription. Cancel at period end from your account. Premium does not currently include higher file or page limits, extra tools, or live ad-free access. Support, privacy, security, and billing mailboxes are listed on Contact. Refunds and disputes follow the provider."
-                : "Premium is not currently purchasable. Before paid access is offered, ZANCTA must verify live product mapping, checkout, webhooks, cancellation, refunds, a monitored support channel, and the final commercial terms."}
+                ? "Checkout can process a payment through Dodo Payments. Entitlement is activated only after a verified provider webhook creates a provider-backed subscription. Cancel at period end from your account. Premium includes Local OCR Power. It does not currently include higher file or page limits or live ad-free access. Support, privacy, security, and billing mailboxes are listed on Contact. Refunds and disputes follow the provider."
+                : "Premium is not currently purchasable. Local OCR Power is implemented and will apply when a provider-backed Premium subscription is active. Before paid access is offered, ZANCTA must verify live product mapping, checkout, webhooks, cancellation, refunds, a monitored support channel, and the final commercial terms."}
             </p>
           </section>
 

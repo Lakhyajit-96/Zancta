@@ -41,7 +41,7 @@ ${deferredLines}
 
 - Image tools: JPG, PNG, WebP. HEIC and SVG are not supported. AVIF is not accepted on Convert.
 - PDF tools: PDF. Typical per-file cap 50 MB; OCR images 20 MB. Merge up to 50 PDFs / 200 total pages.
-- Image OCR: English only, local Tesseract assets. PDF Text Extractor reads embedded text; it does not OCR scanned PDFs.
+- Image OCR: English is free and local. Premium Local OCR Power adds Hindi, Bengali, Tamil, Spanish, French, German, and scanned PDF OCR (20-page cap). PDF Text Extractor reads embedded text; it does not OCR scanned PDFs.
 - PDF Compress: object-stream rewrite. Embedded images are not recompressed; size may not shrink.
 
 ## Accounts and Premium
@@ -60,6 +60,9 @@ Ads shipped: ${String(PREMIUM_CONTRACT.adsShipped)}. Checkout status: ${checkout
 - Help: ${LEGAL_PUBLIC.siteUrl}/help
 - FAQ: ${LEGAL_PUBLIC.siteUrl}/faq
 - Local processing: ${LEGAL_PUBLIC.siteUrl}/guides/local-processing
+- Merge PDFs without uploading: ${LEGAL_PUBLIC.siteUrl}/guides/merge-pdf-without-uploading
+- JPG vs PNG vs WebP: ${LEGAL_PUBLIC.siteUrl}/guides/jpg-vs-png-vs-webp
+- Browser OCR: ${LEGAL_PUBLIC.siteUrl}/guides/browser-ocr-without-uploading
 - Privacy: ${LEGAL_PUBLIC.siteUrl}/privacy
 - Terms: ${LEGAL_PUBLIC.siteUrl}/terms
 - Refunds and cancellation: ${LEGAL_PUBLIC.siteUrl}/refund-and-cancellation

@@ -10,9 +10,10 @@ export const metadata = pageMeta("/guides/local-processing", {
 
 export default function LocalProcessingGuidePage() {
   return (
-    <ContentPage
-      eyebrow="/guides/local-processing"
-      title="Local processing, explained."
+      <ContentPage
+        crumbs={[{ name: "Home", href: "/" }, { name: "Guides" }]}
+        eyebrow="/guides/local-processing"
+        title="Local processing, explained."
       intro="This guide is for people who need to merge, split, compress, or read files without sending the document to a website. It describes the current ZANCTA tools, not a cloud conversion service."
     >
       <ContentSection title="Why local processing">
@@ -22,11 +23,11 @@ export default function LocalProcessingGuidePage() {
         <p>The application itself is downloaded like any website: HTML, JavaScript, fonts, and images. Analytics, if you allow it, may record that a tool finished — with the tool name only. Accounts, email, and payments (when live) send account and billing data to those providers. None of that is a substitute for uploading the PDF.</p>
       </ContentSection>
       <ContentSection title="OCR">
-        <p>Image OCR runs English recognition in a Worker with bundled language data. It is meant for photographs or scans of English text. Handwriting, dense tables, tiny type, and non-English scripts will fail or produce garbage. The recognized text is not sent to an OCR API.</p>
-        <p>Start at <Link href="/tools/ocr" className="underline">OCR</Link>.</p>
+        <p>Image OCR runs recognition in a Worker. English language data is bundled. Hindi, Bengali, Tamil, Spanish, French, and German packs load only for Premium, and only when selected. Scanned PDF OCR is also Premium and capped at 20 pages. Handwriting, dense tables, tiny type, and mixed scripts will fail or produce garbage. The recognized text is not sent to an OCR API. Accuracy is not human-level.</p>
+        <p>Start at <Link href="/tools/ocr" className="underline">Image OCR</Link> or the <Link href="/guides/browser-ocr-without-uploading" className="underline">browser OCR guide</Link>.</p>
       </ContentSection>
       <ContentSection title="PDF text extraction">
-        <p>PDF Text Extractor copies text that is already embedded in a text-native PDF. A scanned “PDF” that is only images has no such text; the tool reports that instead of inventing words. It is not OCR for PDFs. For scans, render pages to images with <Link href="/tools/pdf-to-images" className="underline">PDF to images</Link>, then use OCR on those images if you accept the English-only limit.</p>
+        <p>PDF Text Extractor copies text that is already embedded in a text-native PDF. A scanned “PDF” that is only images has no such text; the tool reports that instead of inventing words. For scans, use Image OCR Local OCR Power (Premium, up to 20 pages) rather than expecting this extractor to invent text.</p>
         <p>Start at <Link href="/tools/pdf-text-extractor" className="underline">PDF Text Extractor</Link>.</p>
       </ContentSection>
       <ContentSection title="Images and metadata">

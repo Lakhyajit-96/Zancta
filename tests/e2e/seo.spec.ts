@@ -69,3 +69,40 @@ test("checkout availability is not an open live switch locally", async ({ reques
   await page.goto("/pricing");
   await expect(page.getByRole("button", { name: "Not available" }).first()).toBeVisible();
 });
+
+test("sitemap.xml is valid XML with canonical HTTPS URLs", async ({ request }) => {
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  expect(sitemap.headers()["content-type"] || "").toMatch(/xml/);
+  const xml = await sitemap.text();
+  expect(xml).toContain("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+  expect(xml).toContain("http://www.sitemaps.org/schemas/sitemap/0.9");
+  expect(xml).toContain("https://zancta.tech/guides/merge-pdf-without-uploading");
+  expect(xml).toContain("https://zancta.tech/guides/jpg-vs-png-vs-webp");
+  expect(xml).toContain("https://zancta.tech/guides/browser-ocr-without-uploading");
+  expect(xml).not.toMatch(/localhost|127\.0\.0\.1|vercel\.app/i);
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+  expect(new Set(locs).size).toBe(locs.length);
+});
+
+test("premium OCR language packs are not public", async ({ request }) => {
+  const res = await request.get("/api/ocr/lang/hin.traineddata.gz");
+  expect(res.status()).toBe(401);
+  const unknown = await request.get("/api/ocr/lang/eng.traineddata.gz");
+  expect(unknown.status()).toBe(404);
+});
+
+test("SEO guides render with breadcrumbs and internal links", async ({ page }) => {
+  await page.goto("/guides/merge-pdf-without-uploading");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Merge PDF/i);
+  await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Merge PDF" }).first()).toBeVisible();
+
+  await page.goto("/guides/jpg-vs-png-vs-webp");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/JPG/);
+  await expect(page.getByRole("link", { name: "Convert Image" })).toBeVisible();
+
+  await page.goto("/guides/browser-ocr-without-uploading");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/browser OCR/i);
+  await expect(page.getByRole("link", { name: "Image OCR" }).first()).toBeVisible();
+});

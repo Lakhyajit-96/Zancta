@@ -91,7 +91,7 @@ export function subscriptionActivatedEmail(input: {
     `Plan: ${input.planLabel}`,
     `Amount: ${input.amountLabel}`,
     "Status: Active",
-    `Premium currently includes the same implemented local tools and the same limits as Free. It is optional financial support for the product, and it reserves an ad-free experience if ads are introduced later. Ads are not live. Higher limits, extra tools, and OCR Power are not part of Premium yet.`,
+    `Premium includes Local OCR Power: additional OCR language packs (Hindi, Bengali, Tamil, Spanish, French, German) and scanned PDF OCR up to 20 pages, processed in the browser. Other file and page limits match Free. Ads are not live. Ad-free access is reserved if ads are introduced later.`,
   ];
   if (input.periodEnd) {
     paragraphs.splice(3, 0, `Current period end (from the payment provider): ${input.periodEnd}`);

@@ -7,6 +7,7 @@ import { downloadBlob } from "@/lib/download";
 import { OcrTool } from "@/components/ui/ocr-tool";
 import { PdfTextExtractor } from "@/components/ui/pdf-text-extractor";
 import type { ToolMeta } from "@/lib/tools";
+import { TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
 type Status = "idle" | "validating" | "loading" | "processing" | "completed" | "failed" | "aborted";
 
 function GenericToolShell({ tool }: { tool: ToolMeta }) {
@@ -464,6 +465,12 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
             <button onClick={again} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Process another</button>
             <Link href="/tools" className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Related tools</Link>
           </div>
+          {TOOL_NEXT_STEPS[tool.slug] && (
+            <p className="text-sm text-muted-foreground">
+              {TOOL_NEXT_STEPS[tool.slug]!.prompt}{" "}
+              <Link href={TOOL_NEXT_STEPS[tool.slug]!.href} className="underline">{TOOL_NEXT_STEPS[tool.slug]!.label}</Link>
+            </p>
+          )}
         </div>
       )}
 

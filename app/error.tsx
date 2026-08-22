@@ -5,14 +5,17 @@ import { useEffect } from "react";
 import { Navigation } from "@/components/marketing/nav";
 
 export default function Error({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   useEffect(() => {
-    // Keep the digest on the client for operators; never render it.
-  }, []);
+    void import("@/lib/observability/sentry").then(({ reportException }) => {
+      void reportException({ error, category: "SYSTEM", severity: "error", route: "app-error" });
+    }).catch(() => {});
+  }, [error]);
 
   return (
     <>

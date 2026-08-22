@@ -28,6 +28,9 @@ const INDEXABLE_STATIC = [
   "/help",
   "/contact",
   "/guides/local-processing",
+  "/guides/merge-pdf-without-uploading",
+  "/guides/jpg-vs-png-vs-webp",
+  "/guides/browser-ocr-without-uploading",
 ];
 
 const TOOL_ROUTES = TOOLS.filter((t) => t.available).map((t) => `/tools/${t.slug}`);
@@ -68,7 +71,7 @@ describe("SEO safety", () => {
 
 describe("route coverage", () => {
   it("sitemap includes all indexable static pages", () => {
-    expect(INDEXABLE_STATIC.length).toBe(13);
+    expect(INDEXABLE_STATIC.length).toBe(16);
   });
 
   it("sitemap includes all available tool routes", () => {

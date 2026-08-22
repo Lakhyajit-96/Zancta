@@ -27,7 +27,7 @@ export default function TermsPage() {
       </ContentSection>
       <ContentSection title="Free and Premium access">
         <p>
-          Local free tools are available within their displayed limits. Premium currently includes the same tools and the same limits, plus a reserved ad-free experience if ads are introduced. Premium is {LEGAL_PUBLIC.monthlyDisplayINR} or {LEGAL_PUBLIC.annualDisplayINR} when live provider checkout is enabled. Checkout is hosted by {LEGAL_PUBLIC.paymentProviderName} as {LEGAL_PUBLIC.paymentProviderRole}. Cancellation, refunds, and disputes are described on{" "}
+          Local free tools are available within their displayed limits. Premium includes Local OCR Power (additional OCR languages and scanned PDF OCR) with the same file and page limits as Free for other tools, plus a reserved ad-free experience if ads are introduced. Premium is {LEGAL_PUBLIC.monthlyDisplayINR} or {LEGAL_PUBLIC.annualDisplayINR} when live provider checkout is enabled. Checkout is hosted by {LEGAL_PUBLIC.paymentProviderName} as {LEGAL_PUBLIC.paymentProviderRole}. Cancellation, refunds, and disputes are described on{" "}
           <Link href="/refund-and-cancellation" className="underline">Refunds and cancellation</Link>.
         </p>
       </ContentSection>

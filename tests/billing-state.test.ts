@@ -7,6 +7,7 @@ describe("premium contract", () => {
   it("does not claim higher limits or shipped ads", () => {
     expect(PREMIUM_CONTRACT.higherLimitsImplemented).toBe(false);
     expect(PREMIUM_CONTRACT.sameFileAndPageLimitsAsFree).toBe(true);
+    expect(PREMIUM_CONTRACT.localOcrPowerImplemented).toBe(true);
     expect(PREMIUM_CONTRACT.adsShipped).toBe(false);
     expect(PREMIUM_CONTRACT.reservedAdFreeWhenAdsLaunch).toBe(true);
   });

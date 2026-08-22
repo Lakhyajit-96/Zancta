@@ -50,6 +50,18 @@ describe("event contract", () => {
     expect(ANALYTICS_EVENTS.signin_completed).toBe("signin_completed");
   });
 
+  it("ANALYTICS_EVENTS has Premium OCR events", () => {
+    expect(ANALYTICS_EVENTS.premium_feature_view).toBe("premium_feature_view");
+    expect(ANALYTICS_EVENTS.ocr_language_selected).toBe("ocr_language_selected");
+    expect(ANALYTICS_EVENTS.ocr_language_load_started).toBe("ocr_language_load_started");
+    expect(ANALYTICS_EVENTS.ocr_language_load_completed).toBe("ocr_language_load_completed");
+    expect(ANALYTICS_EVENTS.ocr_language_load_failed).toBe("ocr_language_load_failed");
+    expect(ANALYTICS_EVENTS.ocr_processing_started).toBe("ocr_processing_started");
+    expect(ANALYTICS_EVENTS.ocr_processing_completed).toBe("ocr_processing_completed");
+    expect(ANALYTICS_EVENTS.ocr_processing_failed).toBe("ocr_processing_failed");
+    expect(ANALYTICS_EVENTS.premium_upgrade_clicked).toBe("premium_upgrade_clicked");
+  });
+
   it("ANALYTICS_EVENTS has monetization events", () => {
     expect(ANALYTICS_EVENTS.checkout_started).toBe("checkout_started");
     expect(ANALYTICS_EVENTS.subscription_active).toBe("subscription_active");
@@ -107,8 +119,22 @@ describe("param sanitization", () => {
     expect(out).toEqual({});
   });
 
-  it("returns empty object for null-like params", () => {
-    const out = sanitizeClientParams("tool_used", {});
-    expect(out).toEqual({});
+  it("strips OCR text and filenames while keeping a valid language code", () => {
+    const out = sanitizeClientParams("ocr_processing_completed", {
+      tool: "ocr",
+      language: "hin",
+      filename: "passport.jpg",
+      ocrText: "secret document text",
+      email: "user@example.com",
+    });
+    expect(out).toEqual({ tool: "ocr", language: "hin" });
+  });
+
+  it("rejects invalid language codes", () => {
+    const out = sanitizeClientParams("ocr_language_selected", {
+      tool: "ocr",
+      language: "HINDI",
+    });
+    expect(out).not.toHaveProperty("language");
   });
 });

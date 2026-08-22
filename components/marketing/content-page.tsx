@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Footer, Navigation } from "@/components/marketing/nav";
 import { MaskLines } from "@/components/marketing/motion";
 
@@ -6,12 +7,14 @@ export function ContentPage({
   title,
   intro,
   visual,
+  crumbs,
   children,
 }: {
   eyebrow?: string;
   title: string;
   intro: string;
   visual?: React.ReactNode;
+  crumbs?: Array<{ name: string; href?: string }>;
   children: React.ReactNode;
 }) {
   const isPath = eyebrow?.startsWith("/");
@@ -22,7 +25,21 @@ export function ContentPage({
       <main className="relative overflow-hidden">
         <section className="relative mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-16">
           <header className="max-w-3xl border-b border-border pb-10">
-            {eyebrow && <p className={isPath ? "eyebrow-path" : "eyebrow"}>{eyebrow}</p>}
+            {crumbs && crumbs.length > 0 && (
+              <nav aria-label="Breadcrumb" className="text-left text-xs text-muted-foreground">
+                {crumbs.map((crumb, index) => (
+                  <span key={`${crumb.name}-${index}`}>
+                    {index > 0 && <span aria-hidden> / </span>}
+                    {crumb.href && index < crumbs.length - 1 ? (
+                      <Link href={crumb.href} className="hover:text-foreground">{crumb.name}</Link>
+                    ) : (
+                      <span aria-current={index === crumbs.length - 1 ? "page" : undefined} className={index === crumbs.length - 1 ? "text-foreground" : undefined}>{crumb.name}</span>
+                    )}
+                  </span>
+                ))}
+              </nav>
+            )}
+            {eyebrow && <p className={`${isPath ? "eyebrow-path" : "eyebrow"} ${crumbs?.length ? "mt-8" : ""}`}>{eyebrow}</p>}
             <MaskLines as="h1" className="display-serif mt-5 text-4xl md:text-5xl" lines={[title]} />
             <p className="mt-6 text-base leading-8 text-muted-foreground">{intro}</p>
           </header>

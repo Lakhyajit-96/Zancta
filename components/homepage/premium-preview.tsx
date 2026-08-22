@@ -15,7 +15,7 @@ export function PremiumPreviewSection() {
             lines={[<>Start free.</>, <>Premium is optional support.</>]}
           />
           <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground">
-            Every implemented local tool is free, within the limits shown on each tool. Premium currently matches Free tool access and limits. It is optional financial support for the product, plus a reserved ad-free experience if ads are introduced later — ads are not live today.
+            Every implemented local tool is free, within the limits shown on each tool. Premium adds Local OCR Power — additional OCR languages and scanned PDF OCR in the browser — and reserves an ad-free experience if ads are introduced later. Ads are not live today. File and page limits otherwise match Free.
             {checkoutLive
               ? " Checkout can process a payment. Billing questions: billing@zancta.tech."
               : " Premium checkout is not available at the moment."}
@@ -24,7 +24,7 @@ export function PremiumPreviewSection() {
         <div className="card-surface p-6 md:p-8">
           <ul className="space-y-4 text-sm text-muted-foreground">
             <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">01</span> Free: all implemented local workflows, no account required.</li>
-            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">02</span> Premium uses the same tools and the same limits as Free.</li>
+            <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">02</span> Premium adds Local OCR Power (extra languages and scanned PDF OCR). Other file and page limits match Free.</li>
             <li className="flex gap-3"><span aria-hidden className="font-mono text-xs leading-6 text-platinum">03</span>
               {checkoutLive
                 ? "Payment checkout exists. Support, privacy, security, and billing mailboxes are listed on Contact."

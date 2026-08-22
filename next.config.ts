@@ -1,8 +1,41 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
+const gaEnabled = Boolean(gaId && /^G-[A-Z0-9]+$/.test(gaId));
+const sentryEnabled = Boolean(process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN);
+
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  isDev ? "'unsafe-eval'" : "'wasm-unsafe-eval'",
+  ...(gaEnabled ? ["https://www.googletagmanager.com"] : []),
+].join(" ");
+
+const connectSrc = [
+  "'self'",
+  ...(gaEnabled
+    ? [
+        "https://www.google-analytics.com",
+        "https://www.googletagmanager.com",
+        "https://*.google-analytics.com",
+        "https://*.analytics.google.com",
+      ]
+    : []),
+  ...(sentryEnabled ? ["https://*.ingest.sentry.io", "https://*.ingest.us.sentry.io"] : []),
+].join(" ");
+
+const imgSrc = [
+  "'self'",
+  "data:",
+  "blob:",
+  ...(gaEnabled ? ["https://www.google-analytics.com"] : []),
+].join(" ");
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/api/ocr/lang/[...file]": ["./private/ocr-traineddata/**/*"],
+  },
   async redirects() {
     return [
       { source: "/features", destination: "/tools", permanent: true },
@@ -12,14 +45,11 @@ const nextConfig: NextConfig = {
   async headers() {
     const csp = [
       "default-src 'self'",
-      // Production: no unsafe-eval. Dev needs unsafe-eval for Turbopack HMR and Next dev overlay.
-      isDev
-        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-        : "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'", // Required for the self-hosted Tesseract WebAssembly worker; does not permit JavaScript eval.
+      `script-src ${scriptSrc}`,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
+      `img-src ${imgSrc}`,
       "font-src 'self' data:",
-      "connect-src 'self'",
+      `connect-src ${connectSrc}`,
       "worker-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",
