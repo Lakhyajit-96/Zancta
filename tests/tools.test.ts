@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TOOLS, getTool } from "@/lib/tools";
-import { TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
+import { TOOL_GUIDES, TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
 describe("tool registry", () => {
   it("has 12 tools", () => expect(TOOLS.length).toBe(12));
   it("pdf-merge exists", () => expect(getTool("pdf-merge")?.name).toBe("Merge PDF"));
@@ -49,6 +49,12 @@ describe("tool registry", () => {
     expect(TOOL_NEXT_STEPS["image-compress"]?.href).toBe("/tools/image-convert");
     expect(TOOL_NEXT_STEPS["image-convert"]?.href).toBe("/tools/image-resize");
     expect(TOOL_NEXT_STEPS.ocr?.href).toBe("/tools/pdf-text-extractor");
-    expect(TOOL_NEXT_STEPS["pdf-compress"]?.href).toBe("/tools/pdf-text-extractor");
+    expect(TOOL_NEXT_STEPS["pdf-compress"]?.href).toBe("/tools/pdf-split");
+    expect(TOOL_NEXT_STEPS["pdf-split"]?.href).toBe("/tools/pdf-merge");
+  });
+  it("related guides match published walkthroughs", () => {
+    expect(TOOL_GUIDES["pdf-compress"]?.href).toBe("/guides/compress-pdf-without-uploading");
+    expect(TOOL_GUIDES["pdf-split"]?.href).toBe("/guides/split-pdf-without-uploading");
+    expect(TOOL_GUIDES["exif-cleaner"]?.href).toBe("/guides/remove-exif-before-sharing");
   });
 });

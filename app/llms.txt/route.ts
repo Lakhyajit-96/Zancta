@@ -63,6 +63,9 @@ Ads shipped: ${String(PREMIUM_CONTRACT.adsShipped)}. Checkout status: ${checkout
 - Merge PDFs without uploading: ${LEGAL_PUBLIC.siteUrl}/guides/merge-pdf-without-uploading
 - JPG vs PNG vs WebP: ${LEGAL_PUBLIC.siteUrl}/guides/jpg-vs-png-vs-webp
 - Browser OCR: ${LEGAL_PUBLIC.siteUrl}/guides/browser-ocr-without-uploading
+- Compress PDF without uploading: ${LEGAL_PUBLIC.siteUrl}/guides/compress-pdf-without-uploading
+- Split PDF without uploading: ${LEGAL_PUBLIC.siteUrl}/guides/split-pdf-without-uploading
+- Remove EXIF before sharing: ${LEGAL_PUBLIC.siteUrl}/guides/remove-exif-before-sharing
 - Privacy: ${LEGAL_PUBLIC.siteUrl}/privacy
 - Terms: ${LEGAL_PUBLIC.siteUrl}/terms
 - Refunds and cancellation: ${LEGAL_PUBLIC.siteUrl}/refund-and-cancellation

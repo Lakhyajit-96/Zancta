@@ -85,8 +85,9 @@ export const TOOLS: ToolMeta[] = [
     available: true,
     related: ["pdf-merge", "pdf-to-images", "pdf-compress"],
     faq: [
-      { q: "Can I extract a single page?", a: "Yes — select page range 3-3 or 5-10." },
+      { q: "Can I extract a single page?", a: "Yes — use 3 or 3-3. Ranges such as 1-3, 2,5,8, and 1-3,7,10-12 are accepted." },
       { q: "Is it private?", a: "Yes, processing is local. No file bytes are sent to a server." },
+      { q: "Do I get one PDF per page?", a: "No. Selected pages are copied into one new PDF. A walkthrough is on the Split PDF without uploading guide." },
     ],
   },
   {
@@ -107,8 +108,11 @@ export const TOOLS: ToolMeta[] = [
     seoDescription: "Reduce PDF file size in your browser. Rewrites with object-stream cleanup locally. No upload, no server processing.",
     h1: "Compress PDF — reduce size locally",
     available: true,
-    related: ["pdf-merge", "image-compress", "pdf-to-images"],
-    faq: [{ q: "Will quality drop?", a: "Embedded images are not recompressed. The file is rewritten with object streams; we report the actual size, which may not shrink." }],
+    related: ["pdf-merge", "pdf-split", "pdf-to-images"],
+    faq: [
+      { q: "Will quality drop?", a: "Embedded images are not recompressed. The file is rewritten with object streams; we report the actual size, which may not shrink." },
+      { q: "Why did my PDF not get smaller?", a: "Image-heavy files stay large because pictures are not transcoded. See the Compress PDF without uploading guide." },
+    ],
   },
   {
     slug: "pdf-to-images",
@@ -261,7 +265,10 @@ export const TOOLS: ToolMeta[] = [
     h1: "Remove EXIF data — share images safely",
     available: true,
     related: ["image-compress", "image-convert", "image-resize"],
-    faq: [{ q: "What is removed?", a: "Common image metadata is removed by re-encoding. EXIF, GPS, and camera data do not survive canvas re-encode." }],
+    faq: [
+      { q: "What is removed?", a: "Common image metadata is removed by re-encoding. EXIF, GPS, and camera data do not survive canvas re-encode. This is not a lossless byte strip and does not make a photo anonymous." },
+      { q: "Does sharing stay private after cleaning?", a: "Only the copy you download is cleaned. The next site you upload to may add its own tags. See Remove EXIF before sharing." },
+    ],
   },
   {
     slug: "pdf-text-extractor",

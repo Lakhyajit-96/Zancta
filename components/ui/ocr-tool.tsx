@@ -20,11 +20,10 @@ import {
 } from "@/lib/ocr-engine";
 import { isPremiumOcrLanguage } from "@/lib/ocr-languages";
 import { zipTextParts } from "@/lib/ocr-zip";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 function track(event: string, params?: Record<string, unknown>) {
-  void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
-    trackEvent(event as never, params);
-  }).catch(() => {});
+  trackEvent(event as never, params);
 }
 
 export function OcrTool() {
@@ -86,7 +85,7 @@ export function OcrTool() {
     if (selected && isOcrPdf(selected)) {
       void ensurePremiumStatus().then((hasPremium) => {
         if (!hasPremium) {
-          setNotice("Scanned PDF OCR is Local OCR Power — a Premium capability. English image OCR remains free.");
+          setNotice("Scanned PDF OCR is Local OCR Power — a Premium capability. English image OCR remains free. Premium is currently unavailable while ZANCTA completes its launch process.");
           track("premium_feature_view", { tool: "ocr" });
         }
       });
@@ -100,7 +99,7 @@ export function OcrTool() {
     if (!isPremiumOcrLanguage(next) && !(file && isOcrPdf(file))) return;
     const hasPremium = await ensurePremiumStatus();
     if (!hasPremium) {
-      setNotice("Local OCR Power (additional languages and scanned PDF OCR) is a Premium capability.");
+      setNotice("Local OCR Power (additional languages and scanned PDF OCR) is a Premium capability. Premium is currently unavailable while ZANCTA completes its launch process.");
       track("premium_feature_view", { tool: "ocr" });
     }
   };

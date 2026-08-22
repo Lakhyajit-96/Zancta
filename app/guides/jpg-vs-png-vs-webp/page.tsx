@@ -42,6 +42,8 @@ export default function ImageFormatGuidePage() {
             Reduce photographic size with <Link href="/tools/image-compress" className="underline">Compress Image</Link> — it changes quality, not pixel dimensions.
             Change width and height with <Link href="/tools/image-resize" className="underline">Resize Image</Link>.
             Turn a set of images into one PDF with <Link href="/tools/images-to-pdf" className="underline">Images to PDF</Link>.
+            Before you email a photo, see <Link href="/guides/remove-exif-before-sharing" className="underline">Remove EXIF before sharing</Link>
+            {" "}or use <Link href="/tools/exif-cleaner" className="underline">EXIF Cleaner</Link>.
           </p>
         </ContentSection>
         <ContentSection title="What ZANCTA does not convert" className="md:col-span-2">

@@ -39,7 +39,7 @@ Do not treat checkout zeros as traffic while payments are off.
 | 9 | Hindi/Bengali/Tamil OCR | transactional | Indic scripts | do not ship a language landing yet | ocr | Accuracy not benchmarked | OCR guide | Results vary | Only after measured accuracy |
 | 10 | scanned PDF OCR | transactional | Image-only PDFs | do not clone a thin landing | ocr + Premium copy | 20-page local cap | OCR guide, pricing | Not ABBYY | After free English image OCR |
 
-**Next three to write (not this phase):** rows 1–3.
+**Published in 12H-13:** compress / split / EXIF guides (rows 1–3). Do not clone more landings for the same queries.
 
 ## Search-intent map (capability-matched)
 
@@ -47,19 +47,19 @@ Do not treat checkout zeros as traffic while payments are off.
 | --- | --- | --- | --- |
 | merge PDF without uploading | Combine files without a converter SaaS | `/tools/pdf-merge` + `/guides/merge-pdf-without-uploading` | — |
 | merge PDF online | Same, broader | Tool page | Do not clone the guide |
-| split PDF without uploading | Extract ranges locally | `/tools/pdf-split` | Short guide only if merge guide does not cover it |
-| compress PDF without uploading | Smaller PDF, honest limits | `/tools/pdf-compress` | Guide: object-stream rewrite ≠ image recompress |
+| compress PDF without uploading | Smaller PDF, honest limits | `/tools/pdf-compress` + `/guides/compress-pdf-without-uploading` | — |
+| split PDF without uploading | Extract ranges locally | `/tools/pdf-split` + `/guides/split-pdf-without-uploading` | — |
 | PDF to JPG / JPG to PDF | Rasterize or wrap images | `/tools/pdf-to-images`, `/tools/images-to-pdf` | — |
 | compress image online | Smaller photos | `/tools/image-compress` | — |
 | convert JPG PNG WebP | Format choice | `/tools/image-convert` + `/guides/jpg-vs-png-vs-webp` | — |
-| resize image / remove EXIF | Dimensions / metadata | `/tools/image-resize`, `/tools/exif-cleaner` | — |
+| resize image / remove EXIF | Dimensions / metadata | `/tools/image-resize`, `/tools/exif-cleaner` + `/guides/remove-exif-before-sharing` | — |
 | OCR without uploading / browser OCR | Text from images privately | `/tools/ocr` + `/guides/browser-ocr-without-uploading` | — |
 | scanned PDF OCR / Hindi Bengali Tamil OCR | Language + scans | OCR tool + Premium copy | Do not publish language landing pages until accuracy is measured |
 
-## Top 3 to publish next (not in this phase)
+## Top 3 published in 12H-13
 
-1. `/guides/compress-pdf-what-actually-changes` — object streams vs image recompression. Unique, prevents failed expectations.
-2. `/guides/split-pdf-without-uploading` — extract ranges, password-protected failure. Complements merge guide.
-3. `/guides/remove-exif-before-sharing` — what EXIF cleaning does and does not prove.
+1. `/guides/compress-pdf-without-uploading`
+2. `/guides/split-pdf-without-uploading`
+3. `/guides/remove-exif-before-sharing`
 
-Do not auto-publish these. Each needs original steps, limits, and a tool CTA.
+Do not auto-publish more pages for the same queries.

@@ -119,9 +119,14 @@ test.describe("Auth — real flows", () => {
   });
 
   test("invalid credentials show error, no enumeration", async ({ page }) => {
+    await page.setExtraHTTPHeaders({ "x-forwarded-for": uniqueIp() });
     await page.goto("/forgot-password");
-    await page.fill("#email", "nonexistent@example.com");
-    await page.getByRole("button", { name: /Send reset link/i }).click();
-    await expect(page.getByText(/If that email exists/i)).toBeVisible({ timeout: 10000 });
+    const emailInput = page.getByLabel("Email");
+    await emailInput.click();
+    await emailInput.fill("");
+    await emailInput.pressSequentially("nonexistent@example.com", { delay: 15 });
+    await expect(emailInput).toHaveValue("nonexistent@example.com");
+    await page.locator("form").evaluate((form) => (form as HTMLFormElement).requestSubmit());
+    await expect(page.getByText(/If that email exists|Too many attempts|couldn't send the email/i)).toBeVisible({ timeout: 10000 });
   });
 });

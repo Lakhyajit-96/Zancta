@@ -67,7 +67,7 @@ test("checkout availability is not an open live switch locally", async ({ reques
   const body = await avail.json();
   expect(body.live).toBe(false);
   await page.goto("/pricing");
-  await expect(page.getByRole("button", { name: "Not available" }).first()).toBeVisible();
+  await expect(page.getByText("Premium is currently unavailable while ZANCTA completes its launch process.").first()).toBeVisible();
 });
 
 test("sitemap.xml is valid XML with canonical HTTPS URLs", async ({ request }) => {
@@ -80,6 +80,9 @@ test("sitemap.xml is valid XML with canonical HTTPS URLs", async ({ request }) =
   expect(xml).toContain("https://zancta.tech/guides/merge-pdf-without-uploading");
   expect(xml).toContain("https://zancta.tech/guides/jpg-vs-png-vs-webp");
   expect(xml).toContain("https://zancta.tech/guides/browser-ocr-without-uploading");
+  expect(xml).toContain("https://zancta.tech/guides/compress-pdf-without-uploading");
+  expect(xml).toContain("https://zancta.tech/guides/split-pdf-without-uploading");
+  expect(xml).toContain("https://zancta.tech/guides/remove-exif-before-sharing");
   expect(xml).not.toMatch(/localhost|127\.0\.0\.1|vercel\.app/i);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   expect(new Set(locs).size).toBe(locs.length);
@@ -105,4 +108,19 @@ test("SEO guides render with breadcrumbs and internal links", async ({ page }) =
   await page.goto("/guides/browser-ocr-without-uploading");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/browser OCR/i);
   await expect(page.getByRole("link", { name: "Image OCR" }).first()).toBeVisible();
+
+  await page.goto("/guides/compress-pdf-without-uploading");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Compress a PDF/i);
+  await expect(page.getByRole("link", { name: "Compress PDF" }).first()).toBeVisible();
+  await expect(page.getByText("Does ZANCTA recompress the photos inside my PDF?")).toBeVisible();
+
+  await page.goto("/guides/split-pdf-without-uploading");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Split a PDF/i);
+  await expect(page.getByRole("link", { name: "Split PDF" }).first()).toBeVisible();
+  await expect(page.getByText("Do I get one file per page?")).toBeVisible();
+
+  await page.goto("/guides/remove-exif-before-sharing");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Remove EXIF/i);
+  await expect(page.getByRole("link", { name: "EXIF Cleaner" }).first()).toBeVisible();
+  await expect(page.getByText("Does this make a photo anonymous?")).toBeVisible();
 });

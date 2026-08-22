@@ -108,9 +108,9 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
                 {busy === "PREMIUM_MONTHLY" ? "Redirecting…" : "Subscribe monthly"}
               </button>
             ) : (
-              <button type="button" disabled className="premium-button premium-button-secondary mt-8">
-                Not available
-              </button>
+              <p className="mt-8 text-sm leading-6 text-muted-foreground">
+                Premium is currently unavailable while ZANCTA completes its launch process.
+              </p>
             )}
           </section>
         </StaggerItem>
@@ -141,9 +141,9 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
                 {busy === "PREMIUM_ANNUAL" ? "Redirecting…" : "Subscribe annually"}
               </button>
             ) : (
-              <button type="button" disabled className="premium-button premium-button-secondary mt-8">
-                Not available
-              </button>
+              <p className="mt-8 text-sm leading-6 text-muted-foreground">
+                Premium is currently unavailable while ZANCTA completes its launch process.
+              </p>
             )}
           </section>
         </StaggerItem>
@@ -154,7 +154,7 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
       <p className="mt-8 text-center text-xs text-muted-foreground">
         {checkoutLive
           ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free. Ad-free access is reserved for if ads launch later — ads are not live today. Cancel at period end from Account. Billing questions: billing@zancta.tech."
-          : "Prices are listed in INR. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free, plus a reserved ad-free experience if ads launch later. Premium checkout is not available at the moment."}
+          : "Prices are listed in INR. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free, plus a reserved ad-free experience if ads launch later. Premium is currently unavailable while ZANCTA completes its launch process."}
       </p>
     </div>
   );

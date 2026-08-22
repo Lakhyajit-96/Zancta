@@ -25,6 +25,9 @@ describe("sitemap contract", () => {
     expect(urls).toContain(`${origin}/guides/merge-pdf-without-uploading`);
     expect(urls).toContain(`${origin}/guides/jpg-vs-png-vs-webp`);
     expect(urls).toContain(`${origin}/guides/browser-ocr-without-uploading`);
+    expect(urls).toContain(`${origin}/guides/compress-pdf-without-uploading`);
+    expect(urls).toContain(`${origin}/guides/split-pdf-without-uploading`);
+    expect(urls).toContain(`${origin}/guides/remove-exif-before-sharing`);
     expect(urls).toContain(`${origin}/refund-and-cancellation`);
     expect(urls).toContain(`${origin}/contact`);
     expect(urls).not.toContain(`${origin}/features`);
@@ -45,7 +48,7 @@ describe("sitemap contract", () => {
   });
 
   it("indexes the same static paths as the public URL list", () => {
-    expect(INDEXABLE_STATIC_PATHS).toHaveLength(16);
+    expect(INDEXABLE_STATIC_PATHS).toHaveLength(19);
   });
 
   it("pageMeta uses the page path as og:url, not the homepage", () => {

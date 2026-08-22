@@ -46,8 +46,11 @@ export default function MergePdfGuidePage() {
         </ContentSection>
         <ContentSection title="Related tools">
           <p>
-            Split a merged file with <Link href="/tools/pdf-split" className="underline">Split PDF</Link>.
-            If the result is still large, try <Link href="/tools/pdf-compress" className="underline">Compress PDF</Link> — it rewrites object streams and does not promise a smaller file.
+            Split a merged file with <Link href="/tools/pdf-split" className="underline">Split PDF</Link>
+            {" "}(<Link href="/guides/split-pdf-without-uploading" className="underline">split guide</Link>).
+            If the result is still large, try <Link href="/tools/pdf-compress" className="underline">Compress PDF</Link>
+            {" "}— it rewrites object streams and does not promise a smaller file
+            {" "}(<Link href="/guides/compress-pdf-without-uploading" className="underline">compress guide</Link>).
             Building a PDF from photos is <Link href="/tools/images-to-pdf" className="underline">Images to PDF</Link>.
           </p>
         </ContentSection>

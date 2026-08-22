@@ -21,6 +21,8 @@ test.describe("PDF tools — real processing", () => {
     ]);
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("link", { name: "Compress PDF" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /merge PDFs without uploading/i }).first()).toBeVisible();
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: /Download/i }).first().click();
     const dl = await downloadPromise;
@@ -36,6 +38,8 @@ test.describe("PDF tools — real processing", () => {
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
     await expect(page.getByRole("button", { name: /Download/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Merge PDF" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /split PDFs without uploading/i }).first()).toBeVisible();
   });
 
   test("compress: shows honest sizes", async ({ page }) => {
@@ -45,6 +49,8 @@ test.describe("PDF tools — real processing", () => {
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
     await expect(page.getByText(/Original \d/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Split PDF" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /PDF compression actually works/i }).first()).toBeVisible();
   });
 
   test("pdf-to-images: renders pages", async ({ page }) => {

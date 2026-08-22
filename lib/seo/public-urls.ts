@@ -21,6 +21,9 @@ export const INDEXABLE_STATIC_PATHS = [
   "/guides/merge-pdf-without-uploading",
   "/guides/jpg-vs-png-vs-webp",
   "/guides/browser-ocr-without-uploading",
+  "/guides/compress-pdf-without-uploading",
+  "/guides/split-pdf-without-uploading",
+  "/guides/remove-exif-before-sharing",
 ] as const;
 
 const BLOCKED_PATH = /\/(signin|signup|account|admin|api\/|verify-email|forgot-password|reset-password)/i;

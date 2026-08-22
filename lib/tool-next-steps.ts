@@ -13,14 +13,14 @@ export const TOOL_NEXT_STEPS: Partial<Record<ToolSlug, ToolNextStep>> = {
     label: "Compress PDF",
   },
   "pdf-split": {
-    prompt: "Need those pages as images?",
-    href: "/tools/pdf-to-images",
-    label: "PDF to Images",
+    prompt: "Need those pages back in one file later?",
+    href: "/tools/pdf-merge",
+    label: "Merge PDF",
   },
   "pdf-compress": {
-    prompt: "Need the text from that PDF?",
-    href: "/tools/pdf-text-extractor",
-    label: "PDF Text Extractor",
+    prompt: "Need only some of those pages?",
+    href: "/tools/pdf-split",
+    label: "Split PDF",
   },
   "pdf-to-images": {
     prompt: "Need a different image format?",
@@ -66,12 +66,13 @@ export const TOOL_NEXT_STEPS: Partial<Record<ToolSlug, ToolNextStep>> = {
 
 export const TOOL_GUIDES: Partial<Record<ToolSlug, { href: string; label: string }>> = {
   "pdf-merge": { href: "/guides/merge-pdf-without-uploading", label: "How to merge PDFs without uploading" },
-  "pdf-split": { href: "/guides/merge-pdf-without-uploading", label: "How to merge PDFs without uploading" },
-  "pdf-compress": { href: "/guides/merge-pdf-without-uploading", label: "How to merge PDFs without uploading" },
+  "pdf-split": { href: "/guides/split-pdf-without-uploading", label: "How to split PDFs without uploading" },
+  "pdf-compress": { href: "/guides/compress-pdf-without-uploading", label: "How PDF compression actually works here" },
   "image-convert": { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
   "image-compress": { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
   "image-resize": { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
   "images-to-pdf": { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
+  "exif-cleaner": { href: "/guides/remove-exif-before-sharing", label: "Remove EXIF before sharing" },
   ocr: { href: "/guides/browser-ocr-without-uploading", label: "How browser OCR works without uploading" },
   "pdf-text-extractor": { href: "/guides/browser-ocr-without-uploading", label: "How browser OCR works without uploading" },
 };

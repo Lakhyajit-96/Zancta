@@ -7,7 +7,7 @@ import { downloadBlob } from "@/lib/download";
 import { OcrTool } from "@/components/ui/ocr-tool";
 import { PdfTextExtractor } from "@/components/ui/pdf-text-extractor";
 import type { ToolMeta } from "@/lib/tools";
-import { TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
+import { TOOL_NEXT_STEPS, TOOL_GUIDES } from "@/lib/tool-next-steps";
 type Status = "idle" | "validating" | "loading" | "processing" | "completed" | "failed" | "aborted";
 
 function GenericToolShell({ tool }: { tool: ToolMeta }) {
@@ -469,6 +469,12 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
             <p className="text-sm text-muted-foreground">
               {TOOL_NEXT_STEPS[tool.slug]!.prompt}{" "}
               <Link href={TOOL_NEXT_STEPS[tool.slug]!.href} className="underline">{TOOL_NEXT_STEPS[tool.slug]!.label}</Link>
+            </p>
+          )}
+          {TOOL_GUIDES[tool.slug] && (
+            <p className="text-sm text-muted-foreground">
+              Want the longer explanation?{" "}
+              <Link href={TOOL_GUIDES[tool.slug]!.href} className="underline">{TOOL_GUIDES[tool.slug]!.label}</Link>
             </p>
           )}
         </div>

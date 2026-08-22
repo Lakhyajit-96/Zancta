@@ -60,6 +60,24 @@ export default async function GrowthDashboard() {
         )}
       </div>
 
+      <Section title="Product activation funnel (GA4)">
+        <p className="text-sm text-muted-foreground">
+          Visitor → tool_view → processing_started → processing_completed → download_completed → return usage →
+          premium_feature_view → premium_upgrade_clicked (upgrade intent, not a purchase). pricing_view is not revenue.
+          These events live in consent-gated Google Analytics only. This dashboard has no GA4 API connection.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat label="Tool views" value="GA4" sub="Baseline not established here" />
+          <Stat label="Processing starts" value="GA4" sub="Baseline not established here" />
+          <Stat label="Successful processing" value="GA4" sub="Primary activation metric" />
+          <Stat label="Downloads" value="GA4" sub="Baseline not established here" />
+          <Stat label="Completion rate" value="—" sub="Requires GA4 event counts" />
+          <Stat label="Pricing views" value="GA4" sub="Not revenue" />
+          <Stat label="Premium feature views" value="GA4" sub="OCR language / scanned PDF" />
+          <Stat label="Upgrade intent" value="GA4" sub="premium_upgrade_clicked, not a sale" />
+        </div>
+      </Section>
+
       {/* Traffic / Users */}
       <Section title="Users">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

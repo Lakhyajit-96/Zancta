@@ -6,47 +6,93 @@ import { test, expect } from "@playwright/test";
 // provider-side configuration and is reported separately.
 
 test.describe("OAuth — real provider wiring", () => {
-  test("signin renders provider buttons when configured", async ({ page }) => {
-    await page.goto("/signin");
-    await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Continue with GitHub/i })).toBeVisible();
-  });
+  const oauthConfigured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GITHUB_CLIENT_ID);
 
-  test("provider buttons carry the official brand marks (visible, decorative)", async ({ page }) => {
-    await page.goto("/signin");
-    const googleButton = page.getByRole("button", { name: /Continue with Google/i });
-    const githubButton = page.getByRole("button", { name: /Continue with GitHub/i });
+  test.describe("provider buttons", () => {
+    test.skip(!oauthConfigured, "GOOGLE_CLIENT_ID/GITHUB_CLIENT_ID are not in the local Playwright environment");
 
-    // Google: the official four-color G — all four brand fills present.
-    const googleMark = googleButton.locator("svg[data-testid='google-mark']");
-    await expect(googleMark).toBeVisible();
-    for (const fill of ["#EA4335", "#4285F4", "#FBBC05", "#34A853"]) {
-      await expect(googleMark.locator(`path[fill='${fill}']`)).toHaveCount(1);
-    }
-    // Decorative: the mark is aria-hidden, the label is the text.
-    await expect(googleMark).toHaveAttribute("aria-hidden", "true");
-    await expect(googleButton.locator("svg[data-testid='google-mark'] path").first()).not.toHaveAttribute("aria-label", /.+/);
+    test("signin renders provider buttons when configured", async ({ page }) => {
+      await page.goto("/signin");
+      await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Continue with GitHub/i })).toBeVisible();
+    });
 
-    // GitHub: the official monochrome Octocat mark, rendered with nonzero size.
-    const githubMark = githubButton.locator("svg[data-testid='github-mark']");
-    await expect(githubMark).toBeVisible();
-    await expect(githubMark).toHaveAttribute("aria-hidden", "true");
-    const box = await githubMark.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.width).toBeGreaterThan(10);
-    expect(box!.height).toBeGreaterThan(10);
-  });
+    test("provider buttons carry the official brand marks (visible, decorative)", async ({ page }) => {
+      await page.goto("/signin");
+      const googleButton = page.getByRole("button", { name: /Continue with Google/i });
+      const githubButton = page.getByRole("button", { name: /Continue with GitHub/i });
 
-  test("signup renders provider buttons when configured", async ({ page }) => {
-    await page.goto("/signup");
-    await expect(page.getByRole("button", { name: /Sign up with Google/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Sign up with GitHub/i })).toBeVisible();
-  });
+      // Google: the official four-color G — all four brand fills present.
+      const googleMark = googleButton.locator("svg[data-testid='google-mark']");
+      await expect(googleMark).toBeVisible();
+      for (const fill of ["#EA4335", "#4285F4", "#FBBC05", "#34A853"]) {
+        await expect(googleMark.locator(`path[fill='${fill}']`)).toHaveCount(1);
+      }
+      // Decorative: the mark is aria-hidden, the label is the text.
+      await expect(googleMark).toHaveAttribute("aria-hidden", "true");
+      await expect(googleButton.locator("svg[data-testid='google-mark'] path").first()).not.toHaveAttribute("aria-label", /.+/);
 
-  test("signin copy distinguishes existing accounts from create-account", async ({ page }) => {
-    await page.goto("/signin");
-    await expect(page.getByText(/Already have an account\?/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+      // GitHub: the official monochrome Octocat mark, rendered with nonzero size.
+      const githubMark = githubButton.locator("svg[data-testid='github-mark']");
+      await expect(githubMark).toBeVisible();
+      await expect(githubMark).toHaveAttribute("aria-hidden", "true");
+      const box = await githubMark.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.width).toBeGreaterThan(10);
+      expect(box!.height).toBeGreaterThan(10);
+    });
+
+    test("signup renders provider buttons when configured", async ({ page }) => {
+      await page.goto("/signup");
+      await expect(page.getByRole("button", { name: /Sign up with Google/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Sign up with GitHub/i })).toBeVisible();
+    });
+
+    test("signin copy distinguishes existing accounts from create-account", async ({ page }) => {
+      await page.goto("/signin");
+      await expect(page.getByText(/Already have an account\?/i)).toBeVisible();
+      await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+    });
+
+    test("query intent parameter does not change OAuth button semantics", async ({ page }) => {
+      await page.goto("/signin?intent=signup");
+      await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /Sign up with Google/i })).toHaveCount(0);
+    });
+
+    test("Google button reaches the real Google authorization URL", async ({ page }) => {
+      await page.goto("/signin");
+      await Promise.all([
+        page.waitForURL(/accounts\.google\.com/, { timeout: 20000 }),
+        page.getByRole("button", { name: /Continue with Google/i }).click(),
+      ]);
+      const url = new URL(page.url());
+      expect(url.hostname).toBe("accounts.google.com");
+      // Real authorization request carries a client_id and redirect_uri back to ZANCTA.
+      expect(url.searchParams.has("client_id")).toBe(true);
+      expect(url.searchParams.get("redirect_uri") || "").toContain("/api/auth/callback/google");
+      // Never log the client_id value.
+    });
+
+    test("GitHub button reaches the real GitHub authorization URL", async ({ page }) => {
+      await page.goto("/signin");
+      await Promise.all([
+        // GitHub sends unauthenticated browsers to /login first, with the real
+        // authorize request embedded in the return_to param. Authenticated
+        // sessions land directly on /login/oauth/authorize. Accept both.
+        page.waitForURL(/github\.com\/login/, { timeout: 20000 }),
+        page.getByRole("button", { name: /Continue with GitHub/i }).click(),
+      ]);
+      const url = new URL(page.url());
+      expect(url.hostname).toBe("github.com");
+      const authorizeTarget =
+        url.pathname === "/login/oauth/authorize"
+          ? url
+          : new URL(url.searchParams.get("return_to") || "", url);
+      expect(authorizeTarget.pathname).toBe("/login/oauth/authorize");
+      expect(authorizeTarget.searchParams.has("client_id")).toBe(true);
+      expect(authorizeTarget.searchParams.get("redirect_uri") || "").toContain("/api/auth/callback/github");
+    });
   });
 
   test("signup copy distinguishes new registration", async ({ page }) => {
@@ -64,46 +110,6 @@ test.describe("OAuth — real provider wiring", () => {
     await page.goto("/signin?error=OAuthAccountDeleted");
     await expect(page.getByRole("alert").first()).toContainText(/no longer exists/i);
     await expect(page.getByRole("alert").first()).toContainText(/Create a new account/i);
-  });
-
-  test("query intent parameter does not change OAuth button semantics", async ({ page }) => {
-    await page.goto("/signin?intent=signup");
-    await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Sign up with Google/i })).toHaveCount(0);
-  });
-
-  test("Google button reaches the real Google authorization URL", async ({ page }) => {
-    await page.goto("/signin");
-    await Promise.all([
-      page.waitForURL(/accounts\.google\.com/, { timeout: 20000 }),
-      page.getByRole("button", { name: /Continue with Google/i }).click(),
-    ]);
-    const url = new URL(page.url());
-    expect(url.hostname).toBe("accounts.google.com");
-    // Real authorization request carries a client_id and redirect_uri back to ZANCTA.
-    expect(url.searchParams.has("client_id")).toBe(true);
-    expect(url.searchParams.get("redirect_uri") || "").toContain("/api/auth/callback/google");
-    // Never log the client_id value.
-  });
-
-  test("GitHub button reaches the real GitHub authorization URL", async ({ page }) => {
-    await page.goto("/signin");
-    await Promise.all([
-      // GitHub sends unauthenticated browsers to /login first, with the real
-      // authorize request embedded in the return_to param. Authenticated
-      // sessions land directly on /login/oauth/authorize. Accept both.
-      page.waitForURL(/github\.com\/login/, { timeout: 20000 }),
-      page.getByRole("button", { name: /Continue with GitHub/i }).click(),
-    ]);
-    const url = new URL(page.url());
-    expect(url.hostname).toBe("github.com");
-    const authorizeTarget =
-      url.pathname === "/login/oauth/authorize"
-        ? url
-        : new URL(url.searchParams.get("return_to") || "", url);
-    expect(authorizeTarget.pathname).toBe("/login/oauth/authorize");
-    expect(authorizeTarget.searchParams.has("client_id")).toBe(true);
-    expect(authorizeTarget.searchParams.get("redirect_uri") || "").toContain("/api/auth/callback/github");
   });
 
   test("callback routes are live (invalid code returns safe error redirect, not 404)", async ({ request }) => {

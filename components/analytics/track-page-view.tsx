@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 export function TrackPageView() {
   const pathname = usePathname();
@@ -10,9 +11,7 @@ export function TrackPageView() {
   useEffect(() => {
     if (!pathname || pathname === last.current) return;
     last.current = pathname;
-    void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
-      trackEvent("page_view", { path: pathname });
-    }).catch(() => {});
+    trackEvent("page_view", { path: pathname });
   }, [pathname]);
 
   return null;

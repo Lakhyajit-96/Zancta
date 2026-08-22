@@ -60,10 +60,20 @@ export function ToolEcosystemSection() {
           ))}
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
           <Link href="/tools" className="premium-button premium-button-secondary">
             Explore all tools <span aria-hidden>→</span>
           </Link>
+          <p className="text-sm text-muted-foreground">
+            Walkthroughs:{" "}
+            <Link href="/guides/compress-pdf-without-uploading" className="underline underline-offset-4 hover:text-foreground">compress PDF</Link>
+            {", "}
+            <Link href="/guides/split-pdf-without-uploading" className="underline underline-offset-4 hover:text-foreground">split PDF</Link>
+            {", "}
+            <Link href="/guides/remove-exif-before-sharing" className="underline underline-offset-4 hover:text-foreground">remove EXIF</Link>
+            {" · "}
+            <Link href="/guides/local-processing" className="underline underline-offset-4 hover:text-foreground">local processing</Link>
+          </p>
         </div>
       </div>
     </section>
