@@ -42,6 +42,26 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           <p className="eyebrow-path mt-8">/tools/{tool.category}</p>
           <h1 className="display-serif mt-4 max-w-4xl text-4xl md:text-5xl">{tool.h1}</h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">{tool.longDescription}</p>
+          {tool.available && (
+            <dl className="mt-6 grid max-w-2xl gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+              <div>
+                <dt className="font-medium text-foreground">Formats</dt>
+                <dd>{tool.supportedFormats.join(", ").toUpperCase()}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-foreground">Upload</dt>
+                <dd>No. Processing stays in this browser after the page loads.</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-foreground">Limits</dt>
+                <dd>Up to {Math.round(tool.maxFileSize / 1024 / 1024)} MB per file · {tool.maxFiles} file{tool.maxFiles === 1 ? "" : "s"}</dd>
+              </div>
+              <div>
+                <dt className="font-medium text-foreground">After processing</dt>
+                <dd>Download or copy the result from this tab. Nothing is stored on ZANCTA.</dd>
+              </div>
+            </dl>
+          )}
           <div className="mt-8 flex flex-wrap gap-2">
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tool.processingType === "bg" ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success"}`}>
               <span aria-hidden className={`h-2 w-2 rounded-full ${tool.processingType === "bg" ? "bg-warning" : "bg-success"}`} /> {tool.processingType === "bg" ? "Deferred — no model" : "Local — no upload"}
@@ -89,7 +109,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           <p className="mt-6 text-xs text-muted-foreground">
             {tool.slug === "background-remover"
               ? "Background removal is currently deferred — no model has been integrated. This page does not accept files for processing or create a placeholder output."
-              : "Processing runs locally in your browser — no upload. Outputs are generated on-device and validated before download."}
+              : <>Processing runs locally in your browser — no upload. Outputs are generated on-device. For the privacy boundary see the <Link href="/guides/local-processing" className="underline">local processing guide</Link>.</>}
           </p>
         </section>
 

@@ -57,6 +57,11 @@ export async function openPdfOcrSession(file: File, cancelled: () => boolean): P
     }
   }
 
+  if (cancelled()) {
+    await documentProxy.destroy().catch(() => {});
+    throw new Error("cancelled");
+  }
+
   return {
     totalPages: documentProxy.numPages,
     pages,

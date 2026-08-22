@@ -87,6 +87,7 @@ export interface EventPayloads {
 // ── Client-side allowed events (consent-gated GA4) ─────────────────────────
 
 export const CLIENT_ANALYTICS_EVENTS = [
+  "page_view",
   "tool_view",
   "tool_used",
   "processing_started",

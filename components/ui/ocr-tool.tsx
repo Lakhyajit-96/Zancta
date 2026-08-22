@@ -50,7 +50,10 @@ export function OcrTool() {
     if (worker) await worker.terminate();
   }, []);
 
-  React.useEffect(() => () => { void disposeWorker(); }, [disposeWorker]);
+  React.useEffect(() => () => {
+    runIdRef.current += 1;
+    void disposeWorker();
+  }, [disposeWorker]);
 
   const ensurePremiumStatus = async (): Promise<boolean> => {
     if (statusFetched.current) return premiumRef.current;
@@ -91,6 +94,7 @@ export function OcrTool() {
   };
 
   const onLanguageChange = async (next: OcrLanguage) => {
+    void disposeWorker();
     setLanguage(next);
     track("ocr_language_selected", { tool: "ocr", language: next });
     if (!isPremiumOcrLanguage(next) && !(file && isOcrPdf(file))) return;
@@ -184,7 +188,10 @@ export function OcrTool() {
           workerRef.current = worker;
           const collected: string[] = [];
           for (let pageNumber = 1; pageNumber <= session.totalPages; pageNumber += 1) {
-            if (runId !== runIdRef.current) return;
+            if (runId !== runIdRef.current) {
+              await disposeWorker();
+              return;
+            }
             const embedded = session.pages[pageNumber - 1];
             setStatus("processing");
             setDetail(`Processing page ${pageNumber} of ${session.totalPages} locally…`);
@@ -192,9 +199,15 @@ export function OcrTool() {
               collected.push(embedded.text);
             } else {
               const blob = await session.renderPage(pageNumber);
-              if (runId !== runIdRef.current) return;
+              if (runId !== runIdRef.current) {
+                await disposeWorker();
+                return;
+              }
               const result = await worker.recognize(blob);
-              if (runId !== runIdRef.current) return;
+              if (runId !== runIdRef.current) {
+                await disposeWorker();
+                return;
+              }
               collected.push(result.data.text);
             }
             setProgress(Math.round((pageNumber / session.totalPages) * 100));
@@ -229,7 +242,10 @@ export function OcrTool() {
       workerRef.current = worker;
       setStatus("processing");
       const result = await worker.recognize(file);
-      if (runId !== runIdRef.current) return;
+      if (runId !== runIdRef.current) {
+        await disposeWorker();
+        return;
+      }
       setText(result.data.text);
       setProgress(100);
       setDetail("Completed.");
@@ -296,11 +312,11 @@ export function OcrTool() {
   const working = status === "validating" || status === "loading" || status === "processing";
 
   return (
-    <section className="card-surface rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8" aria-labelledby="ocr-workspace-title">
+    <section className="card-surface rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8" aria-labelledby="ocr-workspace-title" aria-busy={working}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <div>
           <p id="ocr-workspace-title" className="text-sm font-medium">Local OCR workspace</p>
-          <p className="mt-1 text-xs text-muted-foreground">Your file and extracted text stay in this browser. OCR is not human-level and can misread handwriting, tables, and low-contrast scans.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Your file and extracted text stay in this browser. OCR is not human-level. Results may vary with image quality, fonts, and layout. Handwriting, tables, and low-contrast scans often fail.</p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
           <span aria-hidden className="h-2 w-2 rounded-full bg-success" />
@@ -334,6 +350,7 @@ export function OcrTool() {
             className="field-input w-auto py-1.5"
             value={language}
             disabled={working}
+            aria-label="OCR language"
             onChange={(event) => void onLanguageChange(event.target.value as OcrLanguage)}
           >
             {OCR_LANGUAGE_PACKS.map((item) => (
@@ -398,6 +415,9 @@ export function OcrTool() {
           </div>
           <label className="mt-4 block text-sm font-medium" htmlFor="ocr-result">Extracted OCR text</label>
           <textarea id="ocr-result" readOnly value={text} className="field-input mt-2 h-56 p-3 font-mono text-sm leading-6" aria-label="Extracted OCR text" />
+          {detail && detail !== "Completed." && (
+            <p role="status" className="mt-3 text-sm text-muted-foreground">{detail}</p>
+          )}
           {!text.trim() && (
             <p role="status" className="mt-3 text-sm text-muted-foreground">
               No text was recognized. OCR can miss handwriting, low-contrast images, or unsupported scripts. This is not a silent success with hidden content.

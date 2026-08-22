@@ -20,8 +20,18 @@ function loadGtag(id: string) {
     // eslint-disable-next-line prefer-rest-params
     window.dataLayer.push(arguments);
   };
+  window.gtag("consent", "default", {
+    analytics_storage: "granted",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+  });
   window.gtag("js", new Date());
-  window.gtag("config", id, { anonymize_ip: true, allow_google_signals: false });
+  window.gtag("config", id, {
+    anonymize_ip: true,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+  });
   const script = document.createElement("script");
   script.id = "zancta-ga4";
   script.async = true;
@@ -66,7 +76,12 @@ export function ConsentAndAnalytics() {
 
   const choose = (analytics: boolean) => {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, serializeConsent(analytics));
-    if (analytics) loadGtag(gaId!.trim());
+    if (analytics) {
+      loadGtag(gaId!.trim());
+      void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+        trackEvent("page_view", { path: window.location.pathname || "/" });
+      }).catch(() => {});
+    }
     setShow(false);
   };
 

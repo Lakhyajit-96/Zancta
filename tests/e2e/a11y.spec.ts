@@ -19,6 +19,11 @@ test.describe("a11y", () => {
     "/reset-password",
     "/account",
     "/this-page-does-not-exist-12h7",
+    "/how-it-works",
+    "/guides/local-processing",
+    "/guides/merge-pdf-without-uploading",
+    "/guides/jpg-vs-png-vs-webp",
+    "/guides/browser-ocr-without-uploading",
     "/tools/pdf-merge",
     "/tools/pdf-split",
     "/tools/pdf-compress",
@@ -60,6 +65,10 @@ test.describe("a11y", () => {
     await expect(page.getByRole("group", { name: "Billing period" })).toBeVisible();
     await page.goto("/faq");
     await expect(page.getByRole("button", { name: "Does ZANCTA upload my files?" })).toBeVisible();
+    await page.goto("/tools/ocr");
+    await expect(page.getByLabel("OCR language")).toBeVisible();
+    await page.getByLabel("OCR language").focus();
+    await expect(page.getByLabel("OCR language")).toBeFocused();
     await page.goto("/signin");
     await expect(page.getByLabel("Email")).toBeVisible();
     await page.keyboard.press("Tab");

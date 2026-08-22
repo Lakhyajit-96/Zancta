@@ -21,6 +21,8 @@ import {
 } from "@/lib/consent";
 
 const CLIENT_EVENT_SET = new Set<string>(CLIENT_ANALYTICS_EVENTS);
+const pending: Array<{ event: ClientAnalyticsEvent; params: Record<string, string> }> = [];
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 function hasConsent(): boolean {
   if (typeof window === "undefined") return false;
@@ -31,9 +33,36 @@ function gaReady(): boolean {
   return typeof window !== "undefined" && typeof window.gtag === "function";
 }
 
+function flushQueue() {
+  if (!gaReady()) return;
+  while (pending.length > 0) {
+    const item = pending.shift();
+    if (!item) break;
+    window.gtag?.("event", item.event, item.params);
+  }
+}
+
+function scheduleFlush() {
+  if (flushTimer) return;
+  let attempts = 0;
+  const tick = () => {
+    flushTimer = null;
+    if (gaReady()) {
+      flushQueue();
+      return;
+    }
+    attempts += 1;
+    if (attempts < 40) {
+      flushTimer = setTimeout(tick, 50);
+    }
+  };
+  flushTimer = setTimeout(tick, 0);
+}
+
 /**
  * Fire a consent-gated, sanitized GA4 event.
  * No-ops silently when consent is not granted or GA is not loaded.
+ * If consent is granted before gtag exists, the event is queued briefly.
  */
 export function trackEvent(
   event: ClientAnalyticsEvent,
@@ -42,9 +71,15 @@ export function trackEvent(
   if (!CLIENT_EVENT_SET.has(event)) return;
   if (!hasConsent()) return;
   if (!isGaMeasurementId(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID)) return;
-  if (!gaReady()) return;
 
   const safe = sanitizeClientParams(event, params);
+  if (!gaReady()) {
+    pending.push({ event, params: safe });
+    scheduleFlush();
+    return;
+  }
+
+  flushQueue();
   window.gtag?.("event", event, safe);
 }
 

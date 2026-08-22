@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TOOLS, getTool } from "@/lib/tools";
+import { TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
 describe("tool registry", () => {
   it("has 12 tools", () => expect(TOOLS.length).toBe(12));
   it("pdf-merge exists", () => expect(getTool("pdf-merge")?.name).toBe("Merge PDF"));
@@ -43,5 +44,11 @@ describe("tool registry", () => {
   it("merge FAQ does not imply Premium has higher limits", () => {
     const t = getTool("pdf-merge")!;
     expect(t.faq.find((f) => f.q.includes("How many"))!.a).toMatch(/Free and Premium use the same limit/i);
+  });
+  it("post-success next steps stay in the product until Premium is actually relevant", () => {
+    expect(TOOL_NEXT_STEPS["image-compress"]?.href).toBe("/tools/image-convert");
+    expect(TOOL_NEXT_STEPS["image-convert"]?.href).toBe("/tools/image-resize");
+    expect(TOOL_NEXT_STEPS.ocr?.href).toBe("/tools/pdf-text-extractor");
+    expect(TOOL_NEXT_STEPS["pdf-compress"]?.href).toBe("/tools/pdf-text-extractor");
   });
 });

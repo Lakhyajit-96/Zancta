@@ -30,7 +30,7 @@ export default function PrivacyPage() {
         <p>A consent preference may be stored in localStorage so we remember whether optional analytics is allowed. Local tool results stay in the browser session for preview or download and are released when you leave or clear that workspace.</p>
       </ContentSection>
       <ContentSection title="Analytics and advertising">
-        <p>No advertising network is enabled. Google Analytics (GA4) loads only if a measurement ID is configured and you choose Allow analytics. Allowed events are tool_used (tool slug only), signup, subscription_start, and subscription_cancel. The product does not send file bytes, filenames, extracted PDF text, OCR output, or file-size buckets. There is no ads.txt file because ads are not authorized to sell this inventory.</p>
+        <p>No advertising network is enabled. Google Analytics (GA4) loads only if a measurement ID is configured and you choose Allow analytics. Client events may include page_view, tool_view, tool_used, processing_started, processing_completed, processing_failed, processing_cancelled, download_completed, pricing_view, and related product events. Payloads are limited to tool slugs, language codes, and similar non-content fields. The product does not send file bytes, filenames, extracted PDF text, OCR output, email addresses, or payment details. Billing events are recorded server-side. There is no ads.txt file because ads are not authorized to sell this inventory.</p>
       </ContentSection>
       <ContentSection title="Payments and email">
         <p>

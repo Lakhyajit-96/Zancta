@@ -17,9 +17,12 @@ const connectSrc = [
   ...(gaEnabled
     ? [
         "https://www.google-analytics.com",
+        "https://analytics.google.com",
         "https://www.googletagmanager.com",
         "https://*.google-analytics.com",
         "https://*.analytics.google.com",
+        "https://*.googletagmanager.com",
+        "https://www.google.com",
       ]
     : []),
   ...(sentryEnabled ? ["https://*.ingest.sentry.io", "https://*.ingest.us.sentry.io"] : []),
@@ -29,7 +32,7 @@ const imgSrc = [
   "'self'",
   "data:",
   "blob:",
-  ...(gaEnabled ? ["https://www.google-analytics.com"] : []),
+  ...(gaEnabled ? ["https://www.google-analytics.com", "https://*.google-analytics.com", "https://www.googletagmanager.com"] : []),
 ].join(" ");
 
 const nextConfig: NextConfig = {

@@ -5,6 +5,7 @@ import "@fontsource-variable/fraunces";
 import "./globals.css";
 import { PUBLIC_SITE_URL } from "@/lib/seo";
 import { ConsentAndAnalytics } from "@/components/consent-and-analytics";
+import { TrackPageView } from "@/components/analytics/track-page-view";
 
 const geistMono = localFont({
   variable: "--font-geist-mono",
@@ -70,6 +71,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistMono.variable}`}>
       <body className="min-h-screen antialiased">
         {children}
+        <TrackPageView />
         <ConsentAndAnalytics />
       </body>
     </html>

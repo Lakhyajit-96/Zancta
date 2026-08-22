@@ -30,6 +30,11 @@ describe("event contract", () => {
     expect(isValidEventName("DROP TABLE")).toBe(false);
   });
 
+  it("includes page_view as a client event", () => {
+    expect(ANALYTICS_EVENTS.page_view).toBe("page_view");
+    expect(CLIENT_ANALYTICS_EVENTS).toContain("page_view");
+  });
+
   it("ANALYTICS_EVENTS has acquisition events", () => {
     expect(ANALYTICS_EVENTS.page_view).toBe("page_view");
     expect(ANALYTICS_EVENTS.tool_catalog_view).toBe("tool_catalog_view");

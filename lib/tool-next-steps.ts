@@ -18,9 +18,9 @@ export const TOOL_NEXT_STEPS: Partial<Record<ToolSlug, ToolNextStep>> = {
     label: "PDF to Images",
   },
   "pdf-compress": {
-    prompt: "Working with images inside a new PDF?",
-    href: "/tools/images-to-pdf",
-    label: "Images to PDF",
+    prompt: "Need the text from that PDF?",
+    href: "/tools/pdf-text-extractor",
+    label: "PDF Text Extractor",
   },
   "pdf-to-images": {
     prompt: "Need a different image format?",
@@ -33,14 +33,14 @@ export const TOOL_NEXT_STEPS: Partial<Record<ToolSlug, ToolNextStep>> = {
     label: "Merge PDF",
   },
   "image-compress": {
+    prompt: "Need a different format after compressing?",
+    href: "/tools/image-convert",
+    label: "Convert Image",
+  },
+  "image-convert": {
     prompt: "Need exact pixel dimensions?",
     href: "/tools/image-resize",
     label: "Resize Image",
-  },
-  "image-convert": {
-    prompt: "Need to reduce image size?",
-    href: "/tools/image-compress",
-    label: "Compress Image",
   },
   "image-resize": {
     prompt: "Sharing the image? Strip camera metadata first.",
@@ -53,9 +53,9 @@ export const TOOL_NEXT_STEPS: Partial<Record<ToolSlug, ToolNextStep>> = {
     label: "Compress Image",
   },
   ocr: {
-    prompt: "Working with a scanned PDF?",
-    href: "/pricing",
-    label: "Local OCR Power",
+    prompt: "Working with a native-text PDF instead of a scan?",
+    href: "/tools/pdf-text-extractor",
+    label: "PDF Text Extractor",
   },
   "pdf-text-extractor": {
     prompt: "Is this a scanned PDF with no embedded text?",

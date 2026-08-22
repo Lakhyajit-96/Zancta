@@ -4,6 +4,7 @@ import { TEST_DATABASE_URL } from "./tests/postgres-url";
 
 export default defineConfig({
   testDir: "tests/e2e",
+  testIgnore: ["**/ga4-production.spec.ts"],
   timeout: 30000,
   use: { baseURL: "http://localhost:3001", trace: "on-first-retry" },
   projects: [
