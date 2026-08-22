@@ -38,7 +38,17 @@ export default function TermsPage() {
         <p>Tool availability, browser compatibility, input limits, and features can change. We may update these terms and product behavior as the service evolves. Material legal terms require a visible, legally reviewed update process before they should be treated as complete commercial terms.</p>
       </ContentSection>
       <ContentSection title="Ownership and unpublished legal terms" className="md:col-span-2">
-        <p>You retain rights in your files. ZANCTA retains rights in its branding, design, and software. The individual operator is named above; a company/entity identity, postal address, governing law, warranty disclaimer beyond this product description, and dispute-resolution forum are not stated here because those facts have not been provided for publication. See <Link href="/contact" className="underline">Contact</Link> and <Link href="/privacy" className="underline">Privacy</Link>.</p>
+        <p>You retain rights in your files. ZANCTA retains rights in its branding, design, and software. The individual operator is named above; a company/entity identity, postal address, governing law, warranty disclaimer beyond this product description, and dispute-resolution forum are not stated here because those facts have not been provided for publication or have not had professional legal review. See <Link href="/contact" className="underline">Contact</Link> and <Link href="/privacy" className="underline">Privacy</Link>.</p>
+      </ContentSection>
+      <ContentSection title="Disputes and consumer channels" className="md:col-span-2">
+        <p>
+          Card and billing disputes follow the process described on{" "}
+          <Link href="/refund-and-cancellation" className="underline">Refunds and cancellation</Link>. Independent of
+          anything ZANCTA publishes, Indian consumers can also use the government-run National Consumer Helpline
+          (1915) or file a complaint through the{" "}
+          <a href="https://consumeraffairs.nic.in/edaakhil" className="underline" rel="noopener noreferrer">e-Daakhil</a>{" "}
+          portal. These are general public channels, not a ZANCTA-specific promise or forum selection.
+        </p>
       </ContentSection>
     </ContentPage>
   );

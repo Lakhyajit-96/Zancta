@@ -54,6 +54,11 @@ export default function RefundAndCancellationPage() {
           Card chargebacks follow the customer’s issuer and card network. {LEGAL_PUBLIC.paymentProviderName} documents merchant response windows for disputes. A response-time SLA is not published.
         </p>
         <p>
+          Independent of ZANCTA, Indian consumers can use the government-run National Consumer Helpline (1915 /{" "}
+          <a href="https://consumerhelpline.gov.in" className="underline" rel="noopener noreferrer">consumerhelpline.gov.in</a>) or file at{" "}
+          <a href="https://consumeraffairs.nic.in/edaakhil" className="underline" rel="noopener noreferrer">e-Daakhil</a>. These are general public channels, not a ZANCTA-specific process.
+        </p>
+        <p>
           Related pages: <Link href="/pricing" className="underline">Pricing</Link>, <Link href="/terms" className="underline">Terms</Link>, <Link href="/privacy" className="underline">Privacy</Link>, <Link href="/contact" className="underline">Contact</Link>.
         </p>
       </ContentSection>

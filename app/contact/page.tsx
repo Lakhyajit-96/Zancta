@@ -116,6 +116,16 @@ export default function ContactPage() {
                 No company, registered office, or postal address is published. This page is prepared product disclosure,
                 not legal advice, and has not been lawyer-reviewed.
               </p>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                No &quot;Grievance Officer&quot; is designated under the Consumer
+                Protection (E-Commerce) Rules, 2020: that rule&apos;s duty applies to
+                e-commerce entities that the rule itself defines as incorporated
+                companies or equivalent foreign entities, which does not describe this
+                unincorporated, individual-operator site today. Any consumer can still
+                use India&apos;s government-run National Consumer Helpline (1915 /{" "}
+                <a href="https://consumerhelpline.gov.in" className="underline" rel="noopener noreferrer">consumerhelpline.gov.in</a>) or file at{" "}
+                <a href="https://consumeraffairs.nic.in/edaakhil" className="underline" rel="noopener noreferrer">e-Daakhil</a>, which exist independently of any ZANCTA designation.
+              </p>
             </div>
           </section>
         </section>

@@ -41,6 +41,25 @@ export default function PrivacyPage() {
       <ContentSection title="Retention and deletion">
         <p>ZANCTA does not retain selected file bytes for implemented local processing. Authenticated account deletion removes associated application account records through the account flow, after attempting to cancel any known Dodo subscription at period end. Payment rows may remain without a user id for billing reconciliation. {LEGAL_PUBLIC.paymentProviderName} retains customer, payment, subscription, and checkout records as Merchant of Record; ZANCTA cannot delete those provider records.</p>
       </ContentSection>
+      <ContentSection title="International users" className="md:col-span-2">
+        <p>
+          ZANCTA is reachable worldwide and prices only in Indian rupees, with no
+          EU-specific domain, language, or marketing. Under the General Data Protection
+          Regulation and UK GDPR, a non-EU/UK site is generally reached only where it
+          intentionally targets EU/UK-based visitors, not merely because the site is
+          accessible from there. Based on that standard, GDPR/UK GDPR do not currently
+          appear to apply to ZANCTA; that assessment would need to be revisited if
+          EU/UK-directed pricing or marketing is introduced.
+        </p>
+        <p>
+          The California Consumer Privacy Act and its amendments apply only to
+          businesses meeting a revenue or data-volume threshold (broadly, over roughly
+          $26 million in annual revenue, or buying/selling/sharing personal information
+          of 100,000 or more California consumers or households in a year). ZANCTA, as
+          an individual-operator product at its current scale, does not appear to meet
+          any of those thresholds.
+        </p>
+      </ContentSection>
       <ContentSection title="Contact for privacy questions" className="md:col-span-2">
         <p>
           Privacy questions: <a href={`mailto:${LEGAL_PUBLIC.privacyEmail}`} className="underline">{LEGAL_PUBLIC.privacyEmail}</a>.
@@ -49,7 +68,16 @@ export default function PrivacyPage() {
           Self-service pages: <Link href="/help" className="underline">Help</Link>, <Link href="/contact" className="underline">Contact</Link>, <Link href="/security" className="underline">Security</Link>.
         </p>
         <p>
-          India&apos;s Digital Personal Data Protection Rules, 2025 (MeitY), Rule 9, require a Data Fiduciary to publish business contact information for a person who can answer questions about processing of personal data. Whether and when those rules apply to this site is a legal question, not a product claim. No Data Protection Officer or grievance officer is designated here. This notice is not legal advice and has not been lawyer-reviewed.
+          India&apos;s Digital Personal Data Protection Act, 2023 and its 2025 Rules (MeitY)
+          were notified on a staggered timeline. The substantive Data Fiduciary
+          obligations — including Rule 9, which would require publishing contact
+          information for a person who can answer questions about personal-data
+          processing — are not yet in force; the government&apos;s notification sets
+          their commencement 18 months after notification, in mid-2027. Publishing{" "}
+          {LEGAL_PUBLIC.privacyEmail} as the privacy contact today is a voluntary step
+          taken ahead of that date, not a claim of present-day statutory designation. No
+          Data Protection Officer or grievance officer is designated here. This notice
+          is not legal advice and has not been lawyer-reviewed.
         </p>
       </ContentSection>
     </ContentPage>

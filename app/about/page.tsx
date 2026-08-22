@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Footer, Navigation } from "@/components/marketing/nav";
 import { ContentSection } from "@/components/marketing/content-page";
 import { MaskLines, Reveal, StaggerGroup, StaggerItem } from "@/components/marketing/motion";
@@ -108,8 +109,11 @@ export default function AboutPage() {
               <ContentSection title="Operator">
                 <p>
                   ZANCTA is operated by {LEGAL_PUBLIC.operatorName}, an individual operator. No company or registered
-                  entity is represented here, and no physical address is published until the owner supplies one for
-                  public use.
+                  entity is represented here. A public postal address is not published because, based on current
+                  research into the Consumer Protection (E-Commerce) Rules, 2020 and India&apos;s Digital Personal
+                  Data Protection Rules, 2025, neither rule&apos;s address-disclosure duty appears to reach this
+                  unincorporated, individual-operator structure today. See <Link href="/contact" className="underline">Contact</Link>{" "}
+                  for the reasoning and for how to reach a person.
                 </p>
               </ContentSection>
               <ContentSection title="Responsible scope" className="md:col-span-2">

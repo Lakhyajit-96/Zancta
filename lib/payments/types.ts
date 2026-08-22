@@ -14,7 +14,8 @@ export interface PlanConfig {
   providerProductId?: string;
 }
 
-export type CheckoutCurrency = "INR" | "USD";
+// INR is the only currency the configured Dodo products and checkout route use.
+export type CheckoutCurrency = "INR";
 
 export interface CreateCheckoutInput {
   userId: string;
@@ -83,17 +84,12 @@ export interface PaymentProvider {
   verifyWebhook(req: { rawBody: string; headers: Record<string, string | undefined> }): Promise<VerifyWebhookResult>;
 }
 
-export function getPlanPrice(planId: PlanId, currency: CheckoutCurrency): { amountMinor: number; display: string } {
-  // Canonical pricing — from Phase 9A gate approved pricing (see docs/PHASE9A_REPORT.md §F)
-  // These are display/reference only — provider charge is authoritative via Dodo product.
-  // Keep in one place to avoid scattered magic numbers.
-  if (planId === "PREMIUM_MONTHLY") {
-    if (currency === "INR") return { amountMinor: 19900, display: "₹199 / month" };
-    return { amountMinor: 500, display: "$5 / month" };
-  }
-  // annual
-  if (currency === "INR") return { amountMinor: 99900, display: "₹999 / year" };
-  return { amountMinor: 3900, display: "$39 / year" };
+export function getPlanPrice(planId: PlanId): { amountMinor: number; display: string } {
+  // Display/reference only — the provider charge shown at Dodo checkout is authoritative.
+  // Keep in one place to avoid scattered magic numbers. INR only: no other currency is
+  // configured on the live Dodo products (see lib/legal-public.ts).
+  if (planId === "PREMIUM_MONTHLY") return { amountMinor: 19900, display: "₹199 / month" };
+  return { amountMinor: 99900, display: "₹999 / year" };
 }
 
 export const PLAN_IDS: PlanId[] = ["PREMIUM_MONTHLY", "PREMIUM_ANNUAL"];
