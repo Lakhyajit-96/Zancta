@@ -1,18 +1,14 @@
+import { allIndexablePaths, assertIndexableUrl, canonicalSitemapUrl } from "@/lib/seo/public-urls";
+
 const ALLOWED_HOST = "zancta.tech";
-const PRIVATE_PREFIXES = [
-  "/api/",
-  "/account",
-  "/signin",
-  "/signup",
-  "/verify-email",
-  "/forgot-password",
-  "/reset-password",
-];
 const MAX_URLS = 20;
+/** Official IndexNow key charset: 8–128 chars, A–Z a–z 0–9 hyphen. */
+const INDEXNOW_KEY_RE = /^[A-Za-z0-9-]{8,128}$/;
+const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
 
 export function getIndexNowKey(): string | null {
   const key = process.env.INDEXNOW_KEY?.trim();
-  if (!key || !/^[a-f0-9]{8,128}$/i.test(key)) return null;
+  if (!key || !INDEXNOW_KEY_RE.test(key)) return null;
   return key;
 }
 
@@ -36,6 +32,10 @@ export function indexNowKeyFileResponse(pathname: string): { body: string; heade
   return { body: key, headers: { ...INDEXNOW_KEY_FILE_HEADERS } };
 }
 
+function canonicalPublicUrlSet(): Set<string> {
+  return new Set(allIndexablePaths().map((path) => canonicalSitemapUrl(path)));
+}
+
 export function isAllowedIndexNowUrl(raw: string): boolean {
   let parsed: URL;
   try {
@@ -47,10 +47,11 @@ export function isAllowedIndexNowUrl(raw: string): boolean {
   if (parsed.username || parsed.password) return false;
   if (parsed.port) return false;
   if (parsed.hostname !== ALLOWED_HOST) return false;
-  const path = parsed.pathname || "/";
-  if (PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`) || path === p)) return false;
-  if (path.startsWith("/api")) return false;
-  return true;
+  parsed.hash = "";
+  parsed.search = "";
+  const href = parsed.toString();
+  if (!assertIndexableUrl(href)) return false;
+  return canonicalPublicUrlSet().has(href);
 }
 
 export function sanitizeIndexNowUrls(urls: unknown): string[] {
@@ -62,6 +63,7 @@ export function sanitizeIndexNowUrls(urls: unknown): string[] {
     if (!isAllowedIndexNowUrl(item)) continue;
     const canonical = new URL(item);
     canonical.hash = "";
+    canonical.search = "";
     const href = canonical.toString();
     if (seen.has(href)) continue;
     seen.add(href);
@@ -87,7 +89,7 @@ export async function notifyIndexNow(urls: string[]): Promise<{ ok: boolean; sta
   const payload = buildIndexNowPayload(urls);
   if (!payload) return { ok: false, status: 503, accepted: 0 };
   if (payload.urlList.length === 0) return { ok: false, status: 400, accepted: 0 };
-  const res = await fetch("https://api.indexnow.org/indexnow", {
+  const res = await fetch(INDEXNOW_ENDPOINT, {
     method: "POST",
     headers: { "content-type": "application/json; charset=utf-8" },
     body: JSON.stringify(payload),
@@ -98,3 +100,5 @@ export async function notifyIndexNow(urls: string[]): Promise<{ ok: boolean; sta
 export function allowedIndexNowHost(): string {
   return ALLOWED_HOST;
 }
+
+export const INDEXNOW_MAX_URLS = MAX_URLS;

@@ -1,15 +1,17 @@
 /**
- * Load INDEXNOW_* from a Vercel env-pull file without printing secrets,
- * then run scripts/submit-indexnow-batch.mjs.
+ * Load INDEXNOW_KEY from a Vercel env-pull file without printing secrets,
+ * then run the official IndexNow submit script.
  *
- * Usage: node scripts/run-indexnow-from-envfile.mjs <envfile> <prior|new>
+ * INDEXNOW_NOTIFY_SECRET is not required for the official protocol.
+ *
+ * Usage: node scripts/run-indexnow-from-envfile.mjs <envfile> <guides|prior|new>
  */
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const envFile = process.argv[2];
-const batch = process.argv[3];
-if (!envFile || (batch !== "prior" && batch !== "new")) {
+const batch = process.argv[3] || "guides";
+if (!envFile || (batch !== "prior" && batch !== "new" && batch !== "guides")) {
   console.log(JSON.stringify({ ok: false, reason: "usage: envfile batch" }));
   process.exit(1);
 }
@@ -43,33 +45,21 @@ function parseDotenv(text) {
 }
 
 const parsed = parseDotenv(decodeEnvFile(readFileSync(envFile)));
-const names = Object.keys(parsed);
-const needed = ["INDEXNOW_KEY", "INDEXNOW_NOTIFY_SECRET"];
-const present = Object.fromEntries(needed.map((name) => [name, Boolean(parsed[name])]));
+const key = parsed.INDEXNOW_KEY?.trim() ?? "";
 
-if (!parsed.INDEXNOW_KEY || !parsed.INDEXNOW_NOTIFY_SECRET) {
-  const indexNowKeys = names
-    .filter((name) => /indexnow/i.test(name))
-    .map((name) => ({
-      name: JSON.stringify(name),
-      valueLen: (parsed[name] || "").length,
-    }));
+if (!key) {
   console.log(JSON.stringify({
     ok: false,
-    reason: "parsed env file missing IndexNow vars",
-    present,
-    nameCount: names.length,
-    indexNowKeys,
+    reason: "parsed env file missing INDEXNOW_KEY",
+    keyPresent: false,
   }));
   process.exit(1);
 }
 
-const result = spawnSync(process.execPath, ["scripts/submit-indexnow-batch.mjs", batch], {
+const result = spawnSync(process.execPath, ["scripts/submit-indexnow-direct.mjs", batch], {
   env: {
     ...process.env,
-    INDEXNOW_KEY: parsed.INDEXNOW_KEY,
-    INDEXNOW_NOTIFY_SECRET: parsed.INDEXNOW_NOTIFY_SECRET,
-    PAYMENTS_LIVE_ENABLED: parsed.PAYMENTS_LIVE_ENABLED ?? process.env.PAYMENTS_LIVE_ENABLED ?? "",
+    INDEXNOW_KEY: key,
   },
   encoding: "utf8",
   cwd: process.cwd(),

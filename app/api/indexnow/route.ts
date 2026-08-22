@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getClientIp, rateLimitAsync } from "@/lib/rate-limit";
 import { notifyIndexNow, sanitizeIndexNowUrls } from "@/lib/indexnow";
 
+/**
+ * Internal operator endpoint. INDEXNOW_NOTIFY_SECRET is ZANCTA authorization,
+ * not the IndexNow protocol key. Official submissions use INDEXNOW_KEY via
+ * scripts/submit-indexnow-direct.mjs → https://api.indexnow.org/indexnow
+ */
 export async function POST(req: NextRequest) {
   const secret = process.env.INDEXNOW_NOTIFY_SECRET;
   if (!secret) return NextResponse.json({ error: "Not configured" }, { status: 503 });
