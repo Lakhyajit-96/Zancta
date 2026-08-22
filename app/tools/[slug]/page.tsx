@@ -2,6 +2,7 @@ import { LayoutChrome } from "@/components/layout/chrome";
 import { getTool, relatedToolsFor, TOOLS } from "@/lib/tools";
 import { buildMetadata, jsonLdBreadcrumbList, jsonLdSoftwareApp } from "@/lib/seo";
 import { ToolShell } from "@/components/ui/tool-shell";
+import { TrackView } from "@/components/analytics/track-view";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -50,6 +51,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
       </section>
 
       <main className="mx-auto max-w-[80rem] px-5 pb-20 pt-10 md:px-8 md:pt-12">
+        {tool.available && <TrackView event="tool_view" params={{ tool: tool.slug }} />}
         <ToolShell tool={tool} />
 
         {related.length > 0 && (

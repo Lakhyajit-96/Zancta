@@ -32,7 +32,7 @@ function SignupInner({ google, github }: { google: boolean; github: boolean }) {
         setWarn(data.message || "Account created, but the verification email could not be sent yet.");
         setTimeout(() => router.push("/verify-email"), 2500);
       }
-      else { setOk(data.message || "If this email can receive messages from ZANCTA, check your inbox for next steps."); try { const { trackEvent } = await import("@/components/consent-and-analytics"); trackEvent("signup"); } catch {} setTimeout(() => router.push("/signin"), 1500); }
+      else { setOk(data.message || "If this email can receive messages from ZANCTA, check your inbox for next steps."); try { const { trackEvent } = await import("@/lib/analytics/tracker"); trackEvent("signup_completed", { method: "credentials" }); } catch {} setTimeout(() => router.push("/signin"), 1500); }
     } catch { setError("Network error. Please try again."); }
     setLoading(false);
   };

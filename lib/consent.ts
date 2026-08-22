@@ -26,6 +26,10 @@ export function isGaMeasurementId(id: string | undefined): boolean {
 export const ALLOWED_ANALYTICS_EVENTS = ["tool_used", "signup", "subscription_start", "subscription_cancel"] as const;
 export type AnalyticsEvent = (typeof ALLOWED_ANALYTICS_EVENTS)[number];
 
+/**
+ * @deprecated Use `sanitizeClientParams` from `lib/analytics/events` instead.
+ * Kept for backward compatibility with ConsentAndAnalytics component.
+ */
 export function sanitizeAnalyticsParams(event: AnalyticsEvent, params?: Record<string, unknown>): Record<string, string> {
   const out: Record<string, string> = {};
   if (event === "tool_used" && typeof params?.tool === "string" && /^[a-z0-9-]{1,64}$/.test(params.tool)) {

@@ -1,6 +1,7 @@
 import { LayoutChrome } from "@/components/layout/chrome";
 import { MaskLines } from "@/components/marketing/motion";
 import { PricingClient } from "./pricing-client";
+import { TrackView } from "@/components/analytics/track-view";
 import { pageMeta } from "@/lib/seo";
 import { isLivePaymentsEnabled } from "@/lib/payments/live";
 
@@ -15,6 +16,7 @@ export default function PricingPage() {
   const checkoutLive = isLivePaymentsEnabled();
   return (
     <LayoutChrome showNav={true} showFooter={true}>
+      <TrackView event="pricing_view" />
       <main>
         <section className="relative overflow-hidden border-b border-border">
           <div className="relative mx-auto max-w-[80rem] px-5 py-16 md:px-8 md:py-20">

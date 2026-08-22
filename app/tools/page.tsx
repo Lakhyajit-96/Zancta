@@ -1,7 +1,7 @@
 import { LayoutChrome } from "@/components/layout/chrome";
 import { ToolGrid } from "@/components/marketing/tool-grid";
 import { MaskLines, Reveal } from "@/components/marketing/motion";
-
+import { TrackView } from "@/components/analytics/track-view";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/tools", {
@@ -12,6 +12,7 @@ export const metadata = pageMeta("/tools", {
 export default function ToolsPage() {
   return (
     <LayoutChrome showNav={true} showFooter={true}>
+      <TrackView event="tool_catalog_view" />
       <main>
       <section className="border-b border-border">
         <div className="mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-16">

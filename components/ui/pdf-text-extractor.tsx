@@ -74,6 +74,10 @@ export function PdfTextExtractor() {
       if (id !== String(runIdRef.current)) return;
       const worker = new Worker(new URL("../../workers/pdf-text.worker.ts", import.meta.url));
       workerRef.current = worker;
+      void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+        trackEvent("processing_started", { tool: "pdf-text-extractor" });
+      }).catch(() => {});
+
       worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
         const message = event.data;
         if (message.id !== id || id !== String(runIdRef.current)) return;
@@ -92,6 +96,10 @@ export function PdfTextExtractor() {
           disposeWorker();
           setDetail("Embedded text extracted locally.");
           setStatus("completed");
+          void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+            trackEvent("processing_completed", { tool: "pdf-text-extractor" });
+            trackEvent("tool_used", { tool: "pdf-text-extractor" });
+          }).catch(() => {});
         } else if (message.type === "failed") {
           disposeWorker();
           setError(message.message);
@@ -141,6 +149,9 @@ export function PdfTextExtractor() {
   const download = () => {
     if (!file) return;
     downloadBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), pdfTextOutputName(file.name));
+    void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+      trackEvent("download_completed", { tool: "pdf-text-extractor" });
+    }).catch(() => {});
   };
 
   return (

@@ -135,6 +135,10 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
     startJobTimeout();
 
+    void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+      trackEvent("processing_started", { tool: tool.slug });
+    }).catch(() => {});
+
     // Create worker - try with fallback to main thread if worker fails
     try {
       workerRef.current?.terminate();
@@ -199,12 +203,17 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
           const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
           setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed");
           clearJobTimeout();
-          void import("@/components/consent-and-analytics").then(({ trackEvent }) => {
+          void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+            trackEvent("processing_completed", { tool: tool.slug });
             trackEvent("tool_used", { tool: tool.slug });
           }).catch(() => {});
         } catch (err) {
           if (cancelledRef.current || idRef.current !== id) { clearJobTimeout(); return; }
-          setErrors([(err as Error).message]); setStatus("failed"); clearJobTimeout(); return;
+          setErrors([(err as Error).message]); setStatus("failed"); clearJobTimeout();
+          void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+            trackEvent("processing_failed", { tool: tool.slug, error_category: "processing" });
+          }).catch(() => {});
+          return;
         }
         return;
       }
@@ -233,8 +242,8 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         if (msg.meta) setMeta(msg.meta);
         worker.terminate();
         workerRef.current = null;
-        // Privacy-safe product event: tool slug only, and only after analytics consent.
-        void import("@/components/consent-and-analytics").then(({ trackEvent }) => {
+        void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+          trackEvent("processing_completed", { tool: tool.slug });
           trackEvent("tool_used", { tool: tool.slug });
         }).catch(() => {});
       } else if (msg.status === "failed" || msg.status === "aborted") {
@@ -243,6 +252,9 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         setErrors([msg.message || "Processing failed", msg.hint || ""].filter(Boolean));
         worker.terminate();
         workerRef.current = null;
+        void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+          trackEvent(msg.status === "aborted" ? "processing_cancelled" : "processing_failed", { tool: tool.slug });
+        }).catch(() => {});
       }
     };
     worker.onerror = () => {
@@ -432,7 +444,12 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
                 <li key={i} className="flex items-center justify-between rounded-md border border-border bg-elevated px-3.5 py-2.5">
                   <span className="text-sm truncate pr-3">{r.name} — {(r.blob.size / 1024).toFixed(1)} KB</span>
                   <button
-                    onClick={() => downloadBlob(r.blob, r.name)}
+                    onClick={() => {
+                      downloadBlob(r.blob, r.name);
+                      void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+                        trackEvent("download_completed", { tool: tool.slug });
+                      }).catch(() => {});
+                    }}
                     className="premium-button premium-button-primary min-h-8 shrink-0 px-3 text-xs"
                   >
                     Download

@@ -8,6 +8,7 @@ import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
 import { getAppOrigin } from "@/lib/seo";
 import { isLocalDevRequest } from "@/lib/dev-only";
+import { recordProductEvent } from "@/lib/analytics/server-events";
 
 async function createAndSendVerification(userId: string, email: string): Promise<{ ok: boolean; plainToken: string }> {
   // Replace any stale tokens for this account, then issue a fresh one-time
@@ -89,6 +90,7 @@ export async function POST(req: NextRequest) {
 
     stage = "audit";
     await auditEvent({ userId: user.id, action: "signup", targetId: user.id, ip, userAgent: req.headers.get("user-agent") });
+    await recordProductEvent({ event: "signup_completed", userId: user.id, metadata: { method: "credentials" }, ip });
 
     // Dev token exposure only outside any Vercel environment (local E2E without Resend).
     const allowDevToken = isLocalDevRequest(req);

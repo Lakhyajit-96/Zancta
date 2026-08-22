@@ -6,6 +6,7 @@ import type { PlanId } from "@/lib/payments/types";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { getEntitlement } from "@/lib/entitlement";
+import { recordProductEvent } from "@/lib/analytics/server-events";
 
 export async function GET() {
   return NextResponse.json({ live: isLivePaymentsEnabled() });
@@ -114,6 +115,12 @@ export async function POST(req: NextRequest) {
       ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
       userAgent: req.headers.get("user-agent") || undefined,
     } as Parameters<typeof auditEvent>[0]);
+
+    await recordProductEvent({
+      event: "checkout_started",
+      userId: liveUser.id,
+      metadata: { plan: planId },
+    });
 
     return NextResponse.json({ checkoutUrl: result.checkoutUrl, providerCheckoutId: result.providerCheckoutId });
   } catch (e) {

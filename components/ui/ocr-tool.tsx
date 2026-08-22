@@ -60,6 +60,10 @@ export function OcrTool() {
       return;
     }
 
+    void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+      trackEvent("processing_started", { tool: "ocr" });
+    }).catch(() => {});
+
     try {
       setStatus("loading");
       setDetail("Loading local OCR engine…");
@@ -83,6 +87,10 @@ export function OcrTool() {
       setDetail("Text extracted locally.");
       setStatus("completed");
       await disposeWorker();
+      void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+        trackEvent("processing_completed", { tool: "ocr" });
+        trackEvent("tool_used", { tool: "ocr" });
+      }).catch(() => {});
     } catch (caught) {
       if (runId !== runIdRef.current) return;
       setError(caught instanceof Error ? caught.message : "OCR could not process this image.");
@@ -111,6 +119,9 @@ export function OcrTool() {
   const download = () => {
     if (!file) return;
     downloadBlob(new Blob([text], { type: "text/plain;charset=utf-8" }), ocrOutputName(file.name));
+    void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+      trackEvent("download_completed", { tool: "ocr" });
+    }).catch(() => {});
   };
 
   const working = status === "validating" || status === "loading" || status === "processing";

@@ -8,6 +8,7 @@ import { auditEvent } from "@/lib/audit";
 import { deriveFromSubscription, isStaleEvent } from "@/lib/payments/billing-state";
 import { revokeToFree, syncEntitlement } from "@/lib/payments/entitlement-sync";
 import { notifyBillingEvent } from "@/lib/email/billing-notify";
+import { recordProductEvent } from "@/lib/analytics/server-events";
 
 const TERMINAL_SUCCESS = new Set(["succeeded", "processed", "duplicate"]);
 const STALE_PROCESSING_MS = 2 * 60 * 1000;
@@ -516,6 +517,17 @@ export async function processVerifiedDodoEvent(input: {
       currentPeriodEnd: cpe,
       cancelAtPeriodEnd: cancelAtEnd,
     });
+
+    const et = eventType.toLowerCase();
+    if (et === "subscription.active") {
+      await recordProductEvent({ event: "subscription_active", userId, metadata: { plan: planFromMeta || "unknown" } });
+    } else if (et.includes("subscription.cancelled") || et === "subscription_cancelled" || et === "subscription.canceled") {
+      await recordProductEvent({ event: "subscription_cancelled", userId, metadata: { plan: planFromMeta || "unknown" } });
+    } else if (et.includes("payment.failed") || et === "payment_failed") {
+      await recordProductEvent({ event: "payment_failed", userId });
+    } else if (et.includes("refund.succeeded") || et === "refund_succeeded") {
+      await recordProductEvent({ event: "refund_completed", userId });
+    }
 
     await markSucceeded(webhookId);
     return { ok: true };
