@@ -78,6 +78,19 @@ export default async function GrowthDashboard() {
         </div>
       </Section>
 
+      <Section title="Search indexing">
+        <p className="text-sm text-muted-foreground">
+          Google Search Console and Bing Webmaster are not connected to this dashboard.
+          IndexNow submissions are operator-triggered, not a live feed. Do not read empty cells as zero impressions.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat label="Search Console" value="—" sub="Baseline not established" />
+          <Stat label="Bing Webmaster" value="—" sub="Baseline not established" />
+          <Stat label="IndexNow" value="—" sub="Not a ranking signal" />
+          <Stat label="Indexed URLs" value="—" sub="Do not infer from sitemap submit" />
+        </div>
+      </Section>
+
       {/* Traffic / Users */}
       <Section title="Users">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
