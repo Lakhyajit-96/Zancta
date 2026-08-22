@@ -30,6 +30,9 @@ NEXTAUTH_URL=https://zancta.tech
 - Hosted SVG Tiny PS: `https://zancta.tech/assets/zancta-brand/bimi/zancta-bimi.svg`
 - Do not publish `default._bimi.zancta.tech` while apex DMARC is `p=none`.
 - Do not buy a VMC/CMC without explicit owner authorization.
+- Full diagnosis of the inbox sender-avatar gap (why the working HTML logo does not
+  control it, current SPF/DKIM/DMARC state, exact DNS/certificate path, and current
+  VMC/CMC cost ranges): see `docs/EMAIL_SENDER_IDENTITY_BIMI.md`.
 
 **DNS (do not overwrite working Hostinger MX):**
 - Apex MX: Hostinger (`mx1.hostinger.com`, `mx2.hostinger.com`)
