@@ -186,7 +186,7 @@ body {
   transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
 }
 
-.premium-button::after {
+.premium-button-sheen::after {
   position: absolute;
   inset: 1px;
   z-index: -1;
@@ -202,7 +202,7 @@ body {
   transform: translateY(-1px);
 }
 
-.premium-button:hover:not(:disabled)::after {
+.premium-button-sheen:hover:not(:disabled)::after {
   opacity: 1;
   transform: translateX(35%);
 }
@@ -329,6 +329,45 @@ body {
   box-shadow: 0 0 0 3px rgba(232, 160, 180, 0.14);
 }
 
+.field-range {
+  appearance: none;
+  height: 0.35rem;
+  cursor: pointer;
+  border-radius: 999px;
+  background: var(--muted);
+  accent-color: var(--accent);
+}
+
+.field-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent-foreground);
+  background: var(--accent);
+}
+
+.field-range:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4.5rem;
+  z-index: 100;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  padding: 0.65rem 1rem;
+  color: var(--foreground);
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
 /* Editorial section counters for ContentPage bodies */
 .content-sections {
   counter-reset: cs;
@@ -382,7 +421,7 @@ body {
     scroll-behavior: auto !important;
   }
 
-  .premium-button::after { display: none; }
+  .premium-button-sheen::after { display: none; }
   .anim-node-pulse, .anim-dash-flow { animation: none !important; }
   .aperture-active { animation: none !important; }
 }

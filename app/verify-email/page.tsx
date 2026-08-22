@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { AuthShell } from "@/components/marketing/auth-shell";
+import { AuthLoading, AuthShell } from "@/components/marketing/auth-shell";
 import { EnvelopeVisual } from "@/components/marketing/visuals";
 
 function ResendForm() {
@@ -145,7 +145,7 @@ function VerifyInner() {
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<main className="min-h-screen px-6 py-20 text-center text-sm text-muted-foreground">Loading verification…</main>}>
+    <Suspense fallback={<AuthLoading title="Loading verification." />}>
       <VerifyInner />
     </Suspense>
   );

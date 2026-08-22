@@ -62,12 +62,12 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
       <StaggerGroup className="mt-10 grid gap-6 lg:grid-cols-3">
         <StaggerItem className="h-full">
           <section className="card-surface flex h-full flex-col p-6 md:p-8">
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-sm font-semibold">Free</h3>
-              <span className="text-xs text-muted-foreground">No account needed</span>
+              <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-success">Available now</span>
             </div>
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹0</p>
-            <p className="mt-1 text-xs text-muted-foreground">INR · forever</p>
+            <p className="mt-1 text-xs text-muted-foreground">INR · forever · no account needed</p>
             <ul className="mt-7 space-y-2.5 text-sm leading-6 text-muted-foreground">
               {FREE_BENEFITS.map((item) => (
                 <li key={item} className="flex gap-2.5"><span aria-hidden className="text-platinum">✓</span> {item}</li>
@@ -81,14 +81,14 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
         <StaggerItem className="h-full">
           <section
-            className={`card-surface flex h-full flex-col p-6 md:p-8 ${!annual ? "border-border-strong" : ""}`}
+            className="card-surface flex h-full flex-col p-6 md:p-8"
           >
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-sm font-semibold">Premium Monthly</h3>
               {checkoutLive ? (
                 <span className="text-xs text-muted-foreground">₹199 INR / month</span>
               ) : (
-                <span className="text-xs text-warning">Not available yet</span>
+                <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">Forthcoming</span>
               )}
             </div>
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹199</p>
@@ -117,11 +117,15 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
 
         <StaggerItem className="h-full">
           <section
-            className={`card-surface relative flex h-full flex-col overflow-hidden p-6 md:p-8 ${annual ? "border-border-strong" : ""}`}
+            className={`card-surface relative flex h-full flex-col overflow-hidden p-6 md:p-8 ${checkoutLive && annual ? "border-border-strong" : ""}`}
           >
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-sm font-semibold">Premium Annual</h3>
-              <span className="text-xs text-muted-foreground">₹999 INR / year</span>
+              {checkoutLive ? (
+                <span className="text-xs text-muted-foreground">₹999 INR / year</span>
+              ) : (
+                <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">Forthcoming</span>
+              )}
             </div>
             <p className="font-display mt-6 text-5xl font-semibold tracking-[-0.02em]">₹999</p>
             <p className="mt-1 text-xs text-muted-foreground">/year · saves ₹1,389 versus 12 × ₹199</p>

@@ -62,12 +62,13 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
               </div>
             </dl>
           )}
-          <div className="mt-8 flex flex-wrap gap-2">
-              <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${tool.processingType === "bg" ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success"}`}>
-              <span aria-hidden className={`h-2 w-2 rounded-full ${tool.processingType === "bg" ? "bg-warning" : "bg-success"}`} /> {tool.processingType === "bg" ? "Deferred — no model" : "Local — no upload"}
-            </span>
-            <span className="text-xs text-muted-foreground">Supports: {tool.supportedFormats.join(", ")} · Max {Math.round(tool.maxFileSize / 1024 / 1024)}MB/file · {tool.maxFiles} files</span>
-          </div>
+          {!tool.available && (
+            <div className="mt-8">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning">
+                <span aria-hidden className="h-2 w-2 rounded-full bg-warning" /> Deferred — no model
+              </span>
+            </div>
+          )}
         </div>
       </section>
 

@@ -9,7 +9,8 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#0b0b0c] px-5 py-16 text-[#f4f0eb]">
-        <main className="mx-auto max-w-[40rem]">
+        <a href="#main-content" style={{ position: "absolute", left: "1rem", top: "0.75rem", transform: "translateY(-160%)" }}>Skip to main content</a>
+        <main id="main-content" tabIndex={-1} className="mx-auto max-w-[40rem]">
           <p className="text-xs uppercase tracking-[0.16em] text-[#8f8a8a]">Something went wrong</p>
           <h1 className="mt-4 text-3xl font-medium">ZANCTA could not load this page.</h1>
           <p className="mt-4 text-sm leading-7 text-[#c8c4c2]">

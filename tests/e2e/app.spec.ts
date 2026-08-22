@@ -11,7 +11,7 @@ test("tools page lists tools", async ({ page }) => {
 });
 test("tool shell validates HEIC", async ({ page }) => {
   await page.goto("/tools/image-compress");
-  await expect(page.getByText("Local — no upload")).toBeVisible();
+  await expect(page.getByText("Processed in this tab. File bytes are not uploaded.")).toBeVisible();
 });
 test("navigation accessible", async ({ page }) => {
   await page.goto("/");

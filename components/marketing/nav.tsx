@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PRIMARY_LINKS = [
   { href: "/tools", label: "Tools" },
@@ -9,17 +9,66 @@ const PRIMARY_LINKS = [
   { href: "/help", label: "Help" },
 ];
 
+const FOCUSABLE = "a[href], button:not([disabled])";
+
 export function Navigation() {
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
+  const wasOpen = useRef(false);
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const menu = menuRef.current;
+    const firstLink = menu?.querySelector<HTMLElement>(FOCUSABLE);
+    firstLink?.focus();
+
+    const focusables = () => {
+      const items: HTMLElement[] = [];
+      if (toggleRef.current) items.push(toggleRef.current);
+      menu?.querySelectorAll<HTMLElement>(FOCUSABLE).forEach((node) => items.push(node));
+      return items;
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      wasOpen.current = true;
+      return;
+    }
+    if (wasOpen.current) {
+      toggleRef.current?.focus();
+      wasOpen.current = false;
+    }
   }, [open]);
 
   useEffect(() => {
@@ -79,6 +128,7 @@ export function Navigation() {
             Open a tool <span aria-hidden>→</span>
           </Link>
           <button
+            ref={toggleRef}
             type="button"
             className="grid h-11 w-11 place-items-center rounded-md border border-border-strong bg-surface text-sm transition-colors hover:bg-surface-hover lg:hidden"
             aria-expanded={open}
@@ -103,6 +153,7 @@ export function Navigation() {
 
       {open && (
         <nav
+          ref={menuRef}
           id="mobile-navigation"
           aria-label="Primary"
           className="absolute inset-x-4 top-[4.25rem] rounded-xl border border-border-strong bg-surface p-3 text-sm shadow-2xl lg:hidden"
@@ -165,12 +216,6 @@ const FOOTER_COLUMNS: { title: string; links: { href: string; label: string }[] 
     title: "Resources",
     links: [
       { href: "/guides/local-processing", label: "Local processing" },
-      { href: "/guides/merge-pdf-without-uploading", label: "Merge PDFs locally" },
-      { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
-      { href: "/guides/browser-ocr-without-uploading", label: "Browser OCR" },
-      { href: "/guides/compress-pdf-without-uploading", label: "Compress PDFs locally" },
-      { href: "/guides/split-pdf-without-uploading", label: "Split PDFs locally" },
-      { href: "/guides/remove-exif-before-sharing", label: "Remove EXIF" },
       { href: "/help", label: "Help" },
       { href: "/faq", label: "FAQ" },
       { href: "/security", label: "Security" },

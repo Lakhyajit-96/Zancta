@@ -1,26 +1,7 @@
 import Link from "next/link";
 import { TOOLS } from "@/lib/tools";
 import { MaskLines } from "@/components/marketing/motion";
-
-const CATEGORIES = [
-  { title: "PDF tools", detail: "Merge, split, compress, convert pages, and build PDFs from images." },
-  { title: "Image tools", detail: "Compress, convert, resize, and clean metadata." },
-  { title: "Extract tools", detail: "OCR for images and embedded text extraction from PDFs." },
-  { title: "Other tools", detail: "Background removal is clearly marked deferred while licensing is verified." },
-];
-
-function categorySlugs(index: number): string[] {
-  switch (index) {
-    case 0:
-      return ["pdf-merge", "pdf-split", "pdf-compress", "pdf-to-images", "images-to-pdf"];
-    case 1:
-      return ["image-compress", "image-convert", "image-resize", "exif-cleaner"];
-    case 2:
-      return ["ocr", "pdf-text-extractor"];
-    default:
-      return ["background-remover"];
-  }
-}
+import { ToolGrid } from "@/components/marketing/tool-grid";
 
 export function ToolEcosystemSection() {
   return (
@@ -37,27 +18,8 @@ export function ToolEcosystemSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map((category, index) => (
-            <article key={category.title} className="card-surface flex h-full flex-col p-5">
-              <h3 className="text-sm font-semibold">{category.title}</h3>
-              <p className="mt-2 text-xs leading-6 text-muted-foreground">{category.detail}</p>
-              <ul className="mt-4 space-y-1.5 border-t border-border pt-4 text-xs text-muted-foreground">
-                {categorySlugs(index).map((slug) => {
-                  const tool = TOOLS.find((t) => t.slug === slug);
-                  if (!tool) return null;
-                  return (
-                    <li key={slug}>
-                      <Link href={`/tools/${slug}`} className="transition-colors hover:text-accent-soft">
-                        {tool.name}
-                        {!tool.available && <span className="ml-1.5 text-warning">· deferred</span>}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </article>
-          ))}
+        <div className="mt-12">
+          <ToolGrid />
         </div>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
@@ -65,12 +27,8 @@ export function ToolEcosystemSection() {
             Explore all tools <span aria-hidden>→</span>
           </Link>
           <p className="text-sm text-muted-foreground">
-            Walkthroughs:{" "}
-            <Link href="/guides/compress-pdf-without-uploading" className="underline underline-offset-4 hover:text-foreground">compress PDF</Link>
-            {", "}
-            <Link href="/guides/split-pdf-without-uploading" className="underline underline-offset-4 hover:text-foreground">split PDF</Link>
-            {", "}
-            <Link href="/guides/remove-exif-before-sharing" className="underline underline-offset-4 hover:text-foreground">remove EXIF</Link>
+            Walkthroughs live in{" "}
+            <Link href="/help" className="underline underline-offset-4 hover:text-foreground">Help</Link>
             {" · "}
             <Link href="/guides/local-processing" className="underline underline-offset-4 hover:text-foreground">local processing</Link>
           </p>

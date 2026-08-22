@@ -15,11 +15,9 @@ export function AuthShell({
   reassurance: string;
 }) {
   return (
-    <main className="relative isolate flex min-h-screen flex-col overflow-hidden px-5 py-12 md:px-8 md:py-16">
-      {/* Quiet backdrop: one neutral atmosphere, a fading grid, platinum floor. */}
+    <main id="main-content" tabIndex={-1} className="relative isolate flex min-h-screen flex-col overflow-hidden px-5 py-12 md:px-8 md:py-16">
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-12%,rgba(201,196,192,0.06),transparent_34rem)]" />
       <div aria-hidden className="editorial-grid pointer-events-none absolute inset-x-0 top-0 -z-10 h-[26rem] opacity-25" />
-      <div aria-hidden className="perspective-floor pointer-events-none absolute inset-x-0 top-44 -z-10 h-44 opacity-25" />
 
       <div className="mx-auto w-full max-w-[26.5rem]">
         <Reveal>
@@ -49,5 +47,20 @@ export function AuthShell({
         Local processing for implemented tools — selected file bytes are not uploaded for processing.
       </p>
     </main>
+  );
+}
+
+export function AuthLoading({ title }: { title: string }) {
+  return (
+    <AuthShell
+      eyebrow="ZANCTA"
+      title={title}
+      description="Preparing this page."
+      reassurance="Sign-in is not required to process local files."
+    >
+      <p className="text-sm text-muted-foreground" role="status" aria-live="polite">
+        Loading…
+      </p>
+    </AuthShell>
   );
 }

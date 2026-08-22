@@ -132,7 +132,7 @@ export function ZanctaHero() {
             ))}
           </motion.ul>
           <motion.div {...fade(0.36)} className="flex flex-wrap gap-3">
-            <Link href="/tools" className="premium-button premium-button-primary px-6">
+            <Link href="/tools" className="premium-button premium-button-primary premium-button-sheen px-6">
               Choose a tool <span aria-hidden>→</span>
             </Link>
             <Link href="/how-it-works" className="premium-button premium-button-secondary px-6">

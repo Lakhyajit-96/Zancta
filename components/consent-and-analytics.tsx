@@ -89,7 +89,7 @@ export function ConsentAndAnalytics() {
     <aside
       role="region"
       aria-labelledby="consent-title"
-      className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg rounded-lg border border-border bg-surface p-4 text-sm shadow-lg md:left-auto md:right-5"
+      className="card-surface fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-lg p-4 text-sm shadow-[0_18px_44px_rgba(0,0,0,0.35)] md:left-auto md:right-5"
     >
       <p id="consent-title" className="font-medium text-foreground">
         Optional analytics

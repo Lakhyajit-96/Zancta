@@ -49,17 +49,16 @@ test.describe("Image advanced gates", () => {
       await cancel.click({ force: true }).catch(() => {});
       // Either cancellation registered or the tiny job completed first — both
       // are valid terminal states; a stuck processing indicator would fail.
-      await expect(page.getByText(/Cancelled|aborted|Completed/i).first()).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/Cancelled|aborted|Result ready|Completed/i).first()).toBeVisible({ timeout: 10000 });
       if (await page.getByText(/Cancelled|aborted/i).first().isVisible().catch(() => false)) {
-        // Ensure no Completed with downloads after cancel
         await page.waitForTimeout(1000);
-        const completedVisible = await page.getByText("Completed — processed locally").isVisible().catch(() => false);
+        const completedVisible = await page.getByText("Result ready").isVisible().catch(() => false);
         // If still visible that's failure, but our implementation should show Cancelled
         expect(completedVisible).toBe(false);
       }
     } else {
       // If processing was too fast, at least verify completed still shows and cancellation not needed
-      await expect(page.getByText(/Completed|Cancelled/i)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/Result ready|Completed|Cancelled/i)).toBeVisible({ timeout: 10000 });
     }
   });
 
@@ -69,7 +68,7 @@ test.describe("Image advanced gates", () => {
       await page.goto("/tools/image-compress");
       await page.locator('input[type="file"]').setInputFiles({ name: `a${i}.png`, mimeType: "image/png", buffer: pngBuf });
       await page.getByRole("button", { name: /Process locally/i }).click();
-      await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(/Result ready|Completed/i)).toBeVisible({ timeout: 15000 });
       // Click Process another to revoke URLs
       const another = page.getByRole("button", { name: /Process another/i });
       if (await another.isVisible().catch(() => false)) await another.click();
@@ -84,7 +83,7 @@ test.describe("Image advanced gates", () => {
     expect(html).toContain("Convert Image");
     await page.locator('input[type="file"]').setInputFiles({ name: "a.png", mimeType: "image/png", buffer: pngBuf });
     await page.getByRole("button", { name: /Process locally/i }).click();
-    await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/Result ready|Completed/i)).toBeVisible({ timeout: 15000 });
     // Verify no fallback console error
   });
 

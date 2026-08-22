@@ -4,10 +4,11 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { AuthShell } from "@/components/marketing/auth-shell";
+import { AuthShell, AuthLoading } from "@/components/marketing/auth-shell";
 import { OAuthButtons } from "@/components/marketing/oauth-buttons";
 import { describeAuthError } from "@/lib/auth-errors";
 import { safeInternalPath } from "@/lib/safe-redirect";
+import { PasswordField } from "@/components/ui/password-field";
 
 function SigninInner({ google, github }: { google: boolean; github: boolean }) {
   const router = useRouter();
@@ -33,7 +34,7 @@ function SigninInner({ google, github }: { google: boolean; github: boolean }) {
       {providerError && <div role="alert" className="mt-4 rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{providerError}</div>}
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div><label htmlFor="email" className="text-sm font-medium">Email</label><input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="field-input mt-1 h-11" autoComplete="email" /></div>
-        <div><label htmlFor="password" className="text-sm font-medium">Password</label><input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="field-input mt-1 h-11" autoComplete="current-password" /></div>
+        <PasswordField id="password" label="Password" value={password} onChange={setPassword} autoComplete="current-password" required />
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
         <button type="submit" disabled={loading} className="premium-button premium-button-primary mt-2 w-full">{loading ? "Signing in…" : "Sign in"}</button>
       </form>
@@ -44,5 +45,5 @@ function SigninInner({ google, github }: { google: boolean; github: boolean }) {
 }
 
 export function SigninClient({ google, github }: { google: boolean; github: boolean }) {
-  return <Suspense fallback={<main className="min-h-screen px-6 py-20 text-center text-sm text-muted-foreground">Loading sign in…</main>}><SigninInner google={google} github={github} /></Suspense>;
+  return <Suspense fallback={<AuthLoading title="Loading sign in." />}><SigninInner google={google} github={github} /></Suspense>;
 }

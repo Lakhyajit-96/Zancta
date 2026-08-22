@@ -81,4 +81,36 @@ test.describe("a11y", () => {
     await expect(page.getByLabel("Name")).toBeFocused();
     await expect(page.getByLabel("Message")).toBeVisible();
   });
+
+  test("skip link targets main content", async ({ page }) => {
+    await page.goto("/");
+    await page.keyboard.press("Tab");
+    const skip = page.getByRole("link", { name: "Skip to main content" });
+    await expect(skip).toBeFocused();
+    await skip.press("Enter");
+    await expect(page.locator("#main-content")).toBeVisible();
+  });
+
+  test("mobile navigation includes Sign in, traps focus, and restores it", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    const toggle = page.getByRole("button", { name: "Open navigation" });
+    await toggle.click();
+    const menu = page.locator("#mobile-navigation");
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole("link", { name: "Sign in" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Open navigation" })).toBeFocused();
+  });
+
+  test("password fields expose show and hide controls", async ({ page }) => {
+    await page.goto("/signin");
+    const toggle = page.getByRole("button", { name: "Show password" });
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    await expect(page.locator("#password")).toHaveAttribute("type", "text");
+    await page.getByRole("button", { name: "Hide password" }).click();
+    await expect(page.locator("#password")).toHaveAttribute("type", "password");
+  });
 });

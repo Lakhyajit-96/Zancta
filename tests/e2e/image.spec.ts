@@ -30,7 +30,7 @@ test.describe("Image tools — real processing", () => {
   test("convert: PNG → JPG, JPG → PNG, PNG → WebP", async ({ page }) => {
     // PNG -> JPG
     await page.goto("/tools/image-convert");
-    await expect(page.getByText("Target")).toBeVisible();
+    await expect(page.locator("select")).toBeVisible();
     await page.locator('select').selectOption("image/jpeg");
     await page.locator('input[type="file"]').setInputFiles({ name: "a.png", mimeType: "image/png", buffer: pngBuf });
     await page.getByRole("button", { name: /Process locally/i }).click();
@@ -90,7 +90,7 @@ test.describe("Image tools — real processing", () => {
 
   test("image tools show local privacy and handle download", async ({ page }) => {
     await page.goto("/tools/image-convert");
-    await expect(page.getByText("Local — no upload")).toBeVisible();
+    await expect(page.getByText("Processed in this tab. File bytes are not uploaded.")).toBeVisible();
     await page.locator('input[type="file"]').setInputFiles({ name: "a.png", mimeType: "image/png", buffer: pngBuf });
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });

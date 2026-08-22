@@ -21,6 +21,8 @@ import {
 import { isPremiumOcrLanguage } from "@/lib/ocr-languages";
 import { zipTextParts } from "@/lib/ocr-zip";
 import { trackEvent } from "@/lib/analytics/tracker";
+import { UploadZone, FileRow, Progress, PrivacyEvidence } from "@/components/ui/tool-ui";
+import { displayBasename, formatFileSize } from "@/lib/display-filename";
 
 function track(event: string, params?: Record<string, unknown>) {
   trackEvent(event as never, params);
@@ -311,38 +313,25 @@ export function OcrTool() {
   const working = status === "validating" || status === "loading" || status === "processing";
 
   return (
-    <section className="card-surface rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8" aria-labelledby="ocr-workspace-title" aria-busy={working}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
-        <div>
-          <p id="ocr-workspace-title" className="text-sm font-medium">Local OCR workspace</p>
-          <p className="mt-1 text-xs text-muted-foreground">Your file and extracted text stay in this browser. OCR is not human-level. Results may vary with image quality, fonts, and layout. Handwriting, tables, and low-contrast scans often fail.</p>
+    <section className={`aperture card-surface relative space-y-6 rounded-lg p-5 md:p-8 ${working ? "aperture-active" : ""}`} aria-labelledby="ocr-workspace-title" aria-busy={working}>
+      <div className="border-b border-border pb-5">
+        <p id="ocr-workspace-title" className="text-sm font-medium">Local OCR workspace</p>
+        <p className="mt-1 text-xs text-muted-foreground">OCR is not human-level. Results may vary with image quality, fonts, and layout. Handwriting, tables, and low-contrast scans often fail.</p>
+        <div className="mt-3">
+          <PrivacyEvidence />
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-          <span aria-hidden className="h-2 w-2 rounded-full bg-success" />
-          Processed locally — no upload
-        </span>
       </div>
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <label className="block">
-          <span className="text-sm font-medium">Image or scanned PDF</span>
-          <span className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border-strong bg-elevated px-5 text-center transition-colors hover:border-accent/50 focus-within:ring-2 focus-within:ring-accent">
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf,.pdf"
-              className="sr-only"
-              disabled={working}
-              onChange={(event) => {
-                const picked = event.currentTarget.files?.[0] ?? null;
-                selectFile(picked);
-                event.currentTarget.value = "";
-              }}
-              aria-describedby="ocr-file-hint"
-            />
-            <span className="text-sm font-medium">Choose a JPG, PNG, WebP, or PDF</span>
-            <span id="ocr-file-hint" className="mt-2 text-xs text-muted-foreground">Images up to 20 MB and 12,000 px. Scanned PDFs up to 50 MB and {OCR_LIMITS.scannedPdfPages} pages (Premium).</span>
-          </span>
-        </label>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <UploadZone
+          onFiles={(incoming) => selectFile(incoming[0] ?? null)}
+          accept="image/jpeg,image/png,image/webp,application/pdf,.pdf"
+          maxFiles={1}
+          maxFileSize={OCR_LIMITS.maxPdfFileSize}
+          disabled={working}
+          title="Drop an image or scanned PDF"
+          hint={<>Images up to 20 MB and 12,000 px. Scanned PDFs up to 50 MB and {OCR_LIMITS.scannedPdfPages} pages (Premium).</>}
+        />
         <label className="flex min-w-40 flex-col gap-2 text-sm font-medium">
           Language
           <select
@@ -360,76 +349,82 @@ export function OcrTool() {
           </select>
         </label>
       </div>
-      <div className="mt-4 grid gap-2 text-xs leading-5 text-muted-foreground sm:grid-cols-2">
+      <div className="grid gap-2 text-xs leading-5 text-muted-foreground sm:grid-cols-2">
         <p><span className="font-medium text-foreground">Free OCR</span> — English images. Current image limits apply.</p>
         <p><span className="font-medium text-foreground">Premium OCR</span> — Hindi, Bengali, Tamil, Spanish, French, German, and scanned PDF OCR (up to {OCR_LIMITS.scannedPdfPages} pages). Language packs load only when selected. Recognition is not human-level.</p>
       </div>
 
       {file ? (
-        <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
-          Selected: <span className="text-foreground">{isOcrPdf(file) ? "PDF document" : "Image"}</span> · {(file.size / 1024).toFixed(1)} KB
-        </p>
+        <ul className="space-y-2" aria-live="polite">
+          <FileRow name={file.name} size={file.size} onRemove={working ? undefined : () => selectFile(null)} />
+        </ul>
       ) : (
-        <p className="mt-4 text-sm text-muted-foreground">Select an image to begin.</p>
+        <p className="text-sm text-muted-foreground">Select an image to begin.</p>
       )}
       {premium && (
-        <p className="mt-4 text-xs text-muted-foreground">Premium OCR languages are available on this signed-in account.</p>
+        <p className="text-xs text-muted-foreground">Premium OCR languages are available on this signed-in account.</p>
       )}
       {notice && (
-        <p role="status" className="mt-4 border border-border bg-elevated p-4 text-sm text-muted-foreground">
+        <p role="status" className="border border-border bg-elevated p-4 text-sm text-muted-foreground">
           {notice}{" "}
           <Link href="/pricing" className="underline" onClick={() => track("premium_upgrade_clicked", { tool: "ocr" })}>See Premium</Link>
         </p>
       )}
-      {error && <div role="alert" className="mt-5 border border-error/40 bg-error/10 p-4 text-sm text-error">{error}</div>}
-      {status === "aborted" && <p role="status" className="mt-5 text-sm text-muted-foreground">{detail}</p>}
+      {error && <div role="alert" className="rounded-lg border border-error/40 bg-error/10 p-4 text-sm text-error">{error}</div>}
+      {status === "aborted" && <p role="status" className="text-sm text-muted-foreground">{detail}</p>}
 
       {working && (
-        <div className="mt-5 space-y-3" aria-live="polite">
-          <p className="text-sm">{detail}</p>
-          {progress === null ? <div className="h-1 overflow-hidden bg-muted"><div className="h-full w-1/3 bg-accent motion-safe:animate-pulse" /></div> : <>
-            <div className="h-1 overflow-hidden bg-muted"><div className="h-full bg-accent transition-[width] motion-reduce:transition-none" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} /></div>
-            <p className="text-xs text-muted-foreground">{Math.round(progress)}%</p>
-          </>}
+        <div className="space-y-3" aria-live="polite">
+          <Progress
+            value={progress ?? undefined}
+            indeterminate={progress == null}
+            label={detail}
+          />
           <button type="button" onClick={() => void cancel()} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
         </div>
       )}
 
       {!working && file && status !== "completed" && (
-        <button type="button" onClick={() => void process()} className="premium-button premium-button-primary mt-5 min-h-10 px-5">Extract text locally</button>
+        <button type="button" onClick={() => void process()} className="premium-button premium-button-primary premium-button-sheen min-h-10 px-5">Extract text locally</button>
       )}
 
       {status === "completed" && (
-        <div className="mt-6 border border-success/30 bg-success/10 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-medium text-success">Completed — processed locally</p>
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => void copy()} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">{copied ? "Copied" : "Copy text"}</button>
-              <button type="button" onClick={download} className="premium-button premium-button-primary min-h-9 px-4 text-xs">Download text</button>
-              {pageTexts.length > 1 && (
-                <button type="button" onClick={() => void downloadZip()} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Download ZIP</button>
-              )}
-              <button type="button" onClick={() => selectFile(null)} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Clear</button>
-            </div>
+        <div className="rounded-lg border border-success/30 bg-success/10 p-5 space-y-4">
+          <p className="eyebrow text-success">Result ready</p>
+          <p className="text-sm font-medium text-success">Completed — processed locally</p>
+          {file && (
+            <p className="text-xs text-muted-foreground">
+              From <span className="text-foreground" title={displayBasename(file.name).full}>{displayBasename(file.name).display}</span>
+              {" · "}
+              {formatFileSize(file.size)}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => void copy()} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">{copied ? "Copied" : "Copy text"}</button>
+            <button type="button" onClick={download} className="premium-button premium-button-primary min-h-9 px-4 text-xs">Download text</button>
+            {pageTexts.length > 1 && (
+              <button type="button" onClick={() => void downloadZip()} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Download ZIP</button>
+            )}
+            <button type="button" onClick={() => selectFile(null)} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Clear</button>
           </div>
-          <label className="mt-4 block text-sm font-medium" htmlFor="ocr-result">Extracted OCR text</label>
-          <textarea id="ocr-result" readOnly value={text} className="field-input mt-2 h-56 p-3 font-mono text-sm leading-6" aria-label="Extracted OCR text" />
+          <label className="block text-sm font-medium" htmlFor="ocr-result">Extracted OCR text</label>
+          <textarea id="ocr-result" readOnly value={text} className="field-input h-56 p-3 font-mono text-sm leading-6" aria-label="Extracted OCR text" />
           {detail && detail !== "Completed." && (
-            <p role="status" className="mt-3 text-sm text-muted-foreground">{detail}</p>
+            <p role="status" className="text-sm text-muted-foreground">{detail}</p>
           )}
           {!text.trim() && (
-            <p role="status" className="mt-3 text-sm text-muted-foreground">
+            <p role="status" className="text-sm text-muted-foreground">
               No text was recognized. OCR can miss handwriting, low-contrast images, or unsupported scripts. This is not a silent success with hidden content.
             </p>
           )}
-          <p className="mt-4 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Working with a text-native PDF instead? Use the{" "}
-            <Link href="/tools/pdf-text-extractor" className="underline">PDF Text Extractor</Link>.
+            <Link href="/tools/pdf-text-extractor" className="underline underline-offset-4">PDF Text Extractor</Link>.
           </p>
         </div>
       )}
 
-      <p className="mt-6 text-xs leading-5 text-muted-foreground">
+      <p className="text-xs leading-5 text-muted-foreground">
         Scanned PDF OCR is performed locally in your browser. English OCR assets are bundled with this site. Additional language packs load only when selected and only for Premium accounts. Recognition runs in a Web Worker; no file bytes or extracted text are sent to an API.
       </p>
     </section>

@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { AuthShell } from "@/components/marketing/auth-shell";
+import { AuthShell, AuthLoading } from "@/components/marketing/auth-shell";
 import { OAuthButtons } from "@/components/marketing/oauth-buttons";
 import { describeAuthError } from "@/lib/auth-errors";
+import { PasswordField } from "@/components/ui/password-field";
 
 function SignupInner({ google, github }: { google: boolean; github: boolean }) {
   const router = useRouter();
@@ -45,7 +46,16 @@ function SignupInner({ google, github }: { google: boolean; github: boolean }) {
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div><label htmlFor="name" className="text-sm font-medium">Name <span className="text-muted-foreground">(optional)</span></label><input id="name" value={name} onChange={(e) => setName(e.target.value)} className="field-input mt-1 h-11" autoComplete="name" /></div>
         <div><label htmlFor="email" className="text-sm font-medium">Email</label><input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="field-input mt-1 h-11" autoComplete="email" /></div>
-        <div><label htmlFor="password" className="text-sm font-medium">Password</label><input id="password" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className="field-input mt-1 h-11" autoComplete="new-password" /><p className="mt-1 text-xs text-muted-foreground">At least 8 characters. Never stored in plain text.</p></div>
+        <PasswordField
+          id="password"
+          label="Password"
+          value={password}
+          onChange={setPassword}
+          autoComplete="new-password"
+          required
+          minLength={8}
+          hint={<p className="mt-1 text-xs text-muted-foreground">At least 8 characters. Never stored in plain text.</p>}
+        />
         {error && <div role="alert" className="rounded-md border border-error/40 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
         {warn && <div role="status" aria-live="polite" className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning">{warn}</div>}
         {ok && <div role="status" aria-live="polite" className="rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">{ok}</div>}
@@ -60,7 +70,7 @@ function SignupInner({ google, github }: { google: boolean; github: boolean }) {
 
 export function SignupClient({ google, github }: { google: boolean; github: boolean }) {
   return (
-    <Suspense fallback={<main className="min-h-screen px-6 py-20 text-center text-sm text-muted-foreground">Loading sign up…</main>}>
+    <Suspense fallback={<AuthLoading title="Loading sign up." />}>
       <SignupInner google={google} github={github} />
     </Suspense>
   );

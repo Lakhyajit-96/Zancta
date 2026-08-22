@@ -11,6 +11,8 @@ import {
   type PdfTextStatus,
   validatePdfTextInput,
 } from "@/lib/pdf-text-engine";
+import { UploadZone, FileRow, Progress, PrivacyEvidence } from "@/components/ui/tool-ui";
+import { displayBasename, formatFileSize } from "@/lib/display-filename";
 
 type WorkerResponse =
   | { id: string; type: "loading" }
@@ -156,77 +158,107 @@ export function PdfTextExtractor() {
   };
 
   return (
-    <section className="card-surface rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8" aria-labelledby="pdf-text-workspace-title">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
-        <div>
-          <p id="pdf-text-workspace-title" className="text-sm font-medium">Local PDF text workspace</p>
-          <p className="mt-1 text-xs text-muted-foreground">Extract existing text from text-based PDFs in this browser.</p>
+    <section className={`aperture card-surface relative space-y-6 rounded-lg p-5 md:p-8 ${working ? "aperture-active" : ""}`} aria-labelledby="pdf-text-workspace-title">
+      <div className="border-b border-border pb-5">
+        <p id="pdf-text-workspace-title" className="text-sm font-medium">Local PDF text workspace</p>
+        <p className="mt-1 text-xs text-muted-foreground">Extract existing text from text-based PDFs in this browser.</p>
+        <div className="mt-3">
+          <PrivacyEvidence />
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-          <span aria-hidden className="h-2 w-2 rounded-full bg-success" />
-          Processed locally — no upload
-        </span>
       </div>
 
-      <label className="mt-6 block">
-        <span className="text-sm font-medium">PDF document</span>
-        <span className="mt-2 flex min-h-32 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-border-strong bg-elevated px-5 text-center transition-colors hover:border-accent/50 focus-within:ring-2 focus-within:ring-accent">
-          <input type="file" accept="application/pdf,.pdf" className="sr-only" disabled={working} onChange={(event) => { const picked = event.currentTarget.files?.[0] ?? null; reset(picked); event.currentTarget.value = ""; }} aria-describedby="pdf-text-file-hint" />
-          <span className="text-sm font-medium">Choose a text-based PDF</span>
-          <span id="pdf-text-file-hint" className="mt-2 text-xs text-muted-foreground">One PDF, up to 50 MB. Scanned or image-only PDFs do not contain extractable text.</span>
-        </span>
-      </label>
+      <UploadZone
+        onFiles={(incoming) => reset(incoming[0] ?? null)}
+        accept="application/pdf,.pdf"
+        maxFiles={1}
+        maxFileSize={50 * 1024 * 1024}
+        disabled={working}
+        title="Drop a text-based PDF"
+        hint="One PDF, up to 50 MB. Scanned or image-only PDFs do not contain extractable text."
+      />
 
-      {file ? <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">Selected: <span className="text-foreground">{file.name}</span> · {(file.size / 1024).toFixed(1)} KB</p> : <p className="mt-4 text-sm text-muted-foreground">Select a text-based PDF to begin.</p>}
-      {error && <div role="alert" className="mt-5 border border-error/40 bg-error/10 p-4 text-sm text-error">{error}</div>}
-      {status === "aborted" && <p role="status" className="mt-5 text-sm text-muted-foreground">{detail}</p>}
+      {file ? (
+        <ul className="space-y-2" aria-live="polite">
+          <FileRow name={file.name} size={file.size} onRemove={working ? undefined : () => reset()} />
+        </ul>
+      ) : (
+        <p className="text-sm text-muted-foreground">Select a text-based PDF to begin.</p>
+      )}
+      {error && <div role="alert" className="rounded-lg border border-error/40 bg-error/10 p-4 text-sm text-error">{error}</div>}
+      {status === "aborted" && <p role="status" className="text-sm text-muted-foreground">{detail}</p>}
 
-      {working && <div className="mt-5 space-y-3" aria-live="polite">
-        <p className="text-sm">{detail}</p>
-        {progress === null ? <div className="h-1 overflow-hidden bg-muted"><div className="h-full w-1/3 bg-accent motion-safe:animate-pulse" /></div> : <>
-          <div className="h-1 overflow-hidden bg-muted"><div className="h-full bg-accent transition-[width] motion-reduce:transition-none" style={{ width: `${progress}%` }} /></div>
-          <p className="text-xs text-muted-foreground">{progress}%</p>
-        </>}
-        <button type="button" onClick={cancel} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
-      </div>}
+      {working && (
+        <div className="space-y-3" aria-live="polite">
+          <Progress
+            value={progress ?? undefined}
+            indeterminate={progress == null}
+            label={detail}
+          />
+          <button type="button" onClick={cancel} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
+        </div>
+      )}
 
-      {!working && file && status !== "completed" && <button type="button" onClick={() => void extract()} className="premium-button premium-button-primary mt-5 min-h-10 px-5">Extract text locally</button>}
+      {!working && file && status !== "completed" && (
+        <button type="button" onClick={() => void extract()} className="premium-button premium-button-primary premium-button-sheen min-h-10 px-5">Extract text locally</button>
+      )}
 
-      {status === "completed" && <div className="mt-6 border border-success/30 bg-success/10 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium text-success">Completed — processed locally</p>
-            <p className="mt-1 text-xs text-muted-foreground">{totalPages} {totalPages === 1 ? "page" : "pages"} processed.</p>
-          </div>
+      {status === "completed" && (
+        <div className="rounded-lg border border-success/30 bg-success/10 p-5 space-y-4">
+          <p className="eyebrow text-success">Result ready</p>
+          <p className="text-sm font-medium text-success">Completed — processed locally</p>
+          {file && (
+            <p className="text-xs text-muted-foreground">
+              From <span className="text-foreground" title={displayBasename(file.name).full}>{displayBasename(file.name).display}</span>
+              {" · "}
+              {formatFileSize(file.size)}
+              {" · "}
+              {totalPages} {totalPages === 1 ? "page" : "pages"} processed.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => void copy()} disabled={!text} className="premium-button premium-button-secondary min-h-9 px-4 text-xs disabled:opacity-50">{copied ? "Copied" : "Copy text"}</button>
             <button type="button" onClick={download} disabled={!text} className="premium-button premium-button-primary min-h-9 px-4 text-xs disabled:opacity-50">Download TXT</button>
             <button type="button" onClick={() => reset()} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Clear</button>
           </div>
+
+          {!text ? (
+            <p role="status" className="border border-border bg-elevated p-4 text-sm text-muted-foreground">
+              No embedded text was found. This PDF may be scanned or image-only. This tool extracts existing PDF text and does not OCR scanned documents. For scanned PDFs, use <Link href="/tools/ocr" className="underline underline-offset-4">Image OCR</Link> Local OCR Power (Premium, up to 20 pages).
+            </p>
+          ) : (
+            <>
+              <div className="border-y border-border py-4">
+                <label htmlFor="pdf-text-search" className="text-sm font-medium">Search extracted text</label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <input id="pdf-text-search" value={query} onChange={(event) => setQuery(event.target.value)} className="field-input min-w-0 flex-1" placeholder="Find text across pages" />
+                  {query && <button type="button" onClick={() => setQuery("")} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Clear search</button>}
+                </div>
+                {query && <p role="status" className="mt-2 text-xs text-muted-foreground">{matches.length} {matches.length === 1 ? "match" : "matches"} found.</p>}
+                {query && matches.length > 0 && (
+                  <ul className="mt-3 max-h-40 space-y-2 overflow-auto text-sm" aria-label="Search results">
+                    {matches.map((match, index) => (
+                      <li key={`${match.pageNumber}-${match.index}-${index}`} className="border border-border bg-elevated p-2">
+                        <span className="font-medium">Page {match.pageNumber}</span>
+                        <span className="ml-2 text-muted-foreground">{match.excerpt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="max-h-[34rem] space-y-4 overflow-auto pr-1" aria-label="Extracted PDF text">
+                {pages.map((page) => (
+                  <section key={page.pageNumber} className="border border-border bg-elevated p-4" aria-labelledby={`pdf-page-${page.pageNumber}`}>
+                    <p id={`pdf-page-${page.pageNumber}`} className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Page {page.pageNumber}</p>
+                    <p className="mt-3 whitespace-pre-wrap break-words font-mono text-sm leading-6">{page.text || "No embedded text on this page."}</p>
+                  </section>
+                ))}
+              </div>
+            </>
+          )}
         </div>
+      )}
 
-        {!text ? <p role="status" className="mt-4 border border-border bg-elevated p-4 text-sm text-muted-foreground">No embedded text was found. This PDF may be scanned or image-only. This tool extracts existing PDF text and does not OCR scanned documents. For scanned PDFs, use <Link href="/tools/ocr" className="underline">Image OCR</Link> Local OCR Power (Premium, up to 20 pages).</p> : <>
-          <div className="mt-5 border-y border-border py-4">
-            <label htmlFor="pdf-text-search" className="text-sm font-medium">Search extracted text</label>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <input id="pdf-text-search" value={query} onChange={(event) => setQuery(event.target.value)} className="field-input min-w-0 flex-1" placeholder="Find text across pages" />
-              {query && <button type="button" onClick={() => setQuery("")} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Clear search</button>}
-            </div>
-            {query && <p role="status" className="mt-2 text-xs text-muted-foreground">{matches.length} {matches.length === 1 ? "match" : "matches"} found.</p>}
-            {query && matches.length > 0 && <ul className="mt-3 max-h-40 space-y-2 overflow-auto text-sm" aria-label="Search results">
-              {matches.map((match, index) => <li key={`${match.pageNumber}-${match.index}-${index}`} className="border border-border bg-elevated p-2"><span className="font-medium">Page {match.pageNumber}</span><span className="ml-2 text-muted-foreground">{match.excerpt}</span></li>)}
-            </ul>}
-          </div>
-          <div className="mt-5 max-h-[34rem] space-y-4 overflow-auto pr-1" aria-label="Extracted PDF text">
-            {pages.map((page) => <section key={page.pageNumber} className="border border-border bg-elevated p-4" aria-labelledby={`pdf-page-${page.pageNumber}`}>
-              <p id={`pdf-page-${page.pageNumber}`} className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Page {page.pageNumber}</p>
-              <p className="mt-3 whitespace-pre-wrap break-words font-mono text-sm leading-6">{page.text || "No embedded text on this page."}</p>
-            </section>)}
-          </div>
-        </>}
-      </div>}
-
-      <p className="mt-6 text-xs leading-5 text-muted-foreground">PDF bytes and extracted text remain in this browser. This tool reads embedded PDF text only; it does not OCR scanned documents. Scanned-page OCR lives on <Link href="/tools/ocr" className="underline">Image OCR</Link>.</p>
+      <p className="text-xs leading-5 text-muted-foreground">PDF bytes and extracted text remain in this browser. This tool reads embedded PDF text only; it does not OCR scanned documents. Scanned-page OCR lives on <Link href="/tools/ocr" className="underline underline-offset-4">Image OCR</Link>.</p>
     </section>
   );
 }

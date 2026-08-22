@@ -22,7 +22,7 @@ export function ContentPage({
   return (
     <>
       <Navigation />
-      <main className="relative overflow-hidden">
+      <main id="main-content" tabIndex={-1} className="relative overflow-hidden">
         <section className="relative mx-auto max-w-[80rem] px-5 py-14 md:px-8 md:py-16">
           <header className="max-w-3xl border-b border-border pb-10">
             {crumbs && crumbs.length > 0 && (

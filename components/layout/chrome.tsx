@@ -8,7 +8,7 @@ export function LayoutChrome({ children, showNav = true, showFooter = true }: {
   return (
     <>
       {showNav && <Navigation />}
-      <div className="min-h-screen">{children}</div>
+      <div id="main-content" tabIndex={-1} className="min-h-screen">{children}</div>
       {showFooter && <Footer />}
     </>
   );

@@ -48,7 +48,7 @@ test.describe("PDF tools — real processing", () => {
     await page.locator('input[type="file"]').setInputFiles({ name: "one.pdf", mimeType: "application/pdf", buffer: Buffer.from(bytes) });
     await page.getByRole("button", { name: /Process locally/i }).click();
     await expect(page.getByText(/Completed/i)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/Original \d/)).toBeVisible();
+    await expect(page.getByText(/\d+(\.\d+)? (KB|MB) →/)).toBeVisible();
     await expect(page.getByRole("link", { name: "Split PDF" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /PDF compression actually works/i }).first()).toBeVisible();
   });

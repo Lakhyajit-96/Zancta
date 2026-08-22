@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react";
-import Link from "next/link";
 import { validateFiles, validateFileMagic, LIMITS } from "@/lib/file-safety";
-import { UploadZone, Progress, PrivacyIndicator, FileRow } from "@/components/ui/tool-ui";
+import { UploadZone, Progress, PrivacyEvidence, FileRow, ResultCard } from "@/components/ui/tool-ui";
 import { downloadBlob } from "@/lib/download";
 import { OcrTool } from "@/components/ui/ocr-tool";
 import { PdfTextExtractor } from "@/components/ui/pdf-text-extractor";
@@ -14,7 +13,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
   const [files, setFiles] = React.useState<File[]>([]);
   const [errors, setErrors] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<Status>("idle");
-  const [progress, setProgress] = React.useState(0);
+  const [progress, setProgress] = React.useState<number | null>(null);
   const [detail, setDetail] = React.useState<string | undefined>(undefined);
   const [results, setResults] = React.useState<{ name: string; blob: Blob; url: string }[]>([]);
   const [meta, setMeta] = React.useState<{ originalSize?: number; outputSize?: number } | null>(null);
@@ -92,8 +91,8 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
     setMeta(null);
     setErrors([]);
     setStatus("validating");
-    setProgress(5);
-    setDetail(undefined);
+    setProgress(null);
+    setDetail("Validating");
 
     // Split range pre-validate (client)
     if (tool.slug === "pdf-split") {
@@ -156,7 +155,8 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         const { mergePdfs: _merge, splitPdf: _split, compressPdf: _compress, imagesToPdf: _img2pdf, pdfToImages: _pdf2img } = await import("@/lib/pdf-engine");
         const { compressImage: _cImg, convertImage: _convImg, resizeImage: _resImg, exifClean: _exif } = await import("@/lib/image-engine");
         setStatus("processing");
-        setProgress(50);
+        setProgress(null);
+        setDetail("Processing");
         try {
           let blobs: { name: string; blob: Blob }[] = [];
           let meta: { originalSize?: number; outputSize?: number } | undefined;
@@ -202,6 +202,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
             return;
           }
           const withUrls = blobs.map((b)=>({name:b.name, blob:b.blob, url: URL.createObjectURL(b.blob)}));
+          setDetail("Writing result");
           setResults(withUrls); if(meta) setMeta(meta); setProgress(100); setStatus("completed");
           clearJobTimeout();
           void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
@@ -300,7 +301,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
     setResults([]);
     setMeta(null);
     setErrors([]);
-    setProgress(0);
+    setProgress(null);
     setStatus("aborted");
   };
 
@@ -311,17 +312,16 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
     setResults([]);
     setMeta(null);
     setStatus("idle");
-    setProgress(0);
+    setProgress(null);
     setErrors([]);
   };
 
   const busy = status === "validating" || status === "loading" || status === "processing";
 
   return (
-    <div className={`aperture card-surface relative space-y-6 rounded-lg p-5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] md:p-8 ${busy ? "aperture-active" : ""}`}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
-        <PrivacyIndicator />
-        <span className="max-w-xl text-right text-xs leading-5 text-muted-foreground">Your files are processed locally in your browser. Your file bytes are not uploaded for processing.</span>
+    <div className={`aperture card-surface relative space-y-6 rounded-lg p-5 md:p-8 ${busy ? "aperture-active" : ""}`}>
+      <div className="border-b border-border pb-5">
+        <PrivacyEvidence />
       </div>
 
       {/* Tool-specific controls */}
@@ -355,10 +355,10 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
       {tool.slug === "image-compress" && (
         <div className="flex flex-wrap gap-4 items-center">
-          <label className="text-sm font-medium flex items-center gap-2">
+          <label className="text-sm font-medium flex items-center gap-3">
             Quality
-            <input type="range" min={0.5} max={0.92} step={0.05} value={imageQuality} onChange={(e)=> setImageQuality(parseFloat(e.target.value))} className="w-32" aria-label="Quality" />
-            <span className="text-xs text-muted-foreground">{Math.round(imageQuality*100)}%</span>
+            <input type="range" min={0.5} max={0.92} step={0.05} value={imageQuality} onChange={(e)=> setImageQuality(parseFloat(e.target.value))} className="field-range w-40" aria-label="Quality" />
+            <span className="font-mono text-xs text-muted-foreground">{Math.round(imageQuality*100)}%</span>
           </label>
         </div>
       )}
@@ -366,7 +366,7 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       {tool.slug === "image-convert" && (
         <div className="flex gap-3">
           <label className="text-sm font-medium flex items-center gap-2">
-            Target
+            Format
             <select value={convertTarget} onChange={(e)=> setConvertTarget(e.target.value as typeof convertTarget)} className="field-input w-auto py-1.5">
               <option value="image/jpeg">JPG</option>
               <option value="image/png">PNG</option>
@@ -378,8 +378,8 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
 
       {tool.slug === "image-resize" && (
         <div className="flex flex-wrap gap-4 items-center">
-          <label className="text-sm flex items-center gap-2">W <input type="number" value={resizeWidth} onChange={(e)=> setResizeWidth(Math.max(1, parseInt(e.target.value)||1))} className="field-input w-20 py-1.5" min={1} max={12000} aria-label="Width" /></label>
-          <label className="text-sm flex items-center gap-2">H <input type="number" value={resizeHeight} onChange={(e)=> setResizeHeight(Math.max(1, parseInt(e.target.value)||1))} className="field-input w-20 py-1.5" min={1} max={12000} aria-label="Height" /></label>
+          <label className="text-sm flex items-center gap-2">Width <input type="number" value={resizeWidth} onChange={(e)=> setResizeWidth(Math.max(1, parseInt(e.target.value)||1))} className="field-input w-24 py-1.5" min={1} max={12000} aria-label="Width" /></label>
+          <label className="text-sm flex items-center gap-2">Height <input type="number" value={resizeHeight} onChange={(e)=> setResizeHeight(Math.max(1, parseInt(e.target.value)||1))} className="field-input w-24 py-1.5" min={1} max={12000} aria-label="Height" /></label>
           <label className="text-sm flex items-center gap-2"><input type="checkbox" checked={keepAspect} onChange={(e)=> setKeepAspect(e.target.checked)} aria-label="Keep aspect" /> Keep aspect</label>
         </div>
       )}
@@ -390,8 +390,8 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
         <ul className="space-y-2" aria-live="polite">
           {files.map((f, i) => (
             <FileRow
-              key={i}
-              name={`file_${i + 1}.${f.name.split(".").pop()}`}
+              key={`${f.name}-${f.size}-${i}`}
+              name={f.name}
               size={f.size}
               onRemove={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
             />
@@ -412,15 +412,19 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       )}
 
       {(status === "idle" || status === "failed" || status === "aborted") && files.length > 0 && errors.length === 0 && (
-        <button onClick={start} className="premium-button premium-button-primary w-full md:w-auto">
+        <button type="button" onClick={start} className="premium-button premium-button-primary premium-button-sheen w-full md:w-auto">
           Process locally
         </button>
       )}
 
       {(status === "validating" || status === "loading" || status === "processing") && (
         <div className="space-y-3">
-          <Progress value={progress} label={detail || (status === "validating" ? "Validating…" : status === "loading" ? "Loading…" : "Processing locally — not uploaded")} />
-          <button onClick={cancel} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
+          <Progress
+            value={progress ?? undefined}
+            indeterminate={progress == null}
+            label={detail || (status === "validating" ? "Validating" : status === "loading" ? "Preparing" : "Processing")}
+          />
+          <button type="button" onClick={cancel} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Cancel</button>
         </div>
       )}
 
@@ -431,53 +435,20 @@ function GenericToolShell({ tool }: { tool: ToolMeta }) {
       )}
 
       {status === "completed" && (
-        <div className="rounded-lg border border-success/30 bg-success/10 p-4 space-y-3">
-          <p className="text-sm font-medium text-success">Completed — processed locally</p>
-          {meta?.originalSize !== undefined && meta?.outputSize !== undefined && (
-            <p className="text-sm text-muted-foreground">
-              Original {(meta.originalSize / 1024).toFixed(1)} KB → {(meta.outputSize / 1024).toFixed(1)} KB
-              {meta.outputSize < (meta.originalSize || 0) ? ` — saved ${(((1 - meta.outputSize / (meta.originalSize || 1)) * 100) | 0)}%` : meta.outputSize > (meta.originalSize || 0) ? " — not smaller (already optimized)" : ""}
-            </p>
-          )}
-          {results.length > 0 ? (
-            <ul className="space-y-2">
-              {results.map((r, i) => (
-                <li key={i} className="flex items-center justify-between rounded-md border border-border bg-elevated px-3.5 py-2.5">
-                  <span className="text-sm truncate pr-3">{r.name} — {(r.blob.size / 1024).toFixed(1)} KB</span>
-                  <button
-                    onClick={() => {
-                      downloadBlob(r.blob, r.name);
-                      void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
-                        trackEvent("download_completed", { tool: tool.slug });
-                      }).catch(() => {});
-                    }}
-                    className="premium-button premium-button-primary min-h-8 shrink-0 px-3 text-xs"
-                  >
-                    Download
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">No file output was generated for this operation.</p>
-          )}
-          <div className="flex gap-2">
-            <button onClick={again} className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Process another</button>
-            <Link href="/tools" className="premium-button premium-button-secondary min-h-9 px-4 text-xs">Related tools</Link>
-          </div>
-          {TOOL_NEXT_STEPS[tool.slug] && (
-            <p className="text-sm text-muted-foreground">
-              {TOOL_NEXT_STEPS[tool.slug]!.prompt}{" "}
-              <Link href={TOOL_NEXT_STEPS[tool.slug]!.href} className="underline">{TOOL_NEXT_STEPS[tool.slug]!.label}</Link>
-            </p>
-          )}
-          {TOOL_GUIDES[tool.slug] && (
-            <p className="text-sm text-muted-foreground">
-              Want the longer explanation?{" "}
-              <Link href={TOOL_GUIDES[tool.slug]!.href} className="underline">{TOOL_GUIDES[tool.slug]!.label}</Link>
-            </p>
-          )}
-        </div>
+        <ResultCard
+          originalName={files[0]?.name}
+          results={results}
+          meta={meta}
+          onDownload={(blob, name) => {
+            downloadBlob(blob, name);
+            void import("@/lib/analytics/tracker").then(({ trackEvent }) => {
+              trackEvent("download_completed", { tool: tool.slug });
+            }).catch(() => {});
+          }}
+          onAgain={again}
+          next={TOOL_NEXT_STEPS[tool.slug]}
+          guide={TOOL_GUIDES[tool.slug]}
+        />
       )}
 
       <p className="text-xs text-muted-foreground">

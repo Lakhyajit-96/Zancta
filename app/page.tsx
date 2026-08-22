@@ -15,7 +15,7 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite()) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization()) }} />
       <Navigation />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <ZanctaHero />
         <PrivacyArchitectureSection />
         <ToolEcosystemSection />
