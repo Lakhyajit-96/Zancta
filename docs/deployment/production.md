@@ -10,7 +10,7 @@ Full platform notes: [operations/vercel.md](../operations/vercel.md). Rollback: 
 
 Pushes to `main` deploy Production (Node **24.x** on Vercel). GitHub Actions CI uses Node **24**. Preview deployments exist for other branches. `*.vercel.app` URLs require Vercel login (`all_except_custom_domains`); the custom domain is public.
 
-Preview mutating APIs are blocked in `proxy.ts` until a separate Preview database exists. Do not set `PREVIEW_ALLOW_PRODUCTION_*` on Production.
+Preview mutating APIs are blocked in `proxy.ts`. `PREVIEW_ALLOW_PRODUCTION_*` stays unset. Preview uses a separate Supabase database; Production `DATABASE_URL` is Production-only.
 
 There is no `vercel.json`. Next.js is auto-detected. Functions run in `iad1`. No cron jobs.
 
@@ -22,7 +22,7 @@ After changing Production env vars, **redeploy** so runtime (including the Index
 
 Encrypted Vercel variables may appear empty to `vercel env run` locally. That does not prove Production runtime is empty. Confirm in the dashboard or via public behavior (for example the IndexNow key file).
 
-Preview currently shares production `DATABASE_URL` and Resend/Dodo/Upstash names. Do not treat Preview as a disposable copy of production data.
+Preview uses a separate Supabase database. Production `DATABASE_URL` is Production-only. Do not treat Preview as a copy of production data. Do not set `PREVIEW_ALLOW_PRODUCTION_*`.
 
 ## Safety gates
 

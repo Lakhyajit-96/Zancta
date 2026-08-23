@@ -1,9 +1,10 @@
 /**
- * Vercel Preview still shares Production DATABASE_URL until the owner attaches
- * a separate Postgres (observed Production provider: Supabase). Mutating APIs
- * stay blocked until PREVIEW_ALLOW_PRODUCTION_MUTATIONS=true after that split.
+ * Vercel Preview has a separate Supabase Postgres (`zancta-preview`).
+ * Mutating `/api/*` and OAuth callbacks stay blocked unless
+ * PREVIEW_ALLOW_PRODUCTION_MUTATIONS=true. Leave that unset: Preview
+ * must not become a second write path to customer flows by default.
  *
- * Preview Resend/Dodo/Upstash should be scoped Production-only in Vercel.
+ * Preview must not have Production Resend, Dodo, or Upstash names.
  * Code also skips Upstash and Resend when VERCEL_ENV=preview.
  */
 

@@ -13,7 +13,7 @@ This document does not contain secrets. Fill real values only in gitignored file
 
 | VARIABLE | PURPOSE | REQUIRED? | ENVIRONMENT | PUBLIC OR SECRET | DEFAULT | CODE USAGE | EXTERNAL SERVICE | CONFIGURE IN | NOTES |
 |---|---|---|---|---|---|---|---|---|---|
-| `DATABASE_URL` | Postgres connection for Prisma | YES (prod, local app, tests override) | all | SECRET | `file:./prisma/dev.db` in `lib/db.ts` (incompatible with current schema) | `lib/db.ts`, `prisma.config.ts` | Postgres | local `.env`, Vercel Production/Preview | Production must be Postgres. Tests force Docker URL. |
+| `DATABASE_URL` | Postgres connection for Prisma | YES (prod, local app, tests override) | all | SECRET | `file:./prisma/dev.db` in `lib/db.ts` (incompatible with current schema) | `lib/db.ts`, `prisma.config.ts` | Postgres | local `.env`, Vercel Production **and** separate Vercel Preview | Production and Preview are separate Supabase projects. Tests force Docker URL. |
 | `DATABASE_SSL` | Disable TLS for local Postgres | NO | local | neither (flag) | hosted TLS on; loopback TLS off | `lib/db.ts` | Postgres | local `.env` only | `disable` / `false` only. |
 | `AUTH_SECRET` | Auth.js / HMAC (OCR lang tokens, OAuth intent, deleted-identity) | YES (prod) | all | SECRET | none (tests inject a test-only value) | `lib/auth.ts` (Auth.js), `lib/oauth-intent.ts`, `lib/ocr-lang-token.ts`, `lib/deleted-identity.ts`, `lib/production-config.ts` | Auth.js | local `.env`, Vercel | Preferred over `NEXTAUTH_SECRET`. |
 | `NEXTAUTH_SECRET` | Alias for `AUTH_SECRET` | NO if `AUTH_SECRET` set | all | SECRET | none | same as `AUTH_SECRET` | Auth.js | local / Vercel | Keep in Vercel if already set; prefer one canonical secret. |
@@ -52,9 +52,9 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `NODE_ENV` | Node environment | YES (set by runtime) | all | neither | `development` | many files | Node / Next | do not hand-set on Vercel | |
 | `VERCEL_ENV` | `production` / `preview` / `development` | platform | Vercel | neither | unset off-Vercel | auth cookies, rate limit, contact schema, production-config, preview isolation | Vercel | automatic | |
 | `VERCEL` | Present on Vercel | platform | Vercel | neither | unset | `lib/production-config.ts` | Vercel | automatic | |
-| `PREVIEW_ALLOW_PRODUCTION_MUTATIONS` | Allow Preview `/api` writes | NO | preview only | flag | unset → blocked | `lib/preview-isolation.ts`, `proxy.ts` | none | Vercel Preview after isolated DB | Never set on Production. |
-| `PREVIEW_ALLOW_PRODUCTION_EMAIL` | Allow Resend from Preview | NO | preview only | flag | unset → console/suppress | `lib/email/index.ts` | Resend | Vercel Preview after isolated mail | Never set on Production. |
-| `PREVIEW_ALLOW_PRODUCTION_DATA` | Allow Preview `/admin` to query DB | NO | preview only | flag | unset → redirect | `app/admin/layout.tsx` | none | Vercel Preview after isolated DB | Never set on Production. |
+| `PREVIEW_ALLOW_PRODUCTION_MUTATIONS` | Allow Preview `/api` writes | NO | preview only | flag | unset → blocked | `lib/preview-isolation.ts`, `proxy.ts` | none | do not set | Leave unset. Preview HTTP mutations stay blocked. |
+| `PREVIEW_ALLOW_PRODUCTION_EMAIL` | Allow Resend from Preview | NO | preview only | flag | unset → console/suppress | `lib/email/index.ts` | Resend | do not set | Leave unset. Preview has no Resend key. |
+| `PREVIEW_ALLOW_PRODUCTION_DATA` | Allow Preview `/admin` to query DB | NO | preview only | flag | unset → redirect | `app/admin/layout.tsx` | none | do not set | Leave unset. Preview `/admin` must not become a data browser. |
 
 Platform-only variables (`NODE_ENV`, `VERCEL`, `VERCEL_ENV`) are not owner-filled secrets.
 
@@ -223,34 +223,37 @@ Values were not read.
 
 **Development (Vercel):** no environment variables.
 
-**Preview only (also on Production):** `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`.
+**Preview only:** `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_SECRET` (distinct values from Production).
 
-**Production only:** `PAYMENTS_PROVIDER`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+**Preview and Production:** `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `AUTH_TRUST_HOST`.
+
+**Production only:** `PAYMENTS_PROVIDER`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, plus Production `DATABASE_URL` / `AUTH_SECRET` / `NEXTAUTH_SECRET`.
 
 ### Preview safety
 
-Preview **still shares** Production `DATABASE_URL` (Supabase). No second database could be created from this session (no Neon/Supabase/Prisma/Vercel Storage API credentials; Vercel integrations list empty; no billing authorization).
+Preview uses a **separate** Supabase project (`zancta-preview`, ref `imrdduumorsnzbefmhcq`). Production remains `biyegdvpyoxqrzqeocuy`. Hosts and credentials are distinct. Historical Prisma migration SQL is SQLite (`DATETIME`); Preview received the current Postgres schema via `prisma migrate diff --from-empty --to-schema` (same method as local tests). Production schema was not modified.
 
-**Credential scoping (13B):** Preview no longer has Production Resend, Dodo, Upstash, GA4, or `PAYMENTS_PROVIDER` names. Production copies were not deleted; targets were narrowed to Production.
+**Credential scoping:** Preview has its own `DATABASE_URL`, `AUTH_SECRET`, and `NEXTAUTH_SECRET`. Preview still has no Production Resend, Dodo, Upstash, GA4, OAuth, or `PAYMENTS_PROVIDER` names.
 
-**Code isolation:** mutating `/api/*` and OAuth callbacks return 503; Resend is not used; live payments cannot enable (`PAYMENTS_LIVE_ENABLED` is Production-only and not `true` on Preview); `/admin` does not query the database; Preview does not use Upstash (in-memory rate limits even if names were present). GET `/api/payments/checkout` still answers `{live:false}`.
+**Code isolation:** mutating `/api/*` and OAuth callbacks return 503 (`PREVIEW_ALLOW_PRODUCTION_*` remain unset). Resend is not used; live payments cannot enable; `/admin` does not query the database; Preview does not use Upstash. GET `/api/payments/checkout` still answers `{live:false}`.
 
-Google/GitHub OAuth is **explicitly absent** on Preview (Production-only credentials). Sign-in buttons that require those pairs stay hidden.
+Google/GitHub OAuth is **explicitly absent** on Preview.
 
 `*.vercel.app` URLs also require Vercel login.
 
-**Owner action:** In Supabase, create a **separate** project (or branch) for Preview, apply Prisma migrations, set Preview-only `DATABASE_URL`, then you may set `PREVIEW_ALLOW_PRODUCTION_*`. Do not set those flags while Preview still uses the production database. Do not delete Preview `DATABASE_URL` without a replacement.
+Do **not** set `PREVIEW_ALLOW_PRODUCTION_*`. Preview HTTP writes stay blocked even though the database is now separate.
 
 | Check | Finding |
 |---|---|
-| PRESENT BOTH | `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_SECRET`, `AUTH_TRUST_HOST`, `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME` |
-| PRODUCTION ONLY | Resend, Dodo, Upstash, GA4, IndexNow, OAuth pairs, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
+| PRESENT BOTH | `AUTH_TRUST_HOST`, `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME` |
+| PRODUCTION ONLY | Production `DATABASE_URL`, Production `AUTH_SECRET` / `NEXTAUTH_SECRET`, Resend, Dodo, Upstash, GA4, IndexNow, OAuth pairs, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
+| PREVIEW ONLY | Preview `DATABASE_URL`, Preview `AUTH_SECRET` / `NEXTAUTH_SECRET` |
 | LOCAL ONLY | `AUTH_USE_SECURE_COOKIES`, `NEXT_PUBLIC_ADS_ENABLED` |
 | EMPTY (do not commit) | Never put `INDEXNOW_KEY` or `INDEXNOW_NOTIFY_SECRET` in Git. Configure them in Vercel Production. |
 | UNUSED/LEGACY | `NEXT_PUBLIC_APP_NAME` (both). `DODO_PAYMENTS_*` aliases unused. `SENTRY_DSN` unset both |
 | Value mismatch (flagged, not overwritten) | Restored local `DODO_ENVIRONMENT=live`; Vercel Encrypted value unknown. Checkout remains off because `PAYMENTS_LIVE_ENABLED=false`. Do not change Vercel Production payment flags. |
 | Missing from Vercel Development | All names |
-| Missing from Vercel Preview vs Production | Resend, Dodo, Upstash, GA4, IndexNow, OAuth, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
+| Missing from Vercel Preview vs Production | Production `DATABASE_URL` / auth secrets, Resend, Dodo, Upstash, GA4, IndexNow, OAuth, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
 | Public/secret mismatch | None observed. Public `NEXT_PUBLIC_*` in restored files: `APP_URL`, `APP_NAME`, `GA_MEASUREMENT_ID`, `ADS_ENABLED`. IndexNow is not public. |
 | Duplicate | Both `AUTH_SECRET` and `NEXTAUTH_SECRET` locally and on Vercel |
 
