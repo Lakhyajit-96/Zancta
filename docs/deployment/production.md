@@ -8,7 +8,9 @@ Full platform notes: [operations/vercel.md](../operations/vercel.md). Rollback: 
 
 ## What deploys
 
-Pushes to `main` deploy Production (Node **24.x** on Vercel). GitHub Actions CI uses Node **20**. Preview deployments exist for other branches. `*.vercel.app` URLs require Vercel login (`all_except_custom_domains`); the custom domain is public.
+Pushes to `main` deploy Production (Node **24.x** on Vercel). GitHub Actions CI uses Node **24**. Preview deployments exist for other branches. `*.vercel.app` URLs require Vercel login (`all_except_custom_domains`); the custom domain is public.
+
+Preview mutating APIs are blocked in `proxy.ts` until a separate Preview database exists. Do not set `PREVIEW_ALLOW_PRODUCTION_*` on Production.
 
 There is no `vercel.json`. Next.js is auto-detected. Functions run in `iad1`. No cron jobs.
 

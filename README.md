@@ -124,7 +124,7 @@ GA4 loads only after analytics consent. Measurement IDs are public by design. To
 
 ## Development
 
-Prerequisites: Node 20+, npm 10+, Docker (for the test database).
+Prerequisites: Node 20–24 (`package.json` engines), npm 10+, Docker (for the test database). GitHub CI and Vercel Production use Node 24.
 
 ```bash
 npm install

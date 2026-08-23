@@ -9,6 +9,7 @@ vi.mock("resend", () => ({
 describe("production transactional email", () => {
   const original = {
     nodeEnv: process.env.NODE_ENV,
+    vercelEnv: process.env.VERCEL_ENV,
     resendKey: process.env.RESEND_API_KEY,
     emailFrom: process.env.EMAIL_FROM,
     replyTo: process.env.EMAIL_REPLY_TO,
@@ -17,6 +18,7 @@ describe("production transactional email", () => {
 
   afterEach(() => {
     (process.env as Record<string, string | undefined>).NODE_ENV = original.nodeEnv;
+    process.env.VERCEL_ENV = original.vercelEnv;
     process.env.RESEND_API_KEY = original.resendKey;
     process.env.EMAIL_FROM = original.emailFrom;
     process.env.EMAIL_REPLY_TO = original.replyTo;
@@ -114,5 +116,18 @@ describe("production transactional email", () => {
     expect(payload.subject).toBe("[ZANCTA] New Support Enquiry — Security report");
     expect(payload.html).toEqual(expect.stringContaining("ZCT-MAIL0001"));
     expect(payload.html).not.toEqual(expect.stringContaining("Lakhyajit Changmai"));
+  });
+
+  it("does not send Resend from Vercel Preview even when NODE_ENV is production", async () => {
+    vi.resetModules();
+    (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+    process.env.VERCEL_ENV = "preview";
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.EMAIL_FROM = "noreply@mail.zancta.tech";
+    delete process.env.PREVIEW_ALLOW_PRODUCTION_EMAIL;
+
+    const { getEmailAdapter } = await import("@/lib/email");
+    await getEmailAdapter().sendVerification("person@example.com", "https://zancta.tech/verify-email?token=preview");
+    expect(sendMock).not.toHaveBeenCalled();
   });
 });

@@ -19,7 +19,7 @@ Do not enable paid Vercel products to fill the dashboard. Unused capabilities be
 | Framework | Next.js (auto-detected). Repo has **no** `vercel.json`. |
 | Root / install / build / output | `null` (platform defaults: `npm ci` / `npm run build`) |
 | Node.js on Vercel | `24.x` (`nodejs24.x` lambdas) |
-| GitHub CI Node | 20 (within `package.json` engines `>=20 <25`) |
+| GitHub CI Node | 24 (aligned with Vercel; engines still `>=20 <25`) |
 | Production branch | `main` |
 | Repository | `lakhyajitchangmai77/Zancta` (private GitHub) |
 | Git connection | enabled (`createDeployments: enabled`) |
@@ -92,6 +92,8 @@ All Vercel values are Encrypted/sensitive. Development scope is empty.
 **Production only:** `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
 
 `PAYMENTS_LIVE_ENABLED` unset on Preview still means checkout is off (`lib/payments/live.ts`). Checkout must stay `{"live":false}` until authorized.
+
+Preview isolation (code, 23 August 2026): while Preview still shares Production `DATABASE_URL` / Resend / Dodo / Upstash **names**, mutating `/api/*` requests and OAuth callbacks return 503, Resend is not used, live payments cannot enable, and `/admin` does not query production data. Owner must still attach a separate Preview database before setting `PREVIEW_ALLOW_PRODUCTION_*`.
 
 Inventory: [environment.md](environment.md). Templates: `.env.example`, `.env.production.example`.
 

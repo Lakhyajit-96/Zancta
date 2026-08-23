@@ -17,7 +17,7 @@ How ZANCTA is observed in production. No fabricated metrics. Sentry is **not** p
 | Contact | `app/api/contact/route.ts` | Logs **reference id**, not the visitor email body |
 | GA4 | consent-gated client | Page and tool events without filenames or file contents |
 | Vercel Speed Insights | project toggle | **Baseline not established** (`hasData: false`) |
-| Vercel Web Analytics | project toggle | Dashboard feature on; app does not ship `@vercel/analytics` |
+| Vercel Web Analytics | project toggle | Dashboard feature on; **no `@vercel/analytics` in the app**. Left unused rather than injecting a second tracker beside consent-gated GA4. |
 | Sentry | `instrumentation.ts` | Inert unless `SENTRY_DSN` is set. Do not buy Sentry automatically. |
 
 Client PDF parsing may log a generic console warning in the **browser**. Filenames are not written to that console line. User-facing errors in the tab may still name the selected file.

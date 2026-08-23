@@ -50,8 +50,11 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash token | YES with URL | production | SECRET | none | `lib/rate-limit.ts` | Upstash | Vercel | |
 | `TEST_DATABASE_URL` | Isolated test Postgres | NO (has default) | test | SECRET (local test creds in repo compose file) | `postgresql://zancta:zancta@127.0.0.1:54329/zancta_test` | `tests/postgres-url.ts`, `tests/apply-test-schema.mjs` | Docker Postgres | optional local | `tests/setup.ts` assigns this to `DATABASE_URL`. |
 | `NODE_ENV` | Node environment | YES (set by runtime) | all | neither | `development` | many files | Node / Next | do not hand-set on Vercel | |
-| `VERCEL_ENV` | `production` / `preview` / `development` | platform | Vercel | neither | unset off-Vercel | auth cookies, rate limit, contact schema, production-config | Vercel | automatic | |
+| `VERCEL_ENV` | `production` / `preview` / `development` | platform | Vercel | neither | unset off-Vercel | auth cookies, rate limit, contact schema, production-config, preview isolation | Vercel | automatic | |
 | `VERCEL` | Present on Vercel | platform | Vercel | neither | unset | `lib/production-config.ts` | Vercel | automatic | |
+| `PREVIEW_ALLOW_PRODUCTION_MUTATIONS` | Allow Preview `/api` writes | NO | preview only | flag | unset → blocked | `lib/preview-isolation.ts`, `proxy.ts` | none | Vercel Preview after isolated DB | Never set on Production. |
+| `PREVIEW_ALLOW_PRODUCTION_EMAIL` | Allow Resend from Preview | NO | preview only | flag | unset → console/suppress | `lib/email/index.ts` | Resend | Vercel Preview after isolated mail | Never set on Production. |
+| `PREVIEW_ALLOW_PRODUCTION_DATA` | Allow Preview `/admin` to query DB | NO | preview only | flag | unset → redirect | `app/admin/layout.tsx` | none | Vercel Preview after isolated DB | Never set on Production. |
 
 Platform-only variables (`NODE_ENV`, `VERCEL`, `VERCEL_ENV`) are not owner-filled secrets.
 
@@ -218,11 +221,13 @@ Older leftover: `.env.bak12c` (19 Aug 2026) — same auth/database/OAuth/Resend/
 
 ### Preview safety
 
-Preview is **not** a separate data plane. `DATABASE_URL`, `RESEND_API_KEY`, Dodo keys, and Upstash are present on Preview as well as Production. A Preview signup can mutate production Postgres and send real Resend mail. `*.vercel.app` URLs require Vercel login, which only limits who can *open* the preview.
+Preview **env names** still include Production `DATABASE_URL`, `RESEND_API_KEY`, Dodo keys, and Upstash. Those secrets were not deleted (no replacement Preview database exists).
 
-Checkout stays off unless `PAYMENTS_LIVE_ENABLED` is the string `true` (Production-only today; unset on Preview still means off). Do not copy production OAuth to Preview without dedicated callback URLs. Do not delete Preview `DATABASE_URL` without a replacement database.
+**Code isolation (default):** mutating `/api/*` and OAuth callbacks return 503; Resend is not used; live payments cannot enable; `/admin` does not query the database. GET `/api/payments/checkout` still answers `{live:false}`.
 
-**Owner action:** provision a non-production Postgres (and optionally Resend test) for Preview, or disable Preview env copies of production secrets.
+`*.vercel.app` URLs also require Vercel login.
+
+**Owner action:** provision a non-production Postgres (and optional Resend test key) for Preview, point Preview `DATABASE_URL` at it, then you may set `PREVIEW_ALLOW_PRODUCTION_*`. Do not set those flags while Preview still uses the production database. Do not delete Preview `DATABASE_URL` without a replacement.
 
 **Development (Vercel):** no environment variables.
 

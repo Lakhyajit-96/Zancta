@@ -19,6 +19,7 @@ import {
   verificationEmail,
   welcomeEmail,
 } from "./templates";
+import { previewEmailBlocked } from "@/lib/preview-isolation";
 
 export interface EmailAdapter {
   sendVerification(to: string, url: string): Promise<void>;
@@ -297,14 +298,60 @@ class TestAdapter implements EmailAdapter {
   }
 }
 
+class IsolatedPreviewAdapter implements EmailAdapter {
+  private async noop(kind: string) {
+    console.log(`[PREVIEW] ${kind} email suppressed`);
+  }
+  async sendVerification() {
+    await this.noop("verification");
+  }
+  async sendPasswordReset() {
+    await this.noop("password-reset");
+  }
+  async sendPasswordChanged() {
+    await this.noop("password-changed");
+  }
+  async sendWelcome() {
+    await this.noop("welcome");
+  }
+  async sendAccountDeleted() {
+    await this.noop("account-deleted");
+  }
+  async sendSubscriptionActivated() {
+    await this.noop("subscription-activated");
+  }
+  async sendSubscriptionRenewed() {
+    await this.noop("subscription-renewed");
+  }
+  async sendPaymentFailed() {
+    await this.noop("payment-failed");
+  }
+  async sendCancellation() {
+    await this.noop("cancellation");
+  }
+  async sendRefundProcessed() {
+    await this.noop("refund");
+  }
+  async sendSecurityNotification() {
+    await this.noop("security");
+  }
+  async sendContactNotification() {
+    await this.noop("contact-notification");
+  }
+  async sendContactAcknowledgement() {
+    await this.noop("contact-acknowledgement");
+  }
+}
+
 function getAdapter(): EmailAdapter {
   const env = process.env.NODE_ENV;
+  if (env === "test") return new TestAdapter();
+  if (previewEmailBlocked()) return new IsolatedPreviewAdapter();
   const hasResend = !!process.env.RESEND_API_KEY;
   if (env === "production") {
     if (!hasResend) throw new Error("RESEND_API_KEY missing in production");
     return new ResendAdapter();
   }
-  if (env === "test") return new TestAdapter();
   return new ConsoleAdapter();
 }
 

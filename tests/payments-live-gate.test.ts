@@ -7,6 +7,7 @@ describe("live payments gate", () => {
     env: process.env.DODO_ENVIRONMENT,
     monthly: process.env.DODO_PRODUCT_MONTHLY_ID,
     annual: process.env.DODO_PRODUCT_ANNUAL_ID,
+    vercel: process.env.VERCEL_ENV,
   };
 
   afterEach(() => {
@@ -14,6 +15,7 @@ describe("live payments gate", () => {
     process.env.DODO_ENVIRONMENT = prev.env;
     process.env.DODO_PRODUCT_MONTHLY_ID = prev.monthly;
     process.env.DODO_PRODUCT_ANNUAL_ID = prev.annual;
+    process.env.VERCEL_ENV = prev.vercel;
   });
 
   it("stays off without the production flag", () => {
@@ -33,10 +35,20 @@ describe("live payments gate", () => {
   });
 
   it("turns on only for live env, both products, and explicit flag", () => {
+    delete process.env.VERCEL_ENV;
     process.env.DODO_ENVIRONMENT = "live";
     process.env.PAYMENTS_LIVE_ENABLED = "true";
     process.env.DODO_PRODUCT_MONTHLY_ID = "pdt_monthly_test";
     process.env.DODO_PRODUCT_ANNUAL_ID = "pdt_annual_test";
     expect(isLivePaymentsEnabled()).toBe(true);
+  });
+
+  it("stays off on Vercel Preview even when live flags are set", () => {
+    process.env.VERCEL_ENV = "preview";
+    process.env.DODO_ENVIRONMENT = "live";
+    process.env.PAYMENTS_LIVE_ENABLED = "true";
+    process.env.DODO_PRODUCT_MONTHLY_ID = "pdt_monthly_test";
+    process.env.DODO_PRODUCT_ANNUAL_ID = "pdt_annual_test";
+    expect(isLivePaymentsEnabled()).toBe(false);
   });
 });

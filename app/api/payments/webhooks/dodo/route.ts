@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPaymentProvider } from "@/lib/payments";
 import { processVerifiedDodoEvent } from "@/lib/payments/process-dodo-event";
 import { getClientIp, rateLimitAsync } from "@/lib/rate-limit";
+import { previewMutationsBlocked, PREVIEW_ISOLATED_CODE, PREVIEW_ISOLATED_MESSAGE } from "@/lib/preview-isolation";
 
 export async function POST(req: NextRequest) {
+  if (previewMutationsBlocked()) {
+    return NextResponse.json({ error: PREVIEW_ISOLATED_MESSAGE, code: PREVIEW_ISOLATED_CODE }, { status: 503 });
+  }
+
   const rawBody = await req.text();
 
   const headers: Record<string, string | undefined> = {};

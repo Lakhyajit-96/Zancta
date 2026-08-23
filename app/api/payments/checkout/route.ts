@@ -7,6 +7,7 @@ import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { getEntitlement } from "@/lib/entitlement";
 import { recordProductEvent } from "@/lib/analytics/server-events";
+import { previewMutationsBlocked, PREVIEW_ISOLATED_CODE, PREVIEW_ISOLATED_MESSAGE } from "@/lib/preview-isolation";
 
 export async function GET() {
   return NextResponse.json({ live: isLivePaymentsEnabled() });
@@ -17,6 +18,10 @@ const CHECKOUT_PLANS: PlanId[] = ["PREMIUM_MONTHLY", "PREMIUM_ANNUAL"];
 // POST /api/payments/checkout  { planId }
 // Requires authenticated, verified user. Returns { checkoutUrl }
 export async function POST(req: NextRequest) {
+  if (previewMutationsBlocked()) {
+    return NextResponse.json({ error: PREVIEW_ISOLATED_MESSAGE, code: PREVIEW_ISOLATED_CODE }, { status: 503 });
+  }
+
   const session = await auth();
   if (!session?.user?.id || !session?.user?.email) {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 });
