@@ -87,13 +87,13 @@ That is preview protection for generated URLs. It does **not** isolate Preview f
 
 All Vercel values are Encrypted/sensitive. Development scope is empty.
 
-**Production + Preview:** `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `PAYMENTS_PROVIDER`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+**Production + Preview:** `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`
 
-**Production only:** `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
+**Production only:** `PAYMENTS_PROVIDER`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 
-`PAYMENTS_LIVE_ENABLED` unset on Preview still means checkout is off (`lib/payments/live.ts`). Checkout must stay `{"live":false}` until authorized.
+`PAYMENTS_LIVE_ENABLED` is Production-only and not set on Preview, so checkout stays off (`lib/payments/live.ts`). Checkout must stay `{"live":false}` until authorized.
 
-Preview isolation (code, 23 August 2026): while Preview still shares Production `DATABASE_URL` / Resend / Dodo / Upstash **names**, mutating `/api/*` requests and OAuth callbacks return 503, Resend is not used, live payments cannot enable, and `/admin` does not query production data. Owner must still attach a separate Preview database before setting `PREVIEW_ALLOW_PRODUCTION_*`.
+Preview isolation (23 August 2026, Phase 13B): Resend, Dodo, Upstash, and GA4 names are Production-only. Preview still shares Production `DATABASE_URL` (Supabase) plus Auth.js secrets needed to boot. Mutating `/api/*` and OAuth callbacks return 503 until a separate Preview database exists and `PREVIEW_ALLOW_PRODUCTION_*` is set. Do not set those flags while Preview still uses the production database.
 
 Inventory: [environment.md](environment.md). Templates: `.env.example`, `.env.production.example`.
 

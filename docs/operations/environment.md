@@ -25,12 +25,12 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `GOOGLE_CLIENT_SECRET` | Google OAuth secret | NO with ID | local / production | SECRET | none | `lib/auth.ts` | Google | local / Vercel | Must pair with ID. |
 | `GITHUB_CLIENT_ID` | GitHub OAuth | NO | local / production | PUBLIC ID | none | `lib/auth.ts`, signin/signup | GitHub | local / Vercel | |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth secret | NO with ID | local / production | SECRET | none | `lib/auth.ts` | GitHub | local / Vercel | |
-| `RESEND_API_KEY` | Transactional email | YES (prod) | production; optional local | SECRET | none (console transport locally) | `lib/email/index.ts`, `lib/production-config.ts` | Resend | local / Vercel | |
-| `EMAIL_FROM` | Verified From address | YES (prod) | production | PUBLIC mailbox | none | `lib/email/index.ts` | Resend | local / Vercel | Use `noreply@mail.zancta.tech`. |
+| `RESEND_API_KEY` | Transactional email | YES (prod) | production; optional local | SECRET | none (console transport locally) | `lib/email/index.ts`, `lib/production-config.ts` | Resend | local / Vercel Production | Not on Vercel Preview (13B). |
+| `EMAIL_FROM` | Verified From address | YES (prod) | production | PUBLIC mailbox | none | `lib/email/index.ts` | Resend | local / Vercel Production | Use `noreply@mail.zancta.tech`. Not on Vercel Preview (13B). |
 | `EMAIL_REPLY_TO` | Support Reply-To override | NO | all | PUBLIC mailbox | `support@zancta.tech` via `lib/legal-public.ts` | `lib/email/contacts.ts` | Hostinger mailbox | local / Vercel | |
-| `PAYMENTS_PROVIDER` | Payment adapter name | NO | all | neither | `dodo` | `lib/payments/index.ts` | Dodo | local / Vercel | Only `dodo` is implemented. |
-| `DODO_API_KEY` | Dodo REST API | YES when checkout/webhooks run | preview / production | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | local / Vercel | Required at call time, not at boot. |
-| `DODO_WEBHOOK_SECRET` | Webhook HMAC | YES for webhooks | preview / production | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | local / Vercel | Preferred name. |
+| `PAYMENTS_PROVIDER` | Payment adapter name | NO | production | neither | `dodo` | `lib/payments/index.ts` | Dodo | local / Vercel Production | Only `dodo` is implemented. Not on Vercel Preview (13B). |
+| `DODO_API_KEY` | Dodo REST API | YES when checkout/webhooks run | production | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | local / Vercel Production | Required at call time, not at boot. Not on Vercel Preview (13B). |
+| `DODO_WEBHOOK_SECRET` | Webhook HMAC | YES for webhooks | production | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | local / Vercel Production | Preferred name. Not on Vercel Preview (13B). |
 | `DODO_PAYMENTS_WEBHOOK_SECRET` | Alias of webhook secret | NO | all | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | optional | Legacy alias. |
 | `DODO_ENVIRONMENT` | `test` or `live` API host | YES (prod should be explicit) | all | neither | `test` | `lib/payments/live.ts`, Dodo client, checkout route | Dodo | local / Vercel | Keep `test` while checkout is off. |
 | `DODO_PRODUCT_MONTHLY_ID` | Premium monthly product | YES for live checkout | production | SECRET-ish ID | none | `lib/payments/live.ts`, checkout | Dodo | Vercel | |
@@ -38,7 +38,7 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `DODO_PAYMENTS_PRODUCT_MONTHLY_ID` | Alias monthly | NO | all | SECRET-ish ID | none | live.ts, checkout, dodo.ts | Dodo | optional | Legacy alias. |
 | `DODO_PAYMENTS_PRODUCT_ANNUAL_ID` | Alias annual | NO | all | SECRET-ish ID | none | same | Dodo | optional | Legacy alias. |
 | `PAYMENTS_LIVE_ENABLED` | Live charge switch | YES in production (must be `false` until authorized) | production | neither | not `true` → checkout `{live:false}` | `lib/payments/live.ts` | Dodo | Vercel Production | Live only if `true` **and** `DODO_ENVIRONMENT=live` **and** both product IDs. |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 measurement ID | NO | all | PUBLIC | none | `components/consent-and-analytics.tsx`, `lib/analytics/tracker.ts`, `next.config.ts` CSP | Google Analytics | local / Vercel | Format `G-…`. Consent-gated. |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 measurement ID | NO | production | PUBLIC | none | `components/consent-and-analytics.tsx`, `lib/analytics/tracker.ts`, `next.config.ts` CSP | Google Analytics | local / Vercel Production | Format `G-…`. Consent-gated. Not on Vercel Preview (13B). |
 | `NEXT_PUBLIC_APP_URL` | Public origin helper | NO in prod (canonical hard-coded) | local / preview | PUBLIC | `https://zancta.tech` in production code path | `lib/seo.ts` | none | local / Vercel | |
 | `NEXT_PUBLIC_APP_NAME` | Display name | NO | — | PUBLIC | none | **not read by application code** | none | unused | Present in some Vercel env; unused. |
 | `NEXT_PUBLIC_ADS_ENABLED` | Ad slot flag | NO | all | PUBLIC | not `true` → ads off | `components/marketing/ad-slot.tsx` | none | Vercel / local | Keep `false` or unset. |
@@ -46,8 +46,8 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `NEXT_PUBLIC_SENTRY_DSN` | Browser Sentry | NO | all | treat as sensitive | none | `next.config.ts`, sentry helper | Sentry | avoid | Prefer server DSN only. |
 | `INDEXNOW_KEY` | IndexNow ownership key | YES for IndexNow | production | SECRET (also hosted as `/{key}.txt` by protocol) | none | `lib/indexnow.ts`, `proxy.ts`, `scripts/submit-indexnow-direct.mjs` | IndexNow / Bing | Vercel Production (and operator shell for submit) | Never `NEXT_PUBLIC_`. CLI `vercel env run` currently injects empty for Encrypted vars. |
 | `INDEXNOW_NOTIFY_SECRET` | Internal `POST /api/indexnow` bearer | YES if using that API | production | SECRET | unset → 503 | `app/api/indexnow/route.ts` | none (ZANCTA) | Vercel Production | **Not** the IndexNow protocol key. Official submit script does not need it. |
-| `UPSTASH_REDIS_REST_URL` | Distributed rate limit | YES (prod, warned if missing) | production | SECRET | memory fallback (fail-closed in prod if URL set but token missing) | `lib/rate-limit.ts` | Upstash | Vercel | |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash token | YES with URL | production | SECRET | none | `lib/rate-limit.ts` | Upstash | Vercel | |
+| `UPSTASH_REDIS_REST_URL` | Distributed rate limit | YES (prod, warned if missing) | production | SECRET | memory fallback (fail-closed in prod if URL set but token missing) | `lib/rate-limit.ts` | Upstash | Vercel Production | Not on Vercel Preview (13B). Preview uses in-memory limits. |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash token | YES with URL | production | SECRET | none | `lib/rate-limit.ts` | Upstash | Vercel Production | Not on Vercel Preview (13B). |
 | `TEST_DATABASE_URL` | Isolated test Postgres | NO (has default) | test | SECRET (local test creds in repo compose file) | `postgresql://zancta:zancta@127.0.0.1:54329/zancta_test` | `tests/postgres-url.ts`, `tests/apply-test-schema.mjs` | Docker Postgres | optional local | `tests/setup.ts` assigns this to `DATABASE_URL`. |
 | `NODE_ENV` | Node environment | YES (set by runtime) | all | neither | `development` | many files | Node / Next | do not hand-set on Vercel | |
 | `VERCEL_ENV` | `production` / `preview` / `development` | platform | Vercel | neither | unset off-Vercel | auth cookies, rate limit, contact schema, production-config, preview isolation | Vercel | automatic | |
@@ -217,36 +217,40 @@ Older leftover: `.env.bak12c` (19 Aug 2026) — same auth/database/OAuth/Resend/
 | `.env.bak12c` | present, gitignored older backup |
 | `.env.vercel-check` | present, gitignored empty Encrypted dump |
 
-### Vercel scopes (`vercel env ls`)
+### Vercel scopes (`vercel env ls`) — names only, 23 August 2026 (Phase 13B)
 
-### Preview safety
-
-Preview **env names** still include Production `DATABASE_URL`, `RESEND_API_KEY`, Dodo keys, and Upstash. Those secrets were not deleted (no replacement Preview database exists).
-
-**Code isolation (default):** mutating `/api/*` and OAuth callbacks return 503; Resend is not used; live payments cannot enable; `/admin` does not query the database. GET `/api/payments/checkout` still answers `{live:false}`.
-
-`*.vercel.app` URLs also require Vercel login.
-
-**Owner action:** provision a non-production Postgres (and optional Resend test key) for Preview, point Preview `DATABASE_URL` at it, then you may set `PREVIEW_ALLOW_PRODUCTION_*`. Do not set those flags while Preview still uses the production database. Do not delete Preview `DATABASE_URL` without a replacement.
+Values were not read.
 
 **Development (Vercel):** no environment variables.
 
-**Preview:** names present (Encrypted): `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `PAYMENTS_PROVIDER`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
+**Preview only (also on Production):** `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `DATABASE_URL`, `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`.
 
-**Production:** Preview set **plus** Production-only: `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`.
+**Production only:** `PAYMENTS_PROVIDER`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`.
 
-Values were not read. Encrypted names exist; emptiness in the dashboard is an owner check.
+### Preview safety
+
+Preview **still shares** Production `DATABASE_URL` (Supabase). No second database could be created from this session (no Neon/Supabase/Prisma/Vercel Storage API credentials; Vercel integrations list empty; no billing authorization).
+
+**Credential scoping (13B):** Preview no longer has Production Resend, Dodo, Upstash, GA4, or `PAYMENTS_PROVIDER` names. Production copies were not deleted; targets were narrowed to Production.
+
+**Code isolation:** mutating `/api/*` and OAuth callbacks return 503; Resend is not used; live payments cannot enable (`PAYMENTS_LIVE_ENABLED` is Production-only and not `true` on Preview); `/admin` does not query the database; Preview does not use Upstash (in-memory rate limits even if names were present). GET `/api/payments/checkout` still answers `{live:false}`.
+
+Google/GitHub OAuth is **explicitly absent** on Preview (Production-only credentials). Sign-in buttons that require those pairs stay hidden.
+
+`*.vercel.app` URLs also require Vercel login.
+
+**Owner action:** In Supabase, create a **separate** project (or branch) for Preview, apply Prisma migrations, set Preview-only `DATABASE_URL`, then you may set `PREVIEW_ALLOW_PRODUCTION_*`. Do not set those flags while Preview still uses the production database. Do not delete Preview `DATABASE_URL` without a replacement.
 
 | Check | Finding |
 |---|---|
-| PRESENT BOTH | Core production names: `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `AUTH_TRUST_HOST`, OAuth pairs, `RESEND_API_KEY`, `EMAIL_FROM`, Dodo canonical keys, Upstash, GA4, `PAYMENTS_PROVIDER`, `NODE_ENV`, `NEXT_PUBLIC_APP_URL` |
+| PRESENT BOTH | `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_SECRET`, `AUTH_TRUST_HOST`, `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME` |
+| PRODUCTION ONLY | Resend, Dodo, Upstash, GA4, IndexNow, OAuth pairs, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
 | LOCAL ONLY | `AUTH_USE_SECURE_COOKIES`, `NEXT_PUBLIC_ADS_ENABLED` |
-| VERCEL ONLY | `EMAIL_REPLY_TO` |
 | EMPTY (do not commit) | Never put `INDEXNOW_KEY` or `INDEXNOW_NOTIFY_SECRET` in Git. Configure them in Vercel Production. |
 | UNUSED/LEGACY | `NEXT_PUBLIC_APP_NAME` (both). `DODO_PAYMENTS_*` aliases unused. `SENTRY_DSN` unset both |
-| Value mismatch (flagged, not overwritten) | Restored local `DODO_ENVIRONMENT=live`; Vercel Encrypted value unknown. Checkout remains off because `PAYMENTS_LIVE_ENABLED=false`. Do not change Vercel. |
+| Value mismatch (flagged, not overwritten) | Restored local `DODO_ENVIRONMENT=live`; Vercel Encrypted value unknown. Checkout remains off because `PAYMENTS_LIVE_ENABLED=false`. Do not change Vercel Production payment flags. |
 | Missing from Vercel Development | All names |
-| Missing from Vercel Preview vs Production | `NEXTAUTH_URL`, OAuth pair, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_KEY`, `INDEXNOW_NOTIFY_SECRET` |
+| Missing from Vercel Preview vs Production | Resend, Dodo, Upstash, GA4, IndexNow, OAuth, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
 | Public/secret mismatch | None observed. Public `NEXT_PUBLIC_*` in restored files: `APP_URL`, `APP_NAME`, `GA_MEASUREMENT_ID`, `ADS_ENABLED`. IndexNow is not public. |
 | Duplicate | Both `AUTH_SECRET` and `NEXTAUTH_SECRET` locally and on Vercel |
 

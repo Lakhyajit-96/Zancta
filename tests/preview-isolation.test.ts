@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   isPreviewBlockedRequest,
   previewEmailBlocked,
@@ -6,6 +6,21 @@ import {
   previewProductionDataBlocked,
 } from "@/lib/preview-isolation";
 import { isLivePaymentsEnabled } from "@/lib/payments/live";
+
+const redisConstructed = vi.fn();
+
+vi.mock("@upstash/redis", () => ({
+  Redis: class {
+    constructor() {
+      redisConstructed();
+      throw new Error("Upstash must not be constructed on Preview");
+    }
+  },
+}));
+
+vi.mock("@upstash/ratelimit", () => ({
+  Ratelimit: class {},
+}));
 
 describe("preview isolation", () => {
   const prev = {
@@ -17,6 +32,8 @@ describe("preview isolation", () => {
     dodo: process.env.DODO_ENVIRONMENT,
     monthly: process.env.DODO_PRODUCT_MONTHLY_ID,
     annual: process.env.DODO_PRODUCT_ANNUAL_ID,
+    upstashUrl: process.env.UPSTASH_REDIS_REST_URL,
+    upstashToken: process.env.UPSTASH_REDIS_REST_TOKEN,
   };
 
   afterEach(() => {
@@ -28,6 +45,8 @@ describe("preview isolation", () => {
     process.env.DODO_ENVIRONMENT = prev.dodo;
     process.env.DODO_PRODUCT_MONTHLY_ID = prev.monthly;
     process.env.DODO_PRODUCT_ANNUAL_ID = prev.annual;
+    process.env.UPSTASH_REDIS_REST_URL = prev.upstashUrl;
+    process.env.UPSTASH_REDIS_REST_TOKEN = prev.upstashToken;
   });
 
   it("blocks mutating APIs and OAuth callbacks on Preview by default", () => {
@@ -71,5 +90,27 @@ describe("preview isolation", () => {
     delete process.env.PREVIEW_ALLOW_PRODUCTION_EMAIL;
     expect(previewEmailBlocked()).toBe(true);
     expect(previewProductionDataBlocked()).toBe(true);
+  });
+
+  it("rate-limit source skips Upstash on Preview", async () => {
+    const { readFile } = await import("fs/promises");
+    const path = await import("path");
+    const src = await readFile(path.join(process.cwd(), "lib/rate-limit.ts"), "utf8");
+    expect(src).toMatch(/VERCEL_ENV === "preview"/);
+  });
+
+  it("uses in-memory rate limits and never constructs Redis on Preview", async () => {
+    process.env.VERCEL_ENV = "preview";
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "example-token";
+    redisConstructed.mockClear();
+    vi.resetModules();
+    const { rateLimitAsync } = await import("@/lib/rate-limit");
+    const first = await rateLimitAsync("preview-isolation-rl", 5, 60_000);
+    const second = await rateLimitAsync("preview-isolation-rl", 5, 60_000);
+    expect(first.ok).toBe(true);
+    expect(second.ok).toBe(true);
+    expect(second.remaining).toBe(first.remaining - 1);
+    expect(redisConstructed).not.toHaveBeenCalled();
   });
 });

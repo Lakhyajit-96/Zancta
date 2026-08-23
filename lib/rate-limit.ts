@@ -9,6 +9,8 @@ let redis: Redis | null = null;
 let redisFailedAt: number | null = null;
 
 function getUpstash(): Ratelimit | null {
+  // Preview must not increment Production Redis even if Upstash names leak into the env.
+  if (process.env.VERCEL_ENV === "preview") return null;
   if (upstashLimiter) return upstashLimiter;
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;

@@ -1,12 +1,10 @@
 /**
- * Vercel Preview currently shares Production DATABASE_URL, Resend, Dodo, and Upstash.
- * Until the owner attaches a non-production database, Preview must not mutate
- * production data or send production mail.
+ * Vercel Preview still shares Production DATABASE_URL until the owner attaches
+ * a separate Postgres (observed Production provider: Supabase). Mutating APIs
+ * stay blocked until PREVIEW_ALLOW_PRODUCTION_MUTATIONS=true after that split.
  *
- * Opt-in (only after Preview DATABASE_URL is a separate database):
- *   PREVIEW_ALLOW_PRODUCTION_MUTATIONS=true
- *   PREVIEW_ALLOW_PRODUCTION_EMAIL=true
- *   PREVIEW_ALLOW_PRODUCTION_DATA=true
+ * Preview Resend/Dodo/Upstash should be scoped Production-only in Vercel.
+ * Code also skips Upstash and Resend when VERCEL_ENV=preview.
  */
 
 export function isVercelPreview(): boolean {
