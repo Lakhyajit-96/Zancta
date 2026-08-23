@@ -14,8 +14,8 @@ function llmsTxt(): string {
 
   return `# ZANCTA
 
-> ${LEGAL_PUBLIC.identitySummary} Site: ${LEGAL_PUBLIC.siteUrl}. ${LEGAL_PUBLIC.brand} is operated by ${LEGAL_PUBLIC.operatorName}, an ${LEGAL_PUBLIC.operatorForm.toLowerCase()}.
-> Public contact is ${LEGAL_PUBLIC.siteUrl}/contact. Mailboxes: ${LEGAL_PUBLIC.supportEmail}, ${LEGAL_PUBLIC.privacyEmail}, ${LEGAL_PUBLIC.securityEmail}, ${LEGAL_PUBLIC.billingEmail}.
+> ${LEGAL_PUBLIC.identitySummary} Site: ${LEGAL_PUBLIC.siteUrl}.
+> Public contact is ${LEGAL_PUBLIC.siteUrl}/contact. Mailboxes: ${LEGAL_PUBLIC.supportEmail}, ${LEGAL_PUBLIC.privacyEmail}, ${LEGAL_PUBLIC.securityEmail}, ${LEGAL_PUBLIC.billingEmail}. Legal terms: ${LEGAL_PUBLIC.siteUrl}${LEGAL_PUBLIC.operatorDisclosurePath}.
 > This file is a concise, factual description for language-model crawlers. It is not a ranking claim.
 
 ## What it is

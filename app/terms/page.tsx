@@ -14,8 +14,14 @@ export default function TermsPage() {
     <ContentPage
       eyebrow="/terms"
       title="Terms of service"
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ${LEGAL_PUBLIC.identitySummary} ${LEGAL_PUBLIC.brand} is operated by ${LEGAL_PUBLIC.operatorName}, an ${LEGAL_PUBLIC.operatorForm.toLowerCase()}. By using ZANCTA, you agree to these product terms.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ${LEGAL_PUBLIC.identitySummary} By using ZANCTA, you agree to these product terms.`}
     >
+      <ContentSection title="Operator">
+        <p>
+          {LEGAL_PUBLIC.brand} is independently operated. The operator is {LEGAL_PUBLIC.operatorName}, an{" "}
+          {LEGAL_PUBLIC.operatorForm.toLowerCase()}. ZANCTA is not an incorporated company.
+        </p>
+      </ContentSection>
       <ContentSection title="Using the service">
         <p>You may use the available tools only for files you have the right to use and in compliance with applicable law. Do not use the service to harm others, infringe rights, bypass security controls, or disrupt the application.</p>
       </ContentSection>

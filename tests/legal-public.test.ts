@@ -1,13 +1,18 @@
 import { describe, it, expect } from "vitest";
+import { readFile } from "fs/promises";
+import path from "path";
 import { jsonLdOrganization, jsonLdSoftwareApp, jsonLdWebSite } from "@/lib/seo";
 import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { GET } from "@/app/llms.txt/route";
 
+const PERSONAL_NAME = "Lakhyajit Changmai";
+
 describe("public legal and AI-search facts", () => {
   it("does not publish invented operator identity or mailboxes", () => {
     expect(LEGAL_PUBLIC.operatorLegalNamePublished).toBe(true);
-    expect(LEGAL_PUBLIC.operatorName).toBe("Lakhyajit Changmai");
+    expect(LEGAL_PUBLIC.operatorName).toBe(PERSONAL_NAME);
     expect(LEGAL_PUBLIC.operatorForm).toBe("Unincorporated individual");
+    expect(LEGAL_PUBLIC.operatorDisclosurePath).toBe("/terms");
     expect(LEGAL_PUBLIC.productDescriptor).toBe("Independently operated PDF and image software");
     expect(LEGAL_PUBLIC.identitySummary).toMatch(/independently operated privacy-first document software/i);
     expect(LEGAL_PUBLIC.identitySummary).not.toMatch(/Pvt Ltd|LLP|Inc\.|corporation|trusted by millions|bank-level/i);
@@ -42,37 +47,41 @@ describe("public legal and AI-search facts", () => {
     expect(String((jsonLdWebSite() as { url: string }).url)).toMatch(/\/$/);
   });
 
-  it("names the individual operator in Organization structured data without an address", () => {
+  it("Organization structured data is the ZANCTA brand without founder or address", () => {
     const json = JSON.stringify(jsonLdOrganization());
-    expect(json).toContain("Lakhyajit Changmai");
-    expect(json).toContain('"@type":"Person"');
+    expect(json).toContain('"@type":"Organization"');
+    expect(json).toContain("ZANCTA");
     expect(json).toContain("support@zancta.tech");
+    expect(json).not.toContain(PERSONAL_NAME);
+    expect(json).not.toMatch(/"founder"/);
+    expect(json).not.toMatch(/legalName/i);
     expect(json).not.toMatch(/Pvt Ltd|LLP|registered office|Inc\./i);
     expect(json).not.toMatch(/streetAddress|postalCode|addressCountry/i);
   });
 
-  it("llms.txt is factual and omits ranking claims", async () => {
+  it("llms.txt is factual, ZANCTA-first, and omits ranking claims", async () => {
     const res = GET();
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toMatch(/text\/plain/);
     const body = await res.text();
     expect(body).toContain("ZANCTA");
-    expect(body).toContain("Lakhyajit Changmai");
+    expect(body).not.toContain(PERSONAL_NAME);
     expect(body).toContain("independently operated privacy-first document software");
     expect(body).toContain("https://zancta.tech/contact");
+    expect(body).toContain("https://zancta.tech/terms");
     expect(body).toContain("support@zancta.tech");
     expect(body).toMatch(/11 available|11 working|11 available tools/i);
     expect(body).not.toMatch(/#1|most secure|guaranteed indexing|guaranteed ChatGPT/i);
     expect(body).not.toMatch(/Pvt Ltd|GSTIN|registered office/i);
   });
 
-  it("Contact brand UI is ZANCTA-first without fake corporate identity", async () => {
-    const { readFile } = await import("fs/promises");
-    const path = await import("path");
+  it("Contact is ZANCTA-first and does not display the operator name", async () => {
     const src = await readFile(path.join(process.cwd(), "app/contact/page.tsx"), "utf8");
-    expect(src).toContain("Legal identity");
-    expect(src).toContain("LEGAL_PUBLIC.operatorName");
+    expect(src).toContain("Independently operated");
     expect(src).toContain("Customer support");
+    expect(src).not.toContain("LEGAL_PUBLIC.operatorName");
+    expect(src).not.toContain(PERSONAL_NAME);
+    expect(src).not.toMatch(/Legal identity/);
     expect(src).not.toMatch(/not legal advice/i);
     expect(src).not.toMatch(/lawyer-reviewed/i);
     expect(src).not.toMatch(/Grievance Officer/i);
@@ -80,9 +89,34 @@ describe("public legal and AI-search facts", () => {
     expect(src).not.toMatch(/Pvt Ltd|GSTIN|CIN|virtual office/i);
   });
 
+  it("keeps the operator legal name only on Terms among public app pages", async () => {
+    const publicPages = [
+      "app/page.tsx",
+      "app/about/page.tsx",
+      "app/contact/page.tsx",
+      "app/privacy/page.tsx",
+      "app/refund-and-cancellation/page.tsx",
+      "app/security/page.tsx",
+      "app/pricing/page.tsx",
+      "app/faq/page.tsx",
+      "app/help/page.tsx",
+      "app/how-it-works/page.tsx",
+      "app/tools/page.tsx",
+      "app/llms.txt/route.ts",
+      "lib/seo.ts",
+      "lib/email/layout.ts",
+      "components/marketing/nav.tsx",
+    ];
+    for (const rel of publicPages) {
+      const src = await readFile(path.join(process.cwd(), rel), "utf8");
+      expect(src, rel).not.toContain(PERSONAL_NAME);
+      expect(src, rel).not.toContain("LEGAL_PUBLIC.operatorName");
+    }
+    const terms = await readFile(path.join(process.cwd(), "app/terms/page.tsx"), "utf8");
+    expect(terms).toContain("LEGAL_PUBLIC.operatorName");
+  });
+
   it("marketing page titles are unique and not one-word stubs", async () => {
-    const { readFile } = await import("fs/promises");
-    const path = await import("path");
     const files = [
       "app/tools/page.tsx",
       "app/pricing/page.tsx",

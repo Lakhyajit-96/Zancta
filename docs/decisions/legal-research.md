@@ -168,12 +168,17 @@ clause.
 
 ## 9. What changed as a result of this audit
 
+**23 August 2026 (personal-name minimization):** Public personal-name disclosure is limited
+to `/terms` (Operator section), which identifies the contracting party. The name was
+removed from Contact, Privacy intro, About, `llms.txt`, and Organization JSON-LD
+`founder`. No company, address, GSTIN, DPO, or Grievance Officer was invented. Whether
+Rule 4(2) geographic address / Rule 4(4) Grievance Officer apply remains
+**PROFESSIONAL DETERMINATION REQUIRED**.
+
 **23 August 2026 (public identity refinement):** Contact, About, Terms, Privacy, Refunds,
 llms.txt, footer, and email identity copy now lead with ZANCTA as independently operated
-PDF and image software. Operator legal name remains in Contact legal identity, Terms,
-Privacy, llms.txt, and Organization `founder`. The incorrect public claim that E-Commerce
-Rule 4 applies only to companies was removed from Contact and About. No company, address,
-GSTIN, DPO, or Grievance Officer was invented. Internal §1 and §7 were corrected as above.
+PDF and image software. The incorrect public claim that E-Commerce Rule 4 applies only to
+companies was removed from Contact and About. Internal §1 and §7 were corrected as above.
 
 **12H-9 original public-page changes:**
 

@@ -106,10 +106,10 @@ export default function AboutPage() {
                   restrained so the task, not the interface, remains in focus.
                 </p>
               </ContentSection>
-              <ContentSection title="Support and identity">
+              <ContentSection title="Support">
                 <p>
                   {LEGAL_PUBLIC.identitySummary} Support, privacy, security, and billing contacts are on{" "}
-                  <Link href="/contact" className="underline">Contact</Link>. Legal identity and product terms are on{" "}
+                  <Link href="/contact" className="underline">Contact</Link>. Product terms and privacy practices are on{" "}
                   <Link href="/terms" className="underline">Terms</Link> and{" "}
                   <Link href="/privacy" className="underline">Privacy</Link>.
                 </p>

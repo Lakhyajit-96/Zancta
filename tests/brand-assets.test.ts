@@ -85,8 +85,8 @@ describe("brand assets and search identity", () => {
   it("Organization logo points at a crawlable raster on zancta.tech", () => {
     const json = JSON.stringify(jsonLdOrganization());
     expect(json).toContain("https://zancta.tech/icons/favicon-512.png");
-    expect(json).toContain("Lakhyajit Changmai");
-    expect(json).not.toMatch(/legalName|telephone|address/i);
+    expect(json).not.toContain("Lakhyajit Changmai");
+    expect(json).not.toMatch(/legalName|telephone|address|founder/i);
   });
 });
 

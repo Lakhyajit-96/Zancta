@@ -117,10 +117,6 @@ export function jsonLdOrganization(): object {
     url: `${PUBLIC_SITE_URL}/`,
     logo: `${PUBLIC_SITE_URL}/icons/favicon-512.png`,
     description: "Independently operated browser-based PDF and image tools that process supported files locally in the visitor's browser.",
-    founder: {
-      "@type": "Person",
-      name: LEGAL_PUBLIC.operatorName,
-    },
     contactPoint: [
       {
         "@type": "ContactPoint",

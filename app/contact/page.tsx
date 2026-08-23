@@ -124,12 +124,14 @@ export default function ContactPage() {
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
-            <h2 className="text-base font-semibold tracking-[-0.01em]">Legal identity</h2>
+            <h2 className="text-base font-semibold tracking-[-0.01em]">Independently operated</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
-              {LEGAL_PUBLIC.brand} is operated by {LEGAL_PUBLIC.operatorName}, an {LEGAL_PUBLIC.operatorForm.toLowerCase()}.
-              Enquiries are handled through the published mailboxes. Product terms and privacy practices are on{" "}
-              <Link href="/terms" className="underline">Terms</Link> and{" "}
-              <Link href="/privacy" className="underline">Privacy</Link>.
+              ZANCTA is an independently operated software product. Customer, privacy, security, and billing enquiries
+              are handled through the published ZANCTA contact channels. Product terms, privacy practices, and refunds
+              are on{" "}
+              <Link href="/terms" className="underline">Terms</Link>,{" "}
+              <Link href="/privacy" className="underline">Privacy</Link>, and{" "}
+              <Link href="/refund-and-cancellation" className="underline">Refunds</Link>.
             </p>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
               Indian consumers can also use the government-run National Consumer Helpline (1915 /{" "}

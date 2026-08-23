@@ -3,6 +3,9 @@
  * Only product behavior and provider names that exist in this codebase.
  * Do not add a legal entity, address, mailbox, jurisdiction, or lawyer-approval claim here
  * unless that fact is published by the operator.
+ *
+ * Public personal-name disclosure is limited to Terms (`operatorDisclosurePath`).
+ * Contact, About, metadata, emails, and structured data must not repeat it.
  */
 export const LEGAL_PUBLIC = {
   brand: "ZANCTA",
@@ -15,6 +18,7 @@ export const LEGAL_PUBLIC = {
   lastUpdated: "August 23, 2026",
   lawyerReviewed: false,
   operatorLegalNamePublished: true,
+  operatorDisclosurePath: "/terms",
   operatorAddressPublished: false,
   jurisdictionPublished: false,
   monitoredSupportPublished: true,

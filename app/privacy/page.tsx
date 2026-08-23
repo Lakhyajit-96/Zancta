@@ -15,7 +15,7 @@ export default function PrivacyPage() {
     <ContentPage
       eyebrow="/privacy"
       title="How ZANCTA handles privacy."
-      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ${LEGAL_PUBLIC.identitySummary} ${LEGAL_PUBLIC.brand} is operated by ${LEGAL_PUBLIC.operatorName}, an ${LEGAL_PUBLIC.operatorForm.toLowerCase()}. This page describes current product behavior.`}
+      intro={`Last updated: ${LEGAL_PUBLIC.lastUpdated}. ${LEGAL_PUBLIC.identitySummary} This page describes current product behavior.`}
       visual={<ShieldVisual />}
     >
       <ContentSection title="Local file processing">
@@ -66,6 +66,7 @@ export default function PrivacyPage() {
           Support: <a href={`mailto:${LEGAL_PUBLIC.supportEmail}`} className="underline">{LEGAL_PUBLIC.supportEmail}</a>.
           Security: <a href={`mailto:${LEGAL_PUBLIC.securityEmail}`} className="underline">{LEGAL_PUBLIC.securityEmail}</a>.
           Self-service pages: <Link href="/help" className="underline">Help</Link>, <Link href="/contact" className="underline">Contact</Link>, <Link href="/security" className="underline">Security</Link>.
+          The operator is identified in <Link href="/terms" className="underline">Terms</Link>.
         </p>
         <p>
           India&apos;s Digital Personal Data Protection Act, 2023 and its 2025 Rules (MeitY)

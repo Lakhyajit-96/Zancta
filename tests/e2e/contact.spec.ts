@@ -82,7 +82,8 @@ test("contact page exposes breadcrumb structured data and no fake support claims
   await expect(page.getByRole("button", { name: "Send enquiry" })).toBeVisible();
   const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
   expect(hasOverflow).toBe(false);
-  await expect(page.getByRole("heading", { name: "Legal identity" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Independently operated" })).toBeVisible();
+  await expect(page.locator("main")).not.toContainText("Lakhyajit Changmai");
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(jsonLd.some((text) => text.includes("BreadcrumbList") && text.includes("Contact"))).toBeTruthy();
   await expect(page.locator("body")).not.toContainText("live chat");

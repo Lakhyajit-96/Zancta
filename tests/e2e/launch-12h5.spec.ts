@@ -43,13 +43,20 @@ test("P0/P1 launch contract", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Send an enquiry" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Send enquiry" })).toBeVisible();
     await expect(page.getByRole("link", { name: "support@zancta.tech" }).first()).toBeVisible();
-    await expect(page.locator("main header")).not.toContainText("Lakhyajit Changmai");
-    await expect(page.getByRole("heading", { name: "Legal identity" })).toBeVisible();
+    await expect(page.locator("main")).not.toContainText("Lakhyajit Changmai");
+    await expect(page.getByRole("heading", { name: "Independently operated" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Contact channels" })).toBeVisible();
     await expect(page.locator("main header")).toContainText("Independently operated PDF and image software");
     await expect(page.locator("body")).not.toContainText("not legal advice");
     await expect(page.locator("body")).not.toContainText("24/7");
     await expect(page.locator("body")).not.toContainText("live chat");
+
+    await page.goto("/terms");
+    await expect(page.locator("main")).toContainText("Lakhyajit Changmai");
+    await page.goto("/about");
+    await expect(page.locator("main")).not.toContainText("Lakhyajit Changmai");
+    await page.goto("/privacy");
+    await expect(page.locator("main")).not.toContainText("Lakhyajit Changmai");
 
   await page.goto("/refund-and-cancellation");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Refunds and cancellation/i);
