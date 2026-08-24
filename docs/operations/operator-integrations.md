@@ -28,15 +28,17 @@ Do not paste client secrets or refresh tokens into chat.
    - `GOOGLE_OPERATOR_CLIENT_SECRET`
 9. Generate a 32-byte key (64 hex chars) and set `INTEGRATION_ENCRYPTION_KEY` on Production only.
 10. Redeploy Production.
-11. Sign in to ZANCTA as the ADMIN user.
-12. Open `https://zancta.tech/admin/integrations`.
-13. Click **Connect Google**.
-14. Approve scopes:
+11. Sign in to ZANCTA once with the designated operator Google account (this creates a normal FREE user). Google login does **not** grant ADMIN.
+12. From a trusted shell with Production `DATABASE_URL`, promote that existing user (never Preview):
+    `OPERATOR_ADMIN_EMAIL=operator@example.com node scripts/promote-operator-admin.mjs --production --confirm`
+13. Open `https://zancta.tech/admin/integrations` while signed in as that user.
+14. Click **Connect Google**.
+15. Approve scopes:
     - `https://www.googleapis.com/auth/webmasters`
     - `https://www.googleapis.com/auth/analytics.readonly`
     - `openid` / `email` (account identity only)
-15. Confirm the dashboard shows the Google account email and `sc-domain:zancta.tech` or `https://zancta.tech/`.
-16. Open Search Console and GA4 sections. If Google returns rows, they appear. If Google returns an empty row set, the UI shows **NO DATA**, not `0`.
+16. Confirm the dashboard shows the Google account email and `sc-domain:zancta.tech` or `https://zancta.tech/`.
+17. Open Search Console and GA4 sections. If Google returns rows, they appear. If Google returns an empty row set, the UI shows **NO DATA**, not `0`.
 
 Scopes are write for Search Console only because sitemap submit is implemented. GA4 stays read-only. There is **no** Request indexing button; Google does not expose that for ordinary URLs.
 
@@ -71,3 +73,11 @@ Until Connect succeeds, the dashboard must show `AUTH_REQUIRED` or `NOT_CONFIGUR
 1. Disconnect from the dashboard (revokes Google token when possible and deletes ciphertext).
 2. Remove the five Production env vars and redeploy.
 3. Optional: `DELETE FROM "OperatorConnection"; DELETE FROM "OperatorSnapshot";`
+
+## Revoke ADMIN
+
+Promotion is reversible and does not delete the user:
+
+`OPERATOR_ADMIN_EMAIL=operator@example.com node scripts/promote-operator-admin.mjs --production --confirm --revoke`
+
+That sets `Entitlement.plan` back to `FREE` with source `OPERATOR_REVOKE` and writes `operator_admin_revoked`. Google login still does not grant ADMIN.

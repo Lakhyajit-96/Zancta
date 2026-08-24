@@ -60,6 +60,7 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `GOOGLE_OPERATOR_CLIENT_SECRET` | Operator Google OAuth secret | YES with operator client ID | production | SECRET | falls back to `GOOGLE_CLIENT_SECRET` | `lib/integrations/google/oauth.ts` | Google | Vercel Production only | |
 | `BING_WEBMASTER_CLIENT_ID` | Bing Webmaster OAuth client | YES to Connect Bing | production | PUBLIC ID | none | `lib/integrations/bing/oauth.ts` | Bing Webmaster | Vercel Production only | Redirect `https://zancta.tech/api/admin/integrations/bing/callback`. |
 | `BING_WEBMASTER_CLIENT_SECRET` | Bing Webmaster OAuth secret | YES with Bing client ID | production | SECRET | none | `lib/integrations/bing/oauth.ts` | Bing Webmaster | Vercel Production only | |
+| `OPERATOR_ADMIN_EMAIL` | Email of the existing user to promote to ADMIN | CLI only | production shell | neither | none | `scripts/promote-operator-admin.mjs` | none | **not** Vercel; local Production shell only | Never Preview. Not read by the Next.js app. Google login does not grant ADMIN. |
 
 Platform-only variables (`NODE_ENV`, `VERCEL`, `VERCEL_ENV`) are not owner-filled secrets.
 

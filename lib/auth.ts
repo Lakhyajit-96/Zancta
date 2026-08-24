@@ -151,10 +151,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       await ensureOAuthEntitlement(user.id);
       await auditEvent({ userId: user.id, action: "signup", targetId: user.id, metadata: JSON.stringify({ method: "oauth" }) });
     },
-    async signIn({ account, user }) {
+    async signIn({ account, user, profile }) {
       await clearOAuthIntentCookie();
       if (account && account.provider !== "credentials" && user.id) {
         await auditEvent({ userId: user.id, action: "oauth_signin", targetId: user.id, metadata: JSON.stringify({ provider: account.provider }) });
+        const googleAttested =
+          account.provider === "google" && (profile as { email_verified?: boolean } | undefined)?.email_verified === true;
+        if (googleAttested) {
+          await prisma.user.updateMany({
+            where: { id: user.id, emailVerified: null },
+            data: { emailVerified: new Date() },
+          });
+        }
       }
     },
   },
@@ -192,9 +200,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           select: { id: true, deletedAt: true, authVersion: true, emailVerified: true },
         });
         if (!live || live.deletedAt) return null;
+        token.emailVerified = live.emailVerified ?? (user as { emailVerified?: Date | null } | undefined)?.emailVerified ?? null;
         if (user) {
           token.id = live.id;
-          token.emailVerified = live.emailVerified ?? (user as { emailVerified?: Date | null }).emailVerified ?? null;
           token.authVersion = live.authVersion;
           return token;
         }
