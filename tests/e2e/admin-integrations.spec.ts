@@ -51,18 +51,23 @@ async function setPlan(email: string, plan: "FREE" | "ADMIN") {
 
 test.describe("operator integrations authorization", () => {
   test("unauthenticated visitor is sent to sign-in", async ({ request }) => {
-    const pageRes = await request.get("/admin/integrations", { maxRedirects: 0 });
-    expect(pageRes.status()).toBeGreaterThanOrEqual(300);
-    expect(pageRes.status()).toBeLessThan(400);
-    expect(pageRes.headers()["location"] || "").toMatch(/signin/i);
+    for (const path of ["/admin", "/admin/growth", "/admin/integrations"]) {
+      const pageRes = await request.get(path, { maxRedirects: 0 });
+      expect(pageRes.status(), path).toBeGreaterThanOrEqual(300);
+      expect(pageRes.status(), path).toBeLessThan(400);
+      expect(pageRes.headers()["location"] || "", path).toMatch(/signin/i);
+    }
 
     const connect = await request.get("/api/admin/integrations/google/connect", { maxRedirects: 0 });
     expect(connect.status()).toBeGreaterThanOrEqual(300);
     expect(connect.headers()["location"] || "").toMatch(/signin/i);
   });
 
-  test("signed-in free user cannot open the dashboard or start OAuth", async ({ page, request }) => {
+  test("signed-in free user cannot open admin pages or start OAuth", async ({ page, request }) => {
     await signupVerifySignin(page, request);
+    await page.goto("/admin");
+    await expect(page).toHaveURL(/\/account/, { timeout: 15_000 });
+    await expect(page.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
     await page.goto("/admin/integrations");
     await expect(page).toHaveURL(/\/account/, { timeout: 15_000 });
     await expect(page.getByRole("heading", { name: "Operator integrations" })).toHaveCount(0);
@@ -73,9 +78,26 @@ test.describe("operator integrations authorization", () => {
     expect(bing.headers()["location"] || bing.url()).toMatch(/account/i);
   });
 
-  test("authorized ADMIN opens the dashboard and can start provider OAuth", async ({ page, request }) => {
+  test("authorized ADMIN opens the hub, growth, integrations, and can start provider OAuth", async ({ page, request }) => {
     const email = await signupVerifySignin(page, request);
     await setPlan(email, "ADMIN");
+    await page.goto("/account");
+    await expect(page.getByRole("link", { name: "Open Admin Dashboard" })).toBeVisible();
+    await page.goto("/");
+    await expect(page.getByRole("banner").getByRole("link", { name: "ZANCTA home" })).toHaveAttribute("href", "/");
+    await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Admin" })).toBeVisible();
+
+    await page.goto("/admin");
+    await expect(page).toHaveURL(/\/admin\/?$/, { timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: "Operator Dashboard" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Operator" }).getByRole("link", { name: "Overview" })).toBeVisible();
+    await page.getByRole("banner").getByRole("link", { name: "ZANCTA home" }).click();
+    await expect(page).toHaveURL(/\/$/);
+
+    await page.goto("/admin/growth");
+    await expect(page).toHaveURL(/\/admin\/growth/, { timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: /Growth Dashboard/i })).toBeVisible();
+
     await page.goto("/admin/integrations");
     await expect(page).toHaveURL(/\/admin\/integrations/, { timeout: 15_000 });
     await expect(page.getByRole("heading", { name: "Operator integrations" })).toBeVisible();

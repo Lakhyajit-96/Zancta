@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { previewProductionDataBlocked } from "@/lib/preview-isolation";
+import { Navigation } from "@/components/marketing/nav";
+import { OperatorNav } from "@/components/admin/operator-nav";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -23,12 +25,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (entitlement?.plan !== "ADMIN") redirect("/account");
 
   return (
-    <div>
-      <nav className="border-b border-border px-6 py-3 text-sm">
-        <a className="mr-4 underline" href="/admin/growth">Growth</a>
-        <a className="underline" href="/admin/integrations">Integrations</a>
-      </nav>
-      {children}
-    </div>
+    <>
+      <Navigation />
+      <div id="main-content" tabIndex={-1} className="min-h-screen">
+        <OperatorNav />
+        {children}
+      </div>
+    </>
   );
 }

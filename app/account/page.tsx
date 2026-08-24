@@ -48,11 +48,17 @@ export default async function AccountPage() {
           <h2 id="account-plan" className="eyebrow">Plan / Subscription</h2>
           <p className="mt-3 text-sm text-muted-foreground">Plan: <span className="font-medium text-foreground">{ent.plan === "ADMIN" ? "Admin" : planLabel}</span> — {ent.status}</p>
           {ent.plan === "ADMIN" ? (
-            <p className="mt-3 text-xs text-muted-foreground">
-              <Link href="/admin/integrations" className="text-accent underline underline-offset-4">Operator integrations</Link>
-              {" · "}
-              <Link href="/admin/growth" className="text-accent underline underline-offset-4">Growth</Link>
-            </p>
+            <div className="mt-4 space-y-3">
+              <Link href="/admin" className="premium-button premium-button-primary inline-flex h-10 px-5 text-sm">
+                Open Admin Dashboard
+              </Link>
+              <p className="text-xs text-muted-foreground">
+                Operator pages:{" "}
+                <Link href="/admin/integrations" className="text-accent underline underline-offset-4">Integrations</Link>
+                {" · "}
+                <Link href="/admin/growth" className="text-accent underline underline-offset-4">Growth</Link>
+              </p>
+            </div>
           ) : null}
           <p className="mt-1 text-xs text-muted-foreground">Local tools and their limits are the same on Free and Premium. Premium reserves an ad-free experience if ads are introduced. No file bytes are stored.</p>
           {ent.integrityIssue === "missing_provider_subscription" && (

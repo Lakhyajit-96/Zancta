@@ -200,7 +200,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           select: { id: true, deletedAt: true, authVersion: true, emailVerified: true },
         });
         if (!live || live.deletedAt) return null;
+        const entitlement = await prisma.entitlement.findUnique({
+          where: { userId: live.id },
+          select: { plan: true },
+        });
         token.emailVerified = live.emailVerified ?? (user as { emailVerified?: Date | null } | undefined)?.emailVerified ?? null;
+        token.operator = entitlement?.plan === "ADMIN";
         if (user) {
           token.id = live.id;
           token.authVersion = live.authVersion;
@@ -221,12 +226,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           session.user.email = "";
           session.user.name = "";
           (session.user as unknown as { id?: string }).id = undefined;
+          session.user.operator = false;
         }
         return session;
       }
       if (session.user) {
         (session.user as unknown as { id: string }).id = token.id as string;
         (session.user as unknown as { emailVerified?: Date | null }).emailVerified = token.emailVerified as Date | null;
+        session.user.operator = token.operator === true;
       }
       return session;
     },

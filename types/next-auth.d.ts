@@ -5,6 +5,7 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       id?: string;
       emailVerified?: Date | null;
+      operator?: boolean;
     };
   }
 }
@@ -14,5 +15,6 @@ declare module "next-auth/jwt" {
     id?: string;
     authVersion?: number;
     emailVerified?: Date | null;
+    operator?: boolean;
   }
 }

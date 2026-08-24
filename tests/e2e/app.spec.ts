@@ -16,6 +16,8 @@ test("tool shell validates HEIC", async ({ page }) => {
 test("navigation accessible", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "ZANCTA home" })).toHaveAttribute("href", "/");
+  await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Admin" })).toHaveCount(0);
 });
 test("public information routes are useful and linked", async ({ page }) => {
   for (const route of ["/about", "/features", "/how-it-works", "/faq", "/help", "/docs", "/privacy", "/terms", "/security", "/contact"]) {

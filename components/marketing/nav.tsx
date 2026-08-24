@@ -14,6 +14,7 @@ const FOCUSABLE = "a[href], button:not([disabled])";
 export function Navigation() {
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [operator, setOperator] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(false);
@@ -75,11 +76,16 @@ export function Navigation() {
     let cancelled = false;
     fetch("/api/auth/session")
       .then((res) => (res.ok ? res.json() : null))
-      .then((session: { user?: unknown } | null) => {
-        if (!cancelled) setSignedIn(Boolean(session?.user));
+      .then((session: { user?: { operator?: boolean } | null } | null) => {
+        if (cancelled) return;
+        setSignedIn(Boolean(session?.user));
+        setOperator(session?.user?.operator === true);
       })
       .catch(() => {
-        if (!cancelled) setSignedIn(false);
+        if (!cancelled) {
+          setSignedIn(false);
+          setOperator(false);
+        }
       });
     return () => {
       cancelled = true;
@@ -106,6 +112,11 @@ export function Navigation() {
               {link.label}
             </Link>
           ))}
+          {operator ? (
+            <Link href="/admin" className="nav-link py-3 transition-colors hover:text-foreground">
+              Admin
+            </Link>
+          ) : null}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -177,6 +188,17 @@ export function Navigation() {
                 </Link>
               </li>
             ))}
+            {operator ? (
+              <li>
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2.5 transition-colors hover:bg-muted"
+                >
+                  Admin
+                </Link>
+              </li>
+            ) : null}
             <li className="border-t border-border pt-2">
               {signedIn ? (
                 <Link
