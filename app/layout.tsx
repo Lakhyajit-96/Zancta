@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "@fontsource-variable/instrument-sans";
 import "@fontsource-variable/fraunces";
 import "./globals.css";
-import { PUBLIC_SITE_URL } from "@/lib/seo";
+import { HOMEPAGE_DESCRIPTION, PUBLIC_SITE_URL } from "@/lib/seo";
 import { ConsentAndAnalytics } from "@/components/consent-and-analytics";
 import { TrackPageView } from "@/components/analytics/track-page-view";
 
@@ -19,8 +19,7 @@ export const metadata: Metadata = {
     default: "ZANCTA — PDF & Image Tools That Run in Your Browser",
     template: "%s — ZANCTA",
   },
-  description:
-    "Eleven browser-based PDF and image tools. Merge, compress, convert, resize, and OCR locally in this browser — no upload for supported processing. Free to use without an account.",
+  description: HOMEPAGE_DESCRIPTION,
   icons: {
     icon: [
       { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
@@ -37,7 +36,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   openGraph: {
     title: "ZANCTA — PDF & Image Tools That Run in Your Browser",
-    description: "Eleven browser-based PDF and image tools with local processing. No upload for supported workflows. Free to use without an account.",
+    description: HOMEPAGE_DESCRIPTION,
     siteName: "ZANCTA",
     type: "website",
     locale: "en_US",
@@ -53,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ZANCTA — PDF & Image Tools That Run in Your Browser",
-    description: "Eleven local PDF and image tools. Merge, compress, convert, resize, and OCR in this browser.",
+    description: HOMEPAGE_DESCRIPTION,
     images: ["/assets/zancta-brand/og-images/zancta-og-hero.png"],
   },
   alternates: { canonical: "/" },

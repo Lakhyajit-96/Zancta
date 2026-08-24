@@ -55,6 +55,10 @@ export function getAppOrigin(): string {
 
 export const PUBLIC_SITE_URL = resolvePublicSiteUrl();
 
+/** Homepage meta description. Kept within Bing's typical 50–160 character window. */
+export const HOMEPAGE_DESCRIPTION =
+  "Private PDF and image tools that process supported files locally in your browser. Merge, split, compress, convert, OCR, and more with ZANCTA.";
+
 export function pageAbsoluteUrl(path: string): string {
   if (!path || path === "/") return PUBLIC_SITE_URL;
   return `${PUBLIC_SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
