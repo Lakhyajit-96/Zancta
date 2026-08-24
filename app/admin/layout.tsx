@@ -22,5 +22,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (entitlement?.plan !== "ADMIN") redirect("/account");
 
-  return <>{children}</>;
+  return (
+    <div>
+      <nav className="border-b border-border px-6 py-3 text-sm">
+        <a className="mr-4 underline" href="/admin/growth">Growth</a>
+        <a className="underline" href="/admin/integrations">Integrations</a>
+      </nav>
+      {children}
+    </div>
+  );
 }

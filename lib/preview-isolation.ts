@@ -36,6 +36,7 @@ export function isPreviewBlockedRequest(method: string, pathname: string): boole
   const verb = method.toUpperCase();
 
   if (path.startsWith("/api/auth/callback")) return true;
+  if (path.startsWith("/api/admin/integrations")) return true;
 
   if (verb === "GET" || verb === "HEAD" || verb === "OPTIONS") return false;
   return path.startsWith("/api/");

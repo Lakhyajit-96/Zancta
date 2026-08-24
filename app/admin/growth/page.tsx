@@ -80,8 +80,9 @@ export default async function GrowthDashboard() {
 
       <Section title="Search indexing">
         <p className="text-sm text-muted-foreground">
-          Google Search Console and Bing Webmaster are not connected to this dashboard.
-          IndexNow submissions are operator-triggered, not a live feed. Do not read empty cells as zero impressions.
+          Google Search Console, Bing Webmaster, and GA4 Data API now live at
+          {" "}<a className="underline" href="/admin/integrations">/admin/integrations</a>.
+          This page still shows database rows only. Empty search/GA4 cells below are not traffic.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat label="Search Console" value="—" sub="Baseline not established" />

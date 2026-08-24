@@ -239,3 +239,42 @@ model DeletedProviderIdentity {
 
   @@index([provider])
 }
+
+// Operator OAuth for Search Console / GA4 / Bing Webmaster.
+// Token columns are AES-256-GCM ciphertext. Never log or return them to the browser.
+model OperatorConnection {
+  id                  String    @id @default(cuid())
+  provider            String    @unique // google | bing
+  status              String    @default("AUTH_REQUIRED")
+  accountEmail        String?
+  accountSubject      String?
+  scopes              String?
+  accessTokenEnc      String?
+  refreshTokenEnc     String?
+  tokenExpiresAt      DateTime?
+  selectedProperty    String?
+  ga4PropertyId       String?
+  ga4MeasurementId    String?
+  lastSuccessAt       DateTime?
+  lastFailureAt       DateTime?
+  consecutiveFailures Int       @default(0)
+  lastErrorCode       String?
+  lastErrorSafe       String?
+  lastLatencyMs       Int?
+  connectedByUserId   String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model OperatorSnapshot {
+  id        String   @id @default(cuid())
+  provider  String
+  dataset   String
+  rangeKey  String
+  payload   Json
+  state     String
+  source    String
+  fetchedAt DateTime @default(now())
+
+  @@index([provider, dataset, rangeKey])
+}

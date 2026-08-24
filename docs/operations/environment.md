@@ -55,6 +55,11 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `PREVIEW_ALLOW_PRODUCTION_MUTATIONS` | Allow Preview `/api` writes | NO | preview only | flag | unset → blocked | `lib/preview-isolation.ts`, `proxy.ts` | none | do not set | Leave unset. Preview HTTP mutations stay blocked. |
 | `PREVIEW_ALLOW_PRODUCTION_EMAIL` | Allow Resend from Preview | NO | preview only | flag | unset → console/suppress | `lib/email/index.ts` | Resend | do not set | Leave unset. Preview has no Resend key. |
 | `PREVIEW_ALLOW_PRODUCTION_DATA` | Allow Preview `/admin` to query DB | NO | preview only | flag | unset → redirect | `app/admin/layout.tsx` | none | do not set | Leave unset. Preview `/admin` must not become a data browser. |
+| `INTEGRATION_ENCRYPTION_KEY` | AES-256-GCM key for operator OAuth tokens | YES to Connect Google/Bing | production | SECRET | none | `lib/integrations/crypto.ts` | none | Vercel Production only | 32 bytes as 64 hex chars or 32-byte base64. Never Preview. |
+| `GOOGLE_OPERATOR_CLIENT_ID` | Operator Google OAuth client | YES to Connect Google APIs | production | PUBLIC ID | falls back to `GOOGLE_CLIENT_ID` if unset | `lib/integrations/google/oauth.ts` | Google | Vercel Production | Redirect `https://zancta.tech/api/admin/integrations/google/callback`. Distinct from user sign-in usage even if the same Cloud project. |
+| `GOOGLE_OPERATOR_CLIENT_SECRET` | Operator Google OAuth secret | YES with operator client ID | production | SECRET | falls back to `GOOGLE_CLIENT_SECRET` | `lib/integrations/google/oauth.ts` | Google | Vercel Production only | |
+| `BING_WEBMASTER_CLIENT_ID` | Bing Webmaster OAuth client | YES to Connect Bing | production | PUBLIC ID | none | `lib/integrations/bing/oauth.ts` | Bing Webmaster | Vercel Production only | Redirect `https://zancta.tech/api/admin/integrations/bing/callback`. |
+| `BING_WEBMASTER_CLIENT_SECRET` | Bing Webmaster OAuth secret | YES with Bing client ID | production | SECRET | none | `lib/integrations/bing/oauth.ts` | Bing Webmaster | Vercel Production only | |
 
 Platform-only variables (`NODE_ENV`, `VERCEL`, `VERCEL_ENV`) are not owner-filled secrets.
 

@@ -15,6 +15,9 @@ if (!process.env.NEXTAUTH_URL) {
 if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
   process.env.AUTH_SECRET = "test-only-auth-secret-not-for-production";
 }
+if (!process.env.INTEGRATION_ENCRYPTION_KEY) {
+  process.env.INTEGRATION_ENCRYPTION_KEY = "ab".repeat(32);
+}
 
 if (typeof globalThis.createImageBitmap === "undefined") {
   // @ts-expect-error polyfill

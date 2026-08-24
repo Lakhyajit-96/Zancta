@@ -127,4 +127,14 @@ test.describe("API authorization and session security", () => {
     await ctxA.close();
     await ctxB.close();
   });
+
+  test("unauthenticated operator integrations is not a public 404", async ({ request }) => {
+    const pageRes = await request.get("/admin/integrations", { maxRedirects: 0 });
+    expect(pageRes.status()).toBeGreaterThanOrEqual(300);
+    expect(pageRes.status()).toBeLessThan(400);
+    expect(pageRes.headers()["location"] || "").toMatch(/signin/i);
+
+    const callback = await request.get("/api/admin/integrations/google/callback", { maxRedirects: 0 });
+    expect(callback.status()).not.toBe(404);
+  });
 });

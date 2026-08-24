@@ -58,6 +58,9 @@ describe("preview isolation", () => {
     expect(isPreviewBlockedRequest("POST", "/api/payments/checkout")).toBe(true);
     expect(isPreviewBlockedRequest("POST", "/api/payments/webhooks/dodo")).toBe(true);
     expect(isPreviewBlockedRequest("GET", "/api/auth/callback/google")).toBe(true);
+    expect(isPreviewBlockedRequest("GET", "/api/admin/integrations/google/connect")).toBe(true);
+    expect(isPreviewBlockedRequest("GET", "/api/admin/integrations/google/callback")).toBe(true);
+    expect(isPreviewBlockedRequest("POST", "/api/admin/integrations/bing/submit-url")).toBe(true);
     expect(isPreviewBlockedRequest("GET", "/api/payments/checkout")).toBe(false);
     expect(isPreviewBlockedRequest("GET", "/tools")).toBe(false);
   });
