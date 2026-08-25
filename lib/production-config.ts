@@ -34,8 +34,12 @@ export function assertProductionConfig(): { ok: boolean; missing: string[]; warn
     else if (env === "EMAIL_FROM" && !val.includes("@")) missing.push(key);
   }
 
+  // Upstash is REQUIRED in production. Without it, rate limiting cannot be distributed
+  // across serverless instances, and the limiter now fails closed in production
+  // (see lib/rate-limit.ts). Treat its absence as a hard config failure, not a warning,
+  // so any wired startup/route validation refuses to run without abuse protection.
   for (const { key, env } of requiredForRateLimitInProduction) {
-    if (!process.env[env]) warnings.push(`${key} missing — rate limiting fallback to memory (not distributed)`);
+    if (!process.env[env]) missing.push(key);
   }
 
   // Check AUTH_TRUST_HOST for Vercel

@@ -24,22 +24,25 @@ function getUpstash(): Ratelimit | null {
   }
 }
 
-// Production policy: FAIL CLOSED for auth when Redis configured but unavailable
+// Production policy: FAIL CLOSED whenever a distributed limiter is unavailable.
 // Tradeoff: Availability vs Abuse resistance
-// - Fail open (allow with memory fallback): legitimate users not locked out during Redis outage, but brute force possible via memory per-instance (not shared)
-// - Fail closed (block all): abuse blocked, but legitimate users locked out during Redis outage
-// Decision: FAIL CLOSED in production when Upstash is configured, FAIL OPEN in development.
-// Rationale: Auth endpoints are security-sensitive; allowing unlimited attempts during Redis outage in production would enable brute force.
-// In dev, fail open to keep local DX.
-function shouldFailClosed(): boolean {
-  const isProd = process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production";
-  const hasUpstash = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
-  return isProd && hasUpstash;
+// - Fail open (allow with memory fallback): legitimate users not locked out during a
+//   Redis outage or misconfiguration, but the per-instance Map is not shared across
+//   Vercel's serverless instances, so it provides no real production-wide protection.
+// - Fail closed (block all): abuse blocked, but legitimate users blocked during an outage.
+// Decision: In Production runtime (NODE_ENV=production AND VERCEL_ENV=production) ALWAYS
+// fail closed when Upstash is missing, cannot initialize, or the Redis call throws.
+// FAIL OPEN (memory) only outside production runtime (local dev, tests, Vercel preview).
+// Rationale: rate-limited operations are security-sensitive; silently downgrading to an
+// ineffective per-instance limiter in production would leave brute force / email-flood /
+// checkout-spam unmitigated. Local DX and preview keep the memory fallback.
+function isProductionRuntime(): boolean {
+  return process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production";
 }
 
 export async function rateLimitAsync(key: string, limit: number, windowMs: number): Promise<{ ok: boolean; remaining: number; resetAt: number }> {
   const upstash = getUpstash();
-  const isProdFailClosed = shouldFailClosed();
+  const failClosed = isProductionRuntime();
   if (upstash) {
     try {
       const windowSec = Math.ceil(windowMs / 1000);
@@ -56,16 +59,19 @@ export async function rateLimitAsync(key: string, limit: number, windowMs: numbe
     } catch (e) {
       redisFailedAt = Date.now();
       console.error("[rate-limit] Redis failed", e);
-      if (isProdFailClosed) {
+      if (failClosed) {
         // Fail closed: block the request (429) to preserve abuse resistance
         return { ok: false, remaining: 0, resetAt: Date.now() + windowMs };
       }
-      // Dev: fallback to memory
-      console.error("[rate-limit] Redis failed, falling back to memory (dev only)");
+      // Dev/preview: fallback to memory
+      console.error("[rate-limit] Redis failed, falling back to memory (non-production only)");
     }
-  } else if (isProdFailClosed && process.env.UPSTASH_REDIS_REST_URL) {
-    // Upstash configured but not initialized (e.g., missing token) — fail closed in prod
-    console.error("[rate-limit] Upstash not initialized but required in prod — failing closed");
+  } else if (failClosed) {
+    // Production requires a distributed limiter. Upstash is missing or could not
+    // initialize (absent URL/token, or constructor threw). Do NOT downgrade to the
+    // per-instance memory Map — it is not shared across serverless instances and would
+    // silently defeat abuse protection. Fail closed instead.
+    console.error("[rate-limit] Distributed limiter unavailable in production — failing closed");
     return { ok: false, remaining: 0, resetAt: Date.now() + windowMs };
   }
   return rateLimitMemory(key, limit, windowMs);
