@@ -68,6 +68,25 @@ export function passwordChangedEmail(): EmailDocument {
   };
 }
 
+export function accountDeletionCodeEmail(code: string): EmailDocument {
+  return {
+    preheader: "A confirmation code was requested to delete your ZANCTA account.",
+    eyebrow: "Account security",
+    title: "Confirm your ZANCTA account deletion",
+    intro: "A request was made to permanently delete your ZANCTA account.",
+    paragraphs: [
+      "To confirm the deletion, copy the confirmation code below and paste it into the account deletion form:",
+      code,
+      "Deleting your account is permanent and cannot be undone.",
+    ],
+    notes: [
+      "The code expires after 15 minutes and can be used once.",
+      `If you did NOT request this deletion, someone else may have access to your signed-in session. Do not share this code. If you sign in with a password, change it immediately. If you sign in with Google, review your Google account activity. Then contact ${EMAIL_CONTACTS.security}.`,
+      "ZANCTA will never ask you to send this code by email or chat.",
+    ],
+  };
+}
+
 export function accountDeletedEmail(): EmailDocument {
   return {
     preheader: "Your account deletion request has been completed.",

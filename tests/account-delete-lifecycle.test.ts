@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
 import { hashProviderIdentity } from "@/lib/deleted-identity";
+import { generateSecureToken, hashToken } from "@/lib/token";
 
 const state = { userId: "" };
 const cancel = vi.fn(async () => {});
@@ -86,17 +87,27 @@ describe("Account deletion lifecycle", () => {
     await prisma.account.deleteMany({ where: { userId: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
     await prisma.paymentSubscription.deleteMany({ where: { userId: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
     await prisma.entitlement.deleteMany({ where: { userId: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
+    await prisma.accountDeletionToken.deleteMany({ where: { userId: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
     await prisma.auditEvent.deleteMany({ where: { userId: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
     await prisma.user.deleteMany({ where: { id: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
   });
 
+  async function issueStepUp(userId: string) {
+    const plain = generateSecureToken();
+    await prisma.accountDeletionToken.create({
+      data: { userId, token: hashToken(plain), expires: new Date(Date.now() + 15 * 60 * 1000) },
+    });
+    return plain;
+  }
+
   it("10-13. delete records hashed identities, drops sessions, and does not keep the user", async () => {
     state.userId = oauthUserId;
+    const stepUpToken = await issueStepUp(oauthUserId);
     const { POST } = await import("@/app/api/account/delete/route");
     const req = new NextRequest("http://localhost:3000/api/account/delete", {
       method: "POST",
       headers: { "content-type": "application/json", "x-forwarded-for": "10.9.0.1" },
-      body: JSON.stringify({ confirm: "DELETE" }),
+      body: JSON.stringify({ confirm: "DELETE", stepUpToken }),
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
@@ -115,11 +126,12 @@ describe("Account deletion lifecycle", () => {
     state.userId = premiumUserId;
     cancel.mockClear();
     getSub.mockClear();
+    const stepUpToken = await issueStepUp(premiumUserId);
     const { POST } = await import("@/app/api/account/delete/route");
     const req = new NextRequest("http://localhost:3000/api/account/delete", {
       method: "POST",
       headers: { "content-type": "application/json", "x-forwarded-for": "10.9.0.2" },
-      body: JSON.stringify({ confirm: "DELETE" }),
+      body: JSON.stringify({ confirm: "DELETE", stepUpToken }),
     });
     const res = await POST(req);
     expect(res.status).toBe(200);

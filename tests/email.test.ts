@@ -118,6 +118,29 @@ describe("production transactional email", () => {
     expect(payload.html).not.toEqual(expect.stringContaining("Lakhyajit Changmai"));
   });
 
+  it("sends the account-deletion code in the body, not the subject or a URL", async () => {
+    vi.resetModules();
+    (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+    process.env.VERCEL_ENV = "production";
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.EMAIL_FROM = "noreply@mail.zancta.tech";
+    process.env.NEXTAUTH_URL = "https://zancta.tech";
+    sendMock.mockClear();
+
+    const { getEmailAdapter } = await import("@/lib/email");
+    const code = "a".repeat(64);
+    await getEmailAdapter().sendAccountDeletionCode("person@example.com", code);
+
+    const payload = sendMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.replyTo).toBe("security@zancta.tech");
+    expect(payload.subject).toBe("Confirm your ZANCTA account deletion");
+    expect(payload.subject).not.toEqual(expect.stringContaining(code));
+    expect(payload.html).toEqual(expect.stringContaining(code));
+    expect(payload.html).not.toEqual(expect.stringContaining("/account/delete?"));
+    expect(payload.text).toEqual(expect.stringContaining("expires after 15 minutes"));
+    expect(payload.text).toEqual(expect.stringContaining("can be used once"));
+  });
+
   it("does not send Resend from Vercel Preview even when NODE_ENV is production", async () => {
     vi.resetModules();
     (process.env as Record<string, string | undefined>).NODE_ENV = "production";

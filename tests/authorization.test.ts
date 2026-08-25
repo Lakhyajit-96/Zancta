@@ -43,4 +43,17 @@ describe("API authorization binds to the session, not client IDs", () => {
     expect(del).toMatch(/if \(!session\?\.user \|\| !userId\)/);
     expect(del).toMatch(/status: 401/);
   });
+
+  it("account deletion requires a hashed, session-scoped step-up token", async () => {
+    const del = await source("app/api/account/delete/route.ts");
+    const requestCode = await source("app/api/account/delete/request-code/route.ts");
+    expect(del).toMatch(/stepUpToken/);
+    expect(del).toMatch(/hashToken/);
+    expect(del).toMatch(/accountDeletionToken\.updateMany/);
+    expect(del).toMatch(/usedAt: null/);
+    expect(requestCode).not.toMatch(/req\.json|searchParams\.get\(["']email/);
+    expect(requestCode).toMatch(/session/);
+    expect(requestCode).toMatch(/generateSecureToken/);
+    expect(requestCode).toMatch(/hashToken/);
+  });
 });

@@ -6,6 +6,7 @@ import { replyToForRole, safeReplyMailbox } from "./contacts";
 import { renderEmailHtml, renderEmailText, safeHttpsUrl, type EmailDocument } from "./layout";
 import {
   accountDeletedEmail,
+  accountDeletionCodeEmail,
   cancellationEmail,
   contactAcknowledgementEmail,
   contactInternalEmail,
@@ -26,6 +27,7 @@ export interface EmailAdapter {
   sendPasswordReset(to: string, url: string): Promise<void>;
   sendPasswordChanged(to: string): Promise<void>;
   sendWelcome(to: string): Promise<void>;
+  sendAccountDeletionCode(to: string, code: string): Promise<void>;
   sendAccountDeleted(to: string): Promise<void>;
   sendSubscriptionActivated(
     to: string,
@@ -112,6 +114,14 @@ class ResendAdapter implements EmailAdapter {
   }
   async sendWelcome(to: string) {
     await this.send({ to, subject: "Welcome to ZANCTA", doc: welcomeEmail() });
+  }
+  async sendAccountDeletionCode(to: string, code: string) {
+    await this.send({
+      to,
+      role: "security",
+      subject: "Confirm your ZANCTA account deletion",
+      doc: accountDeletionCodeEmail(code),
+    });
   }
   async sendAccountDeleted(to: string) {
     await this.send({
@@ -204,6 +214,9 @@ class ConsoleAdapter implements EmailAdapter {
   async sendWelcome(to: string) {
     console.log(`[DEV] Welcome email for ${to}`);
   }
+  async sendAccountDeletionCode(to: string, code: string) {
+    console.log(`[DEV] Account deletion code for ${to}: ${code}`);
+  }
   async sendAccountDeleted(to: string) {
     console.log(`[DEV] Account deleted email for ${to}`);
   }
@@ -254,6 +267,12 @@ class TestAdapter implements EmailAdapter {
   async sendWelcome(to: string) {
     this.lastEvent = "welcome";
     console.log(`[TEST] Welcome ${to}`);
+  }
+  lastAccountDeletionCode: string | null = null;
+  async sendAccountDeletionCode(to: string, code: string) {
+    this.lastAccountDeletionCode = code;
+    this.lastEvent = "account-deletion-code";
+    console.log(`[TEST] Account deletion code ${to}`);
   }
   async sendAccountDeleted(to: string) {
     this.lastEvent = "account-deleted";
@@ -313,6 +332,9 @@ class IsolatedPreviewAdapter implements EmailAdapter {
   }
   async sendWelcome() {
     await this.noop("welcome");
+  }
+  async sendAccountDeletionCode() {
+    await this.noop("account-deletion-code");
   }
   async sendAccountDeleted() {
     await this.noop("account-deleted");

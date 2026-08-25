@@ -29,6 +29,7 @@ model User {
   auditEvents     AuditEvent[]
   verificationTokens VerificationToken[]
   passwordResetTokens PasswordResetToken[]
+  accountDeletionTokens AccountDeletionToken[]
   paymentCustomers PaymentCustomer[]
   paymentSubscriptions PaymentSubscription[]
   payments        Payment[]
@@ -87,6 +88,23 @@ model VerificationToken {
 
 // Password reset token (custom)
 model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expires])
+}
+
+// Account deletion step-up token (custom). Deliberately separate from
+// PasswordResetToken/VerificationToken so a token issued for one purpose can
+// never be consumed for another. Stores sha256 hash only, never plaintext.
+model AccountDeletionToken {
   id        String   @id @default(cuid())
   userId    String
   token     String   @unique
