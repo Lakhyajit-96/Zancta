@@ -1,61 +1,127 @@
 import { NextResponse } from "next/server";
 
-// Production config enforcement — fail fast if critical secrets missing in production
-const requiredInProduction = [
-  { key: "AUTH_SECRET", env: "AUTH_SECRET", alt: "NEXTAUTH_SECRET" },
-  { key: "DATABASE_URL", env: "DATABASE_URL" },
-] as const;
+/**
+ * ZANCTA production configuration contract.
+ *
+ * A. Mandatory on every Vercel Production runtime
+ *    (NODE_ENV=production AND VERCEL_ENV=production):
+ *    AUTH_SECRET (or NEXTAUTH_SECRET), DATABASE_URL,
+ *    UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN,
+ *    RESEND_API_KEY, EMAIL_FROM (must contain @).
+ *
+ * B. Feature-gated: Dodo live credentials only when
+ *    PAYMENTS_LIVE_ENABLED=true. Payments currently stay disabled;
+ *    missing Dodo vars must not fail Production in that case.
+ *
+ * C. Optional: Google/GitHub user OAuth, operator Google/Bing,
+ *    INTEGRATION_ENCRYPTION_KEY, IndexNow, Sentry, GA.
+ *    AUTH_TRUST_HOST is a warning (trustHost is hard-coded true).
+ *
+ * D. Development / Vitest / Vercel Preview: this helper is a no-op.
+ *
+ * Never log or throw secret VALUES — variable NAMES only.
+ */
 
-const requiredForEmailInProduction = [
-  { key: "RESEND_API_KEY", env: "RESEND_API_KEY" },
-  { key: "EMAIL_FROM", env: "EMAIL_FROM" },
-] as const;
+const GENERIC_HTTP_ERROR = "Server misconfigured";
 
-const requiredForRateLimitInProduction = [
-  { key: "UPSTASH_REDIS_REST_URL", env: "UPSTASH_REDIS_REST_URL" },
-  { key: "UPSTASH_REDIS_REST_TOKEN", env: "UPSTASH_REDIS_REST_TOKEN" },
-] as const;
+function envPresent(name: string): boolean {
+  const v = process.env[name];
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+function envPresentAny(...names: string[]): boolean {
+  return names.some((name) => envPresent(name));
+}
+
+/** Vercel Production runtime only. Local `next start` without VERCEL_ENV is not this. */
+export function isVercelProductionRuntime(): boolean {
+  return process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production";
+}
+
+/**
+ * Next.js sets NEXT_PHASE during `next build`. Validation must not throw then:
+ * local/CI builds are not Vercel Production runtime, and Vercel Production
+ * builds must not be confused with isolate cold-start.
+ */
+export function isNextBuildProcess(): boolean {
+  const phase = process.env.NEXT_PHASE;
+  if (phase === "phase-production-build" || phase === "phase-development-build") return true;
+  return process.env.npm_lifecycle_event === "build";
+}
+
+function missingMandatoryProduction(): string[] {
+  const missing: string[] = [];
+
+  if (!envPresentAny("AUTH_SECRET", "NEXTAUTH_SECRET")) missing.push("AUTH_SECRET");
+  if (!envPresent("DATABASE_URL")) missing.push("DATABASE_URL");
+  if (!envPresent("RESEND_API_KEY")) missing.push("RESEND_API_KEY");
+  const emailFrom = process.env.EMAIL_FROM?.trim() ?? "";
+  if (!emailFrom.includes("@")) missing.push("EMAIL_FROM");
+  // Required in production so the Phase 6A-1 fail-closed limiter has a distributed backend.
+  if (!envPresent("UPSTASH_REDIS_REST_URL")) missing.push("UPSTASH_REDIS_REST_URL");
+  if (!envPresent("UPSTASH_REDIS_REST_TOKEN")) missing.push("UPSTASH_REDIS_REST_TOKEN");
+
+  return missing;
+}
+
+function missingLivePaymentConfig(): string[] {
+  if (process.env.PAYMENTS_LIVE_ENABLED !== "true") return [];
+  const missing: string[] = [];
+  if (!envPresent("DODO_API_KEY")) missing.push("DODO_API_KEY");
+  if (!envPresentAny("DODO_WEBHOOK_SECRET", "DODO_PAYMENTS_WEBHOOK_SECRET")) {
+    missing.push("DODO_WEBHOOK_SECRET");
+  }
+  if (!envPresentAny("DODO_PRODUCT_MONTHLY_ID", "DODO_PAYMENTS_PRODUCT_MONTHLY_ID")) {
+    missing.push("DODO_PRODUCT_MONTHLY_ID");
+  }
+  if (!envPresentAny("DODO_PRODUCT_ANNUAL_ID", "DODO_PAYMENTS_PRODUCT_ANNUAL_ID")) {
+    missing.push("DODO_PRODUCT_ANNUAL_ID");
+  }
+  const dodoEnv = (process.env.DODO_ENVIRONMENT || "").trim().toLowerCase();
+  if (dodoEnv !== "live" && dodoEnv !== "production") missing.push("DODO_ENVIRONMENT");
+  return missing;
+}
+
+export function formatMissingProductionConfigError(missing: string[]): string {
+  return `Missing required production configuration: ${missing.join(", ")}`;
+}
 
 export function assertProductionConfig(): { ok: boolean; missing: string[]; warnings: string[] } {
-  const isProd = process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production";
-  if (!isProd) return { ok: true, missing: [], warnings: [] };
+  if (!isVercelProductionRuntime()) return { ok: true, missing: [], warnings: [] };
 
-  const missing: string[] = [];
+  const missing = [...missingMandatoryProduction(), ...missingLivePaymentConfig()];
   const warnings: string[] = [];
 
-  for (const entry of requiredInProduction) {
-    const val = process.env[entry.env] || ("alt" in entry && process.env[(entry as unknown as { alt: string }).alt]);
-    if (!val) missing.push(entry.key);
-  }
-
-  for (const { key, env } of requiredForEmailInProduction) {
-    const val = process.env[env];
-    if (!val) missing.push(key);
-    else if (env === "EMAIL_FROM" && !val.includes("@")) missing.push(key);
-  }
-
-  // Upstash is REQUIRED in production. Without it, rate limiting cannot be distributed
-  // across serverless instances, and the limiter now fails closed in production
-  // (see lib/rate-limit.ts). Treat its absence as a hard config failure, not a warning,
-  // so any wired startup/route validation refuses to run without abuse protection.
-  for (const { key, env } of requiredForRateLimitInProduction) {
-    if (!process.env[env]) missing.push(key);
-  }
-
-  // Check AUTH_TRUST_HOST for Vercel
-  if (!process.env.AUTH_TRUST_HOST && process.env.VERCEL) {
+  if (!envPresent("AUTH_TRUST_HOST") && envPresent("VERCEL")) {
     warnings.push("AUTH_TRUST_HOST not set — ensure trustHost:true is correct for Vercel");
   }
 
   return { ok: missing.length === 0, missing, warnings };
 }
 
-// Call this in API routes that require strict prod config
+/**
+ * Node.js isolate start (instrumentation register). Skips `next build`.
+ * On Vercel this runs per serverless cold start, not once per deployment.
+ */
+export function enforceProductionConfigOrThrow(): void {
+  if (isNextBuildProcess()) return;
+  const { ok, missing, warnings } = assertProductionConfig();
+  if (warnings.length > 0) {
+    console.warn("[config]", warnings.join("; "));
+  }
+  if (ok) return;
+  const message = formatMissingProductionConfigError(missing);
+  console.error("[config]", message);
+  throw new Error(message);
+}
+
+/** Request-time API/proxy guard. HTTP body is generic; logs names only. */
 export function requireProductionConfig(): NextResponse | null {
+  if (isNextBuildProcess()) return null;
   const { ok, missing } = assertProductionConfig();
   if (!ok) {
-    console.error("[config] Missing required production env:", missing);
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    console.error("[config]", formatMissingProductionConfigError(missing));
+    return NextResponse.json({ error: GENERIC_HTTP_ERROR }, { status: 500 });
   }
   return null;
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { indexNowKeyFileResponse } from "@/lib/indexnow";
+import { requireProductionConfig } from "@/lib/production-config";
 import {
   isPreviewBlockedRequest,
   PREVIEW_ISOLATED_CODE,
@@ -7,6 +8,12 @@ import {
 } from "@/lib/preview-isolation";
 
 export default function proxy(req: NextRequest) {
+  // Request-time Production contract for matched routes (/api, IndexNow key file).
+  // Complements instrumentation register() because Vercel does not guarantee a
+  // single boot-time process. Preview/dev remain no-ops inside the helper.
+  const misconfigured = requireProductionConfig();
+  if (misconfigured) return misconfigured;
+
   if (isPreviewBlockedRequest(req.method, req.nextUrl.pathname)) {
     return NextResponse.json(
       { error: PREVIEW_ISOLATED_MESSAGE, code: PREVIEW_ISOLATED_CODE },
