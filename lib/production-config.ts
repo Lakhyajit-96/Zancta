@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { productionDatabaseUrlMissing } from "@/lib/database-url";
 
 /**
  * ZANCTA production configuration contract.
  *
  * A. Mandatory on every Vercel Production runtime
  *    (NODE_ENV=production AND VERCEL_ENV=production):
- *    AUTH_SECRET (or NEXTAUTH_SECRET), DATABASE_URL,
+ *    AUTH_SECRET (or NEXTAUTH_SECRET), DATABASE_URL (PostgreSQL only),
  *    UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN,
  *    RESEND_API_KEY, EMAIL_FROM (must contain @).
  *
@@ -53,7 +54,7 @@ function missingMandatoryProduction(): string[] {
   const missing: string[] = [];
 
   if (!envPresentAny("AUTH_SECRET", "NEXTAUTH_SECRET")) missing.push("AUTH_SECRET");
-  if (!envPresent("DATABASE_URL")) missing.push("DATABASE_URL");
+  if (productionDatabaseUrlMissing()) missing.push("DATABASE_URL");
   if (!envPresent("RESEND_API_KEY")) missing.push("RESEND_API_KEY");
   const emailFrom = process.env.EMAIL_FROM?.trim() ?? "";
   if (!emailFrom.includes("@")) missing.push("EMAIL_FROM");

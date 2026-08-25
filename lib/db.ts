@@ -1,6 +1,7 @@
 import { PrismaClient } from "./generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { isUsablePostgresDatabaseUrl, resolveDatabaseUrl } from "./database-url";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
@@ -66,10 +67,10 @@ function postgresSsl(connectionString: string): { rejectUnauthorized: boolean } 
 }
 
 function createClient() {
-  const url = (process.env.DATABASE_URL || "file:./prisma/dev.db").trim();
-  // Handle both SQLite (dev) and PostgreSQL (production) — provider selection via DATABASE_URL
-  const isPostgres = /^postgres(ql)?:\/\//i.test(url);
-  if (isPostgres) {
+  // Production / Preview / NODE_ENV=production never fall back to SQLite.
+  // resolveDatabaseUrl throws without echoing the connection string.
+  const url = resolveDatabaseUrl();
+  if (isUsablePostgresDatabaseUrl(url)) {
     const connectionString = normalizePostgresUrl(url);
     // Hosted Postgres (Supabase and similar) needs TLS. Loopback test/dev Postgres
     // typically has no SSL; forcing ssl there fails with "server does not support SSL".

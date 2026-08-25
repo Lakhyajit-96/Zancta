@@ -79,6 +79,22 @@ describe("assertProductionConfig — Production contract", () => {
     expect(res.missing).toContain("DATABASE_URL");
   });
 
+  it("Production + DATABASE_URL=file: SQLite → fail", async () => {
+    stubMandatoryProduction({ DATABASE_URL: "file:./prisma/dev.db" });
+    const { assertProductionConfig } = await loadConfig();
+    const res = assertProductionConfig();
+    expect(res.ok).toBe(false);
+    expect(res.missing).toContain("DATABASE_URL");
+  });
+
+  it("Production + Supabase pooler URL → pass", async () => {
+    stubMandatoryProduction({
+      DATABASE_URL: "postgresql://postgres.proj:x@aws-0-us-east-1.pooler.supabase.com:6543/postgres",
+    });
+    const { assertProductionConfig } = await loadConfig();
+    expect(assertProductionConfig().ok).toBe(true);
+  });
+
   it("Production + Upstash URL missing → fail", async () => {
     stubMandatoryProduction({ UPSTASH_REDIS_REST_URL: undefined });
     const { assertProductionConfig } = await loadConfig();
