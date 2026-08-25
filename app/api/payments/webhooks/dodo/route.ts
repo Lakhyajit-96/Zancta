@@ -4,6 +4,20 @@ import { processVerifiedDodoEvent } from "@/lib/payments/process-dodo-event";
 import { getClientIp, rateLimitAsync } from "@/lib/rate-limit";
 import { previewMutationsBlocked, PREVIEW_ISOLATED_CODE, PREVIEW_ISOLATED_MESSAGE } from "@/lib/preview-isolation";
 
+const GENERIC_SIGNATURE_ERROR = "Invalid signature";
+
+function webhookVerifyFailureCategory(error: string | undefined): string {
+  const e = error || "";
+  if (e.includes("Missing webhook headers")) return "missing_headers";
+  if (e.includes("Invalid webhook-timestamp")) return "invalid_timestamp";
+  if (e.includes("outside 5min")) return "timestamp_window";
+  if (e.startsWith("Missing env") || e.includes("WEBHOOK_SECRET")) return "config";
+  if (e.includes("Invalid JSON")) return "invalid_json";
+  if (e.includes("Missing webhook-id")) return "missing_webhook_id";
+  if (e.includes("Invalid webhook signature")) return "invalid_signature";
+  return "verification_failed";
+}
+
 export async function POST(req: NextRequest) {
   if (previewMutationsBlocked()) {
     return NextResponse.json({ error: PREVIEW_ISOLATED_MESSAGE, code: PREVIEW_ISOLATED_CODE }, { status: 503 });
@@ -24,8 +38,12 @@ export async function POST(req: NextRequest) {
     const ip = getClientIp(req.headers);
     const rl = await rateLimitAsync(`webhook-fail:${ip}`, 60, 60 * 1000);
     if (!rl.ok) return NextResponse.json({ error: "Too many attempts" }, { status: 429 });
-    console.error("[webhook:dodo] signature failed", verified.error);
-    return NextResponse.json({ error: verified.error || "Invalid signature" }, { status: 401 });
+    console.error("[webhook:dodo] signature failed", webhookVerifyFailureCategory(verified.error), {
+      hasWebhookId: Boolean(headers["webhook-id"]),
+      hasTimestamp: Boolean(headers["webhook-timestamp"]),
+      hasSignature: Boolean(headers["webhook-signature"]),
+    });
+    return NextResponse.json({ error: GENERIC_SIGNATURE_ERROR }, { status: 401 });
   }
 
   const result = await processVerifiedDodoEvent({
