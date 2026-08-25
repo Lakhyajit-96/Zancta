@@ -9,6 +9,7 @@
 | [Vercel](operations/vercel.md) | Project settings, domains, unused products |
 | [Environment](operations/environment.md) | Variable inventory (no secrets) |
 | [Releases / rollback](operations/releases.md) | Current deploy and rollback target |
+| [Migrations](operations/migrations.md) | PostgreSQL baseline, Production migrate, CI |
 | [Observability](operations/observability.md) | Logs, GA4, Speed Insights, Sentry policy |
 | [Email](operations/email.md) | Resend production notes |
 | [BIMI](operations/email-bimi.md) | Sender-identity diagnosis (not purchased) |

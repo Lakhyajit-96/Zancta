@@ -8,7 +8,7 @@ This is a small project. There is no large contributor community and no SLA for 
 
 - Node.js 20 or newer (see `package.json` `engines`)
 - npm 10+
-- Docker, for the Vitest Postgres database
+- Docker, for the Vitest Postgres database (GitHub Actions provides a Postgres service)
 
 ## Setup
 
@@ -16,8 +16,12 @@ This is a small project. There is no large contributor community and no SLA for 
 npm install
 cp .env.example .env
 npx prisma generate
+npm run test:db:up
+npm run migrate:bootstrap
 npm run dev
 ```
+
+If the local Postgres is empty, use `npm run migrate:bootstrap` rather than `prisma migrate deploy` (the first two historical SQL files are SQLite and must not be replayed). Details: [docs/operations/migrations.md](docs/operations/migrations.md).
 
 Fill only the variables you need. Never commit secrets. Authoritative names and classification: [docs/operations/environment.md](docs/operations/environment.md).
 

@@ -1,0 +1,12 @@
+{
+  "algorithm": "sha256",
+  "migrations": {
+    "20260811160111_init": "9e53757233442d7f0b4e0e483657cebbdd6fed5c8d63a95e2187321fded73c6e",
+    "20260811165730_add_payments_9a": "be67f50cfbfbf5fa8a511b5257cb8bdb5b24bceaeaace8975932ae9c38c2a15c",
+    "20260820200000_add_deleted_provider_identity": "6cfd3aa99ee4a26e7dcf7db5ef2f3107b64c3f21e85cb274a8373a5f1c813947",
+    "20260821140000_billing_integrity": "898ddd25e417b2a3dcbed67e070a98c27e517ca2e48fee5eb508cb6f12619b87",
+    "20260821150000_auth_version": "385a5204e5f954c2fcc3027dc1e20c9b9139b5e619c62e76e1f456f39880a4f5",
+    "20260824120000_operator_integrations": "244204fcae9734c24af34ac966f645bf4b797da1f20b1e8f0e8b967a52b190a6",
+    "20260825120000_account_deletion_token": "924daeac0d7cb4739f561c3106d31990246d1e8ab603803b48afe27c01c70de7"
+  }
+}

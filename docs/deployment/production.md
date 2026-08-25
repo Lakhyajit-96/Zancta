@@ -29,6 +29,7 @@ Preview uses a separate Supabase database. Production `DATABASE_URL` is Producti
 - `PAYMENTS_LIVE_ENABLED` must remain `false` until live checkout is authorized.
 - Do not set `NEXT_PUBLIC_ADS_ENABLED=true`.
 - Do not put IndexNow, Dodo, Resend, database, or auth secrets in `NEXT_PUBLIC_*`.
+- Apply pending Prisma migrations **before** promoting an app revision that needs them. `next build` does not migrate. Operator workflow: [migrations.md](../operations/migrations.md).
 
 ## Verify after deploy
 

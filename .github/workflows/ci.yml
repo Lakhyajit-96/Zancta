@@ -16,12 +16,29 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zancta
+          POSTGRES_PASSWORD: zancta
+          POSTGRES_DB: zancta_test
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd "pg_isready -U zancta -d zancta_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     env:
       PAYMENTS_LIVE_ENABLED: "false"
       NEXT_PUBLIC_ADS_ENABLED: "false"
       NEXT_PUBLIC_APP_URL: "https://zancta.tech"
       NEXTAUTH_URL: "https://zancta.tech"
       AUTH_SECRET: "ci-only-auth-secret-not-for-production"
+      DATABASE_URL: postgresql://zancta:zancta@127.0.0.1:54329/zancta_test
+      TEST_DATABASE_URL: postgresql://zancta:zancta@127.0.0.1:54329/zancta_test
+      DATABASE_SSL: "disable"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,9 +48,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - run: node scripts/migrate.mjs checksums
+      - run: node scripts/migrate.mjs write-baseline --check
+      - run: node scripts/migrate.mjs prove-unreplayable
+      - run: node scripts/migrate.mjs prove-production-clone
+      - run: node tests/apply-test-schema.mjs
+      - run: node scripts/migrate.mjs deploy
+      - run: node scripts/migrate.mjs verify
       - run: npm test
-        env:
-          DATABASE_URL: postgresql://zancta:zancta@127.0.0.1:54329/zancta_test
+      - run: npx vitest run tests/billing-lifecycle.test.ts tests/billing-transaction.test.ts tests/migration-pipeline.test.ts
       - run: npm run build
-        env:
-          DATABASE_URL: postgresql://zancta:zancta@127.0.0.1:54329/zancta_test

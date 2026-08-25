@@ -9,7 +9,9 @@ See the root [CONTRIBUTING.md](../../CONTRIBUTING.md) for the short path.
 | `npm run dev` | Next.js dev server |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm test` | Vitest (brings up Docker Postgres on port 54329) |
+| `npm run test:db:up` | Docker Postgres on port 54329 |
+| `npm run migrate:bootstrap` | Empty local Postgres: apply PostgreSQL baseline + record migration history |
+| `npm test` | Vitest (uses Docker/GHA Postgres on port 54329; never Production) |
 | `npm run build` | Prisma generate + Next.js production build |
 | `npm run test:e2e` | Playwright against a local production server |
 | `npm run test:e2e -- -c playwright.prod.config.ts` | Small production-host checks against zancta.tech |

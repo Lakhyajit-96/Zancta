@@ -38,6 +38,8 @@ Older READY production (UI polish): `dpl_5Tuk6fnAcmuTMWKh5StxPCxrEbWD` / `d04305
 
 ## Release path
 
-1. GitHub Actions CI on `main` / PRs (Node 24).
-2. Vercel builds `main` on Node 24.x.
-3. Production aliases assign only after READY.
+1. GitHub Actions CI on `main` / PRs (Node 24, PostgreSQL service, `prisma migrate` via `scripts/migrate.mjs`).
+2. Operator applies pending Production migrations (`scripts/migrate.mjs deploy --confirm-production`) if the change includes SQL. Details: [migrations.md](migrations.md).
+3. Vercel builds `main` on Node 24.x. The build is `prisma generate && next build` — it does not migrate.
+4. Production aliases assign only after READY.
+5. Smoke-test `GET https://zancta.tech/api/payments/checkout` (`{"live":false}` until live checkout is authorized).
