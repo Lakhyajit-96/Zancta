@@ -22,12 +22,16 @@ export async function POST(req: NextRequest) {
 
   const userId = session.user.id;
   const ent = await prisma.entitlement.findUnique({ where: { userId } });
-  const sub = await prisma.paymentSubscription.findFirst({
-    where: { userId, provider: "dodo" },
-    orderBy: { updatedAt: "desc" },
-  });
-  const subscriptionId = ent?.providerSubscriptionId || sub?.providerSubscriptionId;
-  if (!subscriptionId) {
+  let candidateId = ent?.providerSubscriptionId || null;
+  if (!candidateId) {
+    const latestOwned = await prisma.paymentSubscription.findFirst({
+      where: { userId, provider: "dodo" },
+      orderBy: { updatedAt: "desc" },
+      select: { providerSubscriptionId: true },
+    });
+    candidateId = latestOwned?.providerSubscriptionId || null;
+  }
+  if (!candidateId) {
     return NextResponse.json({ error: "No subscription to cancel" }, { status: 404 });
   }
   if (ent?.plan !== "PREMIUM" || ent.status !== "ACTIVE") {
@@ -36,6 +40,25 @@ export async function POST(req: NextRequest) {
   if (ent.cancelAtPeriodEnd) {
     return NextResponse.json({ ok: true, cancelAtPeriodEnd: true, already: true });
   }
+
+  // Compound lookup: never cancel a provider id that is not this session user's row.
+  const owned = await prisma.paymentSubscription.findFirst({
+    where: { providerSubscriptionId: candidateId, userId },
+    select: { providerSubscriptionId: true },
+  });
+  if (!owned) {
+    console.warn("[billing-cancel] refusing cancellation; subscription is not owned by the session user");
+    await auditEvent({
+      userId,
+      action: "payment.cancel_refused_unowned",
+      targetId: userId,
+      metadata: JSON.stringify({ reason: "unowned_subscription" }),
+      ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+      userAgent: req.headers.get("user-agent") || undefined,
+    });
+    return NextResponse.json({ error: "No subscription to cancel" }, { status: 404 });
+  }
+  const subscriptionId = owned.providerSubscriptionId;
 
   const provider = getPaymentProvider("dodo");
   await provider.cancelSubscription(subscriptionId, true);
@@ -58,7 +81,7 @@ export async function POST(req: NextRequest) {
     },
   });
   await prisma.paymentSubscription.updateMany({
-    where: { providerSubscriptionId: subscriptionId },
+    where: { providerSubscriptionId: subscriptionId, userId },
     data: {
       cancelAtPeriodEnd: true,
       ...(remote.status ? { status: remote.status.toLowerCase() } : {}),

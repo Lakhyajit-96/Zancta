@@ -14,6 +14,7 @@ describe("API authorization binds to the session, not client IDs", () => {
     expect(src).toMatch(/EMAIL_UNVERIFIED/);
     expect(src).toMatch(/getEntitlement/);
     expect(src).toMatch(/currency: "INR"/);
+    expect(src).not.toMatch(/successUrl:\s*body|body\?\.successUrl|body\?\.productId|body\?\.amount/);
     expect(src).toMatch(/body\?\.userId && body\.userId !== liveUser\.id/);
     expect(src).not.toMatch(/userId: body/);
     expect(src).toMatch(/userId: liveUser\.id/);
@@ -28,6 +29,8 @@ describe("API authorization binds to the session, not client IDs", () => {
       expect(src).not.toMatch(/body\?\.userId|body\.userId|searchParams\.get\(["']userId/);
     }
     expect(cancel).toMatch(/const userId = session\.user\.id/);
+    expect(cancel).toMatch(/where: \{ providerSubscriptionId: candidateId, userId \}/);
+    expect(cancel).toMatch(/where: \{ userId, provider: "dodo" \}/);
     expect(del).toMatch(/userId/);
   });
 
