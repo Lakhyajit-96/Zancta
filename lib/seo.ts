@@ -60,8 +60,9 @@ export const HOMEPAGE_DESCRIPTION =
   "Private PDF and image tools that process supported files locally in your browser. Merge, split, compress, convert, OCR, and more with ZANCTA.";
 
 export function pageAbsoluteUrl(path: string): string {
-  if (!path || path === "/") return PUBLIC_SITE_URL;
-  return `${PUBLIC_SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  const origin = stripSlash(PUBLIC_SITE_URL);
+  if (!path || path === "/") return `${origin}/`;
+  return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 const OG_IMAGE = {
@@ -80,7 +81,7 @@ export function pageMeta(path: string, meta: Metadata = {}): Metadata {
   const description = typeof meta.description === "string" ? meta.description : undefined;
   return {
     ...meta,
-    alternates: { canonical: path, ...meta.alternates },
+    alternates: { canonical: path === "/" ? pageAbsoluteUrl("/") : path, ...meta.alternates },
     openGraph: {
       type: "website",
       images: [OG_IMAGE],
@@ -105,7 +106,7 @@ export function buildMetadata({ title, description, path, canonical }: SEOProps)
   return {
     title,
     description,
-    alternates: { canonical: can },
+    alternates: { canonical: path === "/" ? pageAbsoluteUrl("/") : can },
     openGraph: { title, description, url, type: "website", images: [OG_IMAGE] },
     twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE.url] },
     robots: { index: true, follow: true },

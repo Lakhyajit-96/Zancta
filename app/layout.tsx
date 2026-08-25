@@ -55,7 +55,6 @@ export const metadata: Metadata = {
     description: HOMEPAGE_DESCRIPTION,
     images: ["/assets/zancta-brand/og-images/zancta-og-hero.png"],
   },
-  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
 };
 

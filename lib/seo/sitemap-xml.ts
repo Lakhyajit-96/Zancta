@@ -8,7 +8,7 @@ function escapeXml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export function buildSitemapXml(lastModified = new Date()): string {
+export function buildSitemapXml(): string {
   const seen = new Set<string>();
   const urls: string[] = [];
   for (const path of allIndexablePaths()) {
@@ -18,12 +18,13 @@ export function buildSitemapXml(lastModified = new Date()): string {
     urls.push(url);
   }
 
-  const lastmod = lastModified.toISOString().slice(0, 10);
+  // Omit lastmod: Bing treats it as a freshness signal and tells webmasters not to
+  // stamp every URL with sitemap-generation time. We do not yet store per-URL
+  // content modification dates, so an absent lastmod is more accurate than a fake one.
   const body = urls
     .map(
       (url) => `  <url>
     <loc>${escapeXml(url)}</loc>
-    <lastmod>${lastmod}</lastmod>
   </url>`,
     )
     .join("\n");

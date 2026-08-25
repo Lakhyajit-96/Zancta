@@ -8,6 +8,7 @@ import { OperatorNav } from "@/components/admin/operator-nav";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
+  alternates: { canonical: "/admin" },
   title: "Admin",
 };
 
