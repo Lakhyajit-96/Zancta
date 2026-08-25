@@ -17,9 +17,49 @@ describe("billing-state derivation", () => {
   const future = new Date(Date.now() + 10 * 86400000);
   const past = new Date(Date.now() - 1000);
 
-  it("grants premium for active and on_hold", () => {
+  it("grants premium for active and on_hold while the period is open", () => {
     expect(deriveFromSubscription({ status: "active", currentPeriodEnd: future }).plan).toBe("PREMIUM");
     expect(deriveFromSubscription({ status: "on_hold", currentPeriodEnd: future }).status).toBe("ACTIVE");
+  });
+
+  it("does not grant premium for active or on_hold after currentPeriodEnd", () => {
+    expect(deriveFromSubscription({ status: "active", currentPeriodEnd: past }).plan).toBe("EXPIRED");
+    expect(deriveFromSubscription({ status: "on_hold", currentPeriodEnd: past }).plan).toBe("EXPIRED");
+    expect(deriveFromSubscription({ status: "on_hold", currentPeriodEnd: past }).status).toBe("EXPIRED");
+  });
+
+  it("treats currentPeriodEnd equal to now as ended, not as a grace window", () => {
+    const now = new Date("2026-06-01T00:00:00.000Z");
+    expect(deriveFromSubscription({ status: "active", currentPeriodEnd: now, now }).plan).toBe("EXPIRED");
+    expect(deriveFromSubscription({ status: "on_hold", currentPeriodEnd: now, now }).plan).toBe("EXPIRED");
+  });
+
+  it("preserves prior null-period semantics for live statuses (no invented period or grace)", () => {
+    expect(deriveFromSubscription({ status: "active" }).plan).toBe("PREMIUM");
+    expect(deriveFromSubscription({ status: "on_hold", currentPeriodEnd: null }).plan).toBe("PREMIUM");
+  });
+
+  it("does not grant premium without a provider subscription even when status is live", () => {
+    expect(isProviderBackedPremium({
+      providerSubscriptionId: null,
+      status: "on_hold",
+      currentPeriodEnd: past,
+    })).toBe(false);
+  });
+
+  it("expires failed subscriptions after period end and keeps them during an open period", () => {
+    expect(deriveFromSubscription({ status: "failed", currentPeriodEnd: future }).plan).toBe("PREMIUM");
+    expect(deriveFromSubscription({ status: "failed", currentPeriodEnd: past }).plan).toBe("FREE");
+  });
+
+  it("treats provider expired status as expired regardless of period", () => {
+    expect(deriveFromSubscription({ status: "expired", currentPeriodEnd: future }).plan).toBe("EXPIRED");
+    expect(deriveFromSubscription({ status: "expired", currentPeriodEnd: past }).plan).toBe("EXPIRED");
+  });
+
+  it("does not invent billing state from an empty provider snapshot", () => {
+    expect(deriveFromSubscription({ status: "" }).plan).toBe("FREE");
+    expect(deriveFromSubscription({ status: "unknown", currentPeriodEnd: past }).plan).toBe("FREE");
   });
 
   it("keeps premium after cancel until period end", () => {
@@ -47,6 +87,16 @@ describe("billing-state derivation", () => {
       status: "active",
       currentPeriodEnd: future,
     })).toBe(true);
+    expect(isProviderBackedPremium({
+      providerSubscriptionId: "sub_1",
+      status: "active",
+      currentPeriodEnd: past,
+    })).toBe(false);
+    expect(isProviderBackedPremium({
+      providerSubscriptionId: "sub_1",
+      status: "on_hold",
+      currentPeriodEnd: past,
+    })).toBe(false);
   });
 
   it("detects stale events", () => {

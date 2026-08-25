@@ -38,10 +38,20 @@ export function deriveFromSubscription(input: {
 }): DerivedBilling {
   const now = (input.now ?? new Date()).getTime();
   const status = (input.status || "").toLowerCase();
+  // Period is open only while currentPeriodEnd is strictly in the future. Equal-to-now
+  // is ended. Null currentPeriodEnd does not invent a period or a grace window.
   const periodOpen = input.currentPeriodEnd ? input.currentPeriodEnd.getTime() > now : false;
   const cancelAtPeriodEnd = !!input.cancelAtPeriodEnd || CANCELLED_STATUSES.has(status);
 
   if (LIVE_STATUSES.has(status)) {
+    if (input.currentPeriodEnd && !periodOpen) {
+      return {
+        plan: "EXPIRED",
+        status: "EXPIRED",
+        cancelAtPeriodEnd,
+        reason: `subscription_${status}_period_ended`,
+      };
+    }
     return { plan: "PREMIUM", status: "ACTIVE", cancelAtPeriodEnd, reason: `subscription_${status}` };
   }
 
