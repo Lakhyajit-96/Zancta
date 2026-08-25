@@ -116,6 +116,25 @@ describe("public legal and AI-search facts", () => {
     expect(terms).toContain("LEGAL_PUBLIC.operatorName");
   });
 
+  it("privacy policy describes operator Google API data separately from public Google sign-in", async () => {
+    const src = await readFile(path.join(process.cwd(), "app/privacy/page.tsx"), "utf8");
+    expect(src).toContain("Google API Data — Site Operator Integrations");
+    expect(src).toMatch(/Sign in with Google/);
+    expect(src).toMatch(/ordinary Free or Premium/);
+    expect(src).toMatch(/Google Analytics 4/);
+    expect(src).toMatch(/Google Search Console/);
+    expect(src).toMatch(/URL inspection/);
+    expect(src).toMatch(/encrypted at rest/i);
+    expect(src).toMatch(/does not sell this Google API data/i);
+    expect(src).toMatch(/revoke the current Google access token/i);
+    expect(src).toMatch(/cached Google dashboard snapshots/i);
+    expect(src).toMatch(/audit/i);
+    expect(src).toMatch(/Google(?:'|\&apos;)s account permissions/);
+    expect(src).not.toMatch(/GOOGLE_CLIENT_SECRET|GOOGLE_OPERATOR_CLIENT_SECRET|INTEGRATION_ENCRYPTION_KEY|GOCSPX|ya29\./);
+    expect(src).not.toMatch(/Limited Use|CASA|restricted scope/i);
+    expect(src).not.toMatch(/AES-256|GCM|INTEGRATION_ENCRYPTION/);
+  });
+
   it("marketing page titles are unique and not one-word stubs", async () => {
     const files = [
       "app/tools/page.tsx",

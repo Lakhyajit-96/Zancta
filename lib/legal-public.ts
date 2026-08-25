@@ -15,7 +15,7 @@ export const LEGAL_PUBLIC = {
   productDescriptor: "Independently operated PDF and image software",
   identitySummary:
     "ZANCTA is independently operated privacy-first document software. Supported tools process selected files in the browser.",
-  lastUpdated: "August 23, 2026",
+  lastUpdated: "August 25, 2026",
   lawyerReviewed: false,
   operatorLegalNamePublished: true,
   operatorDisclosurePath: "/terms",
