@@ -2,9 +2,21 @@
  * Provider-authoritative billing reconciliation.
  * Repairs local state only when Dodo returns a subscription record.
  * Never upgrades or downgrades from incomplete data.
+ *
+ * Ordering: Dodo GET has no monotonic updated_at. Reconciliation must not stamp
+ * providerUpdatedAt with local wall-clock time — that makes delayed but valid
+ * webhooks look stale and get a terminal ACK. Watermarks advance only from
+ * provider mutation timestamps (cancelled_at / paused_at / past period end on
+ * terminal statuses) or remain at the last verified webhook timestamp.
  */
 import prisma from "@/lib/db";
-import { deriveFromSubscription } from "@/lib/payments/billing-state";
+import {
+  deriveFromSubscription,
+  laterTimestamp,
+  providerMutationTime,
+  shouldSkipReconcileApply,
+  unixSeconds,
+} from "@/lib/payments/billing-state";
 import { revokeToFree, syncEntitlement } from "@/lib/payments/entitlement-sync";
 import type { SubscriptionRecord } from "@/lib/payments/types";
 
@@ -77,6 +89,7 @@ export async function detectLocalBillingDrift(userId: string): Promise<DriftFind
 export async function reconcileFromProvider(
   userId: string,
   remote: SubscriptionRecord | null,
+  opts?: { startedAt?: Date },
 ): Promise<DriftFinding[]> {
   const findings = await detectLocalBillingDrift(userId);
   if (!remote) {
@@ -91,59 +104,110 @@ export async function reconcileFromProvider(
     ];
   }
 
-  const existing = await prisma.paymentSubscription.findUnique({
-    where: { providerSubscriptionId: remote.providerSubscriptionId },
-  });
-  await prisma.paymentSubscription.upsert({
-    where: { providerSubscriptionId: remote.providerSubscriptionId },
-    create: {
-      userId,
-      provider: "dodo",
-      providerSubscriptionId: remote.providerSubscriptionId,
-      providerCustomerId: remote.providerCustomerId,
-      plan: existing?.plan || "PREMIUM_MONTHLY",
-      status: remote.status.toLowerCase(),
-      currentPeriodStart: remote.currentPeriodStart || undefined,
-      currentPeriodEnd: remote.currentPeriodEnd || undefined,
-      cancelAtPeriodEnd: remote.cancelAtPeriodEnd,
-      providerUpdatedAt: new Date(),
-    },
-    update: {
-      status: remote.status.toLowerCase(),
-      ...(remote.providerCustomerId ? { providerCustomerId: remote.providerCustomerId } : {}),
-      ...(remote.currentPeriodStart ? { currentPeriodStart: remote.currentPeriodStart } : {}),
-      ...(remote.currentPeriodEnd ? { currentPeriodEnd: remote.currentPeriodEnd } : {}),
-      cancelAtPeriodEnd: remote.cancelAtPeriodEnd,
-      providerUpdatedAt: new Date(),
-    },
-  });
+  const reconStartedAt = opts?.startedAt ?? new Date();
 
+  const loadLocal = async () => {
+    const existing = await prisma.paymentSubscription.findUnique({
+      where: { providerSubscriptionId: remote.providerSubscriptionId },
+    });
+    const entitlement = await prisma.entitlement.findUnique({ where: { userId } });
+    const local = existing
+      ? {
+          status: existing.status,
+          currentPeriodEnd: existing.currentPeriodEnd,
+          cancelAtPeriodEnd: existing.cancelAtPeriodEnd,
+          providerUpdatedAt: existing.providerUpdatedAt,
+        }
+      : null;
+    return { existing, entitlement, local };
+  };
+
+  const first = await loadLocal();
+  if (
+    shouldSkipReconcileApply({
+      remote,
+      local: first.local,
+      entitlementUpdatedAt: first.entitlement?.providerUpdatedAt,
+      reconStartedAt,
+    })
+  ) {
+    const afterSkip = await detectLocalBillingDrift(userId);
+    return afterSkip.map((item) => ({ ...item, repaired: false }));
+  }
+
+  const latest = await loadLocal();
+  if (
+    shouldSkipReconcileApply({
+      remote,
+      local: latest.local,
+      entitlementUpdatedAt: latest.entitlement?.providerUpdatedAt,
+      reconStartedAt,
+    })
+  ) {
+    const afterSkip = await detectLocalBillingDrift(userId);
+    return afterSkip.map((item) => ({ ...item, repaired: false }));
+  }
+
+  const storedWatermark = laterTimestamp(
+    latest.existing?.providerUpdatedAt ?? null,
+    latest.entitlement?.providerUpdatedAt ?? null,
+  );
+  const watermark = laterTimestamp(storedWatermark, providerMutationTime(remote));
+
+  const eventTimestamp = watermark ? unixSeconds(watermark) : null;
   const derived = deriveFromSubscription({
     status: remote.status,
     currentPeriodEnd: remote.currentPeriodEnd,
     cancelAtPeriodEnd: remote.cancelAtPeriodEnd,
   });
-  if (derived.plan === "PREMIUM" && derived.status === "ACTIVE") {
-    await syncEntitlement({
-      userId,
-      provider: "dodo",
-      providerCustomerId: remote.providerCustomerId,
-      providerSubscriptionId: remote.providerSubscriptionId,
-      plan: "PREMIUM",
-      status: "ACTIVE",
-      currentPeriodStart: remote.currentPeriodStart,
-      currentPeriodEnd: remote.currentPeriodEnd,
-      cancelAtPeriodEnd: derived.cancelAtPeriodEnd,
+
+  await prisma.paymentSubscription.upsert({
+      where: { providerSubscriptionId: remote.providerSubscriptionId },
+      create: {
+        userId,
+        provider: "dodo",
+        providerSubscriptionId: remote.providerSubscriptionId,
+        providerCustomerId: remote.providerCustomerId,
+        plan: latest.existing?.plan || "PREMIUM_MONTHLY",
+        status: remote.status.toLowerCase(),
+        currentPeriodStart: remote.currentPeriodStart || undefined,
+        currentPeriodEnd: remote.currentPeriodEnd || undefined,
+        cancelAtPeriodEnd: remote.cancelAtPeriodEnd,
+        ...(watermark ? { providerUpdatedAt: watermark } : {}),
+      },
+      update: {
+        status: remote.status.toLowerCase(),
+        ...(remote.providerCustomerId ? { providerCustomerId: remote.providerCustomerId } : {}),
+        ...(remote.currentPeriodStart ? { currentPeriodStart: remote.currentPeriodStart } : {}),
+        ...(remote.currentPeriodEnd ? { currentPeriodEnd: remote.currentPeriodEnd } : {}),
+        cancelAtPeriodEnd: remote.cancelAtPeriodEnd,
+        ...(watermark ? { providerUpdatedAt: watermark } : {}),
+      },
     });
-  } else if (derived.plan === "EXPIRED") {
-    await revokeToFree(userId, "dodo", derived.reason);
-  }
+
+    if (derived.plan === "PREMIUM" && derived.status === "ACTIVE") {
+      await syncEntitlement({
+        userId,
+        provider: "dodo",
+        providerCustomerId: remote.providerCustomerId,
+        providerSubscriptionId: remote.providerSubscriptionId,
+        plan: "PREMIUM",
+        status: "ACTIVE",
+        currentPeriodStart: remote.currentPeriodStart,
+        currentPeriodEnd: remote.currentPeriodEnd,
+        cancelAtPeriodEnd: derived.cancelAtPeriodEnd,
+        eventTimestamp,
+      });
+    } else if (derived.plan === "EXPIRED") {
+      await revokeToFree(userId, "dodo", derived.reason, undefined, eventTimestamp);
+    }
 
   const after = await detectLocalBillingDrift(userId);
   return after.map((item) => ({ ...item, repaired: !findings.some((f) => f.kind === item.kind) ? item.repaired : true }));
 }
 
 export async function refreshAndReconcile(userId: string): Promise<void> {
+  const startedAt = new Date();
   const ent = await prisma.entitlement.findUnique({ where: { userId } });
   const sub = await prisma.paymentSubscription.findFirst({
     where: { userId },
@@ -160,5 +224,5 @@ export async function refreshAndReconcile(userId: string): Promise<void> {
     return;
   }
   if (!remote) return;
-  await reconcileFromProvider(userId, remote);
+  await reconcileFromProvider(userId, remote, { startedAt });
 }

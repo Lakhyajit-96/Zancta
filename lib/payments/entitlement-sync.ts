@@ -87,7 +87,8 @@ export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
     return { applied: false, reason: "stale_event" };
   }
 
-  const providerUpdatedAt = eventTimestamp != null ? new Date(eventTimestamp * 1000) : new Date();
+  const providerUpdatedAt =
+    eventTimestamp != null ? new Date(eventTimestamp * 1000) : existing?.providerUpdatedAt ?? undefined;
   const data = {
     plan,
     status,
@@ -98,7 +99,7 @@ export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
     currentPeriodEnd: currentPeriodEnd || undefined,
     cancelAtPeriodEnd: !!cancelAtPeriodEnd,
     expiresAt: currentPeriodEnd || undefined,
-    providerUpdatedAt,
+    ...(providerUpdatedAt ? { providerUpdatedAt } : {}),
     ...(providerEventId ? { lastWebhookId: providerEventId } : {}),
   };
 

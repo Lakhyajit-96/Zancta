@@ -16,6 +16,7 @@ import type {
   RefundInput,
   VerifyWebhookResult,
 } from "../types";
+import { parseProviderDate } from "@/lib/payments/billing-state";
 import { getAppOrigin } from "@/lib/seo";
 
 function requireEnv(name: string): string {
@@ -176,14 +177,7 @@ export class DodoProvider implements PaymentProvider {
     if (res.status === 404) return null;
     const j = (await res.json().catch(() => null)) as Record<string, unknown> | null;
     if (!res.ok || !j) return null;
-    return {
-      providerSubscriptionId: String(j.subscription_id || j.id || subscriptionId),
-      providerCustomerId: j.customer_id ? String(j.customer_id) : undefined,
-      status: String(j.status || "pending").toLowerCase(),
-      currentPeriodStart: j.current_period_start ? new Date(String(j.current_period_start)) : null,
-      currentPeriodEnd: j.current_period_end ? new Date(String(j.current_period_end)) : null,
-      cancelAtPeriodEnd: Boolean(j.cancel_at_next_billing_date ?? j.cancel_at_period_end ?? false),
-    };
+    return mapDodoSubscriptionJson(j, subscriptionId);
   }
 
   async cancelSubscription(subscriptionId: string, cancelAtPeriodEnd = true): Promise<void> {
@@ -242,4 +236,20 @@ export class DodoProvider implements PaymentProvider {
 
     return { ok: true, provider: "dodo", eventType, providerEventId: String(headerId), timestamp: ts, payload };
   }
+}
+
+/** Map a Dodo GET /subscriptions JSON body. Period fields stay as current_period_*; snapshot timestamps are optional extras. */
+export function mapDodoSubscriptionJson(j: Record<string, unknown>, subscriptionId: string): SubscriptionRecord {
+  return {
+    providerSubscriptionId: String(j.subscription_id || j.id || subscriptionId),
+    providerCustomerId: j.customer_id ? String(j.customer_id) : undefined,
+    status: String(j.status || "pending").toLowerCase(),
+    currentPeriodStart: j.current_period_start ? new Date(String(j.current_period_start)) : null,
+    currentPeriodEnd: j.current_period_end ? new Date(String(j.current_period_end)) : null,
+    cancelAtPeriodEnd: Boolean(j.cancel_at_next_billing_date ?? j.cancel_at_period_end ?? false),
+    createdAt: parseProviderDate(j.created_at),
+    cancelledAt: parseProviderDate(j.cancelled_at),
+    pausedAt: parseProviderDate(j.paused_at),
+    previousBillingDate: parseProviderDate(j.previous_billing_date),
+  };
 }

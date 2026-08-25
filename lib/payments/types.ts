@@ -46,6 +46,14 @@ export interface SubscriptionRecord {
   currentPeriodStart?: Date | null;
   currentPeriodEnd?: Date | null;
   cancelAtPeriodEnd: boolean;
+  /** Dodo GET `created_at`. Not an update version. */
+  createdAt?: Date | null;
+  /** Dodo GET `cancelled_at` when the subscription is cancelled. */
+  cancelledAt?: Date | null;
+  /** Dodo GET `paused_at` when paused / on_hold. */
+  pausedAt?: Date | null;
+  /** Dodo GET `previous_billing_date` (start of current period). Not an update version. */
+  previousBillingDate?: Date | null;
 }
 
 export interface RefundInput {

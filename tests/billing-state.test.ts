@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deriveFromSubscription, isProviderBackedPremium, isStaleEvent } from "@/lib/payments/billing-state";
+import { deriveFromSubscription, isProviderBackedPremium, isStaleEvent, laterTimestamp, parseProviderDate, providerMutationTime, shouldSkipReconcileApply } from "@/lib/payments/billing-state";
 import { extractDodoResourceIds } from "@/lib/payments/process-dodo-event";
 import { PREMIUM_CONTRACT } from "@/lib/payments/premium-contract";
 
@@ -59,6 +59,76 @@ describe("billing-state derivation", () => {
       existingTimestamp: new Date(100 * 1000),
     })).toBe(false);
   });
+
+  it("does not treat a future period end as a provider mutation time", () => {
+    const future = new Date(Date.now() + 30 * 86400000);
+    expect(providerMutationTime({
+      status: "active",
+      currentPeriodEnd: future,
+    })).toBeNull();
+    const cancelledAt = new Date(1_700_000_000_000);
+    expect(providerMutationTime({
+      status: "cancelled",
+      cancelledAt,
+      currentPeriodEnd: future,
+    })?.getTime()).toBe(cancelledAt.getTime());
+  });
+
+  it("uses laterTimestamp without inventing wall-clock time", () => {
+    const a = new Date(1000);
+    const b = new Date(2000);
+    expect(laterTimestamp(a, b)?.getTime()).toBe(2000);
+    expect(laterTimestamp(null, a)?.getTime()).toBe(1000);
+    expect(laterTimestamp(null, null)).toBeNull();
+  });
+
+  it("parses provider timestamps and rejects empty values", () => {
+    expect(parseProviderDate("2024-01-02T00:00:00.000Z")?.toISOString()).toBe("2024-01-02T00:00:00.000Z");
+    expect(parseProviderDate(null)).toBeNull();
+    expect(parseProviderDate("")).toBeNull();
+  });
+
+  it("skips reconcile apply when GET period is older than stored webhook state", () => {
+    const newerEnd = new Date(Date.now() + 60 * 86400000);
+    const olderEnd = new Date(Date.now() + 5 * 86400000);
+    expect(shouldSkipReconcileApply({
+      remote: { status: "active", currentPeriodEnd: olderEnd, cancelAtPeriodEnd: false },
+      local: {
+        status: "active",
+        currentPeriodEnd: newerEnd,
+        cancelAtPeriodEnd: false,
+        providerUpdatedAt: new Date(2_000_000 * 1000),
+      },
+    })).toBe(true);
+  });
+
+  it("does not skip a newer-period GET used to repair expired local state", () => {
+    const past = new Date(Date.now() - 1000);
+    const future = new Date(Date.now() + 20 * 86400000);
+    expect(shouldSkipReconcileApply({
+      remote: { status: "active", currentPeriodEnd: future, cancelAtPeriodEnd: false },
+      local: {
+        status: "expired",
+        currentPeriodEnd: past,
+        cancelAtPeriodEnd: true,
+        providerUpdatedAt: new Date(1_000_000 * 1000),
+      },
+    })).toBe(false);
+  });
+
+  it("skips an unversioned active GET that would roll back a cancel webhook", () => {
+    const end = new Date(Date.now() + 12 * 86400000);
+    expect(shouldSkipReconcileApply({
+      remote: { status: "active", currentPeriodEnd: end, cancelAtPeriodEnd: false },
+      local: {
+        status: "cancelled",
+        currentPeriodEnd: end,
+        cancelAtPeriodEnd: true,
+        providerUpdatedAt: new Date(2_000_000 * 1000),
+      },
+    })).toBe(true);
+  });
+
 });
 
 describe("Dodo resource id extraction", () => {
