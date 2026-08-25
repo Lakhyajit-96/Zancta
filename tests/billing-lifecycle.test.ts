@@ -307,13 +307,27 @@ describe("billing webhook lifecycle", () => {
 
   it("keeps a failed event retryable after a database write error", async () => {
     const webhookId = `wh_${stamp}_dberr`;
-    const original = prisma.payment.upsert.bind(prisma.payment);
+    const original = prisma.$transaction.bind(prisma);
     let calls = 0;
-    prisma.payment.upsert = (async (...args: Parameters<typeof original>) => {
-      calls += 1;
-      if (calls === 1) throw new Error("injected db failure");
-      return original(...args);
-    }) as unknown as typeof prisma.payment.upsert;
+    (prisma as { $transaction: typeof prisma.$transaction }).$transaction = (async (
+      fnOrOps: unknown,
+      options?: unknown,
+    ) => {
+      if (typeof fnOrOps !== "function") {
+        return original(fnOrOps as never, options as never);
+      }
+      return original(async (tx) => {
+        const origUpsert = tx.payment.upsert.bind(tx.payment);
+        (tx.payment as { upsert: typeof origUpsert }).upsert = (async (
+          ...args: Parameters<typeof origUpsert>
+        ) => {
+          calls += 1;
+          if (calls === 1) throw new Error("injected db failure");
+          return origUpsert(...args);
+        }) as unknown as typeof origUpsert;
+        return (fnOrOps as (client: typeof tx) => Promise<unknown>)(tx);
+      }, options as never);
+    }) as typeof prisma.$transaction;
     try {
       const result = await run("payment.succeeded", webhookId, {
         payment_id: `${payId}_dberr`,
@@ -332,7 +346,7 @@ describe("billing webhook lifecycle", () => {
       expect(retry.ok).toBe(true);
       expect((await prisma.webhookEvent.findUnique({ where: { providerEventId: webhookId } }))?.status).toBe("succeeded");
     } finally {
-      prisma.payment.upsert = original;
+      (prisma as { $transaction: typeof prisma.$transaction }).$transaction = original;
     }
   });
 

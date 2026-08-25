@@ -6,6 +6,7 @@
 import prisma from "@/lib/db";
 import { auditEvent } from "@/lib/audit";
 import { isStaleEvent } from "@/lib/payments/billing-state";
+import type { BillingDb } from "@/lib/payments/billing-db";
 
 type BillingPlan = "PREMIUM" | "FREE" | "EXPIRED" | "CANCELLED";
 
@@ -22,6 +23,7 @@ type SyncInput = {
   providerEventId?: string;
   eventTimestamp?: number | null;
   ip?: string | null;
+  db?: BillingDb;
 };
 
 export type SyncResult = { applied: boolean; reason: string };
@@ -68,6 +70,7 @@ export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
     eventTimestamp,
     ip,
   } = input;
+  const db = input.db ?? prisma;
 
   // Billing must never grant operator ADMIN. The type excludes it; this is
   // the runtime backstop if a caller widens the union.
@@ -79,7 +82,7 @@ export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
     return { applied: false, reason: "refused_premium_without_provider_subscription" };
   }
 
-  const existing = await prisma.entitlement.findUnique({ where: { userId } });
+  const existing = await db.entitlement.findUnique({ where: { userId } });
   if (existing?.plan === "ADMIN") {
     return refuseAdminMutation({ userId, provider, plan, status, providerEventId, ip });
   }
@@ -105,29 +108,31 @@ export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
 
   // Atomic: this UPDATE only matches rows that are not ADMIN, so a concurrent
   // operator promotion cannot be overwritten by billing.
-  const updated = await prisma.entitlement.updateMany({
+  const updated = await db.entitlement.updateMany({
     where: { userId, plan: { not: "ADMIN" } },
     data,
   });
   if (updated.count === 1) {
-    await auditEvent({
-      userId,
-      action: `payment.entitlement_${status.toLowerCase()}`,
-      targetId: providerEventId || providerSubscriptionId || userId,
-      metadata: JSON.stringify({ provider, plan, status, providerEventId, reason: "applied" }),
-      ...(ip ? { ip } : {}),
-    });
+    if (db === prisma) {
+      await auditEvent({
+        userId,
+        action: `payment.entitlement_${status.toLowerCase()}`,
+        targetId: providerEventId || providerSubscriptionId || userId,
+        metadata: JSON.stringify({ provider, plan, status, providerEventId, reason: "applied" }),
+        ...(ip ? { ip } : {}),
+      });
+    }
     return { applied: true, reason: "applied" };
   }
 
-  const current = await prisma.entitlement.findUnique({ where: { userId } });
+  const current = await db.entitlement.findUnique({ where: { userId } });
   if (current?.plan === "ADMIN") {
     return refuseAdminMutation({ userId, provider, plan, status, providerEventId, ip });
   }
 
   if (!current) {
     try {
-      await prisma.entitlement.create({
+      await db.entitlement.create({
         data: {
           userId,
           ...data,
@@ -135,33 +140,42 @@ export async function syncEntitlement(input: SyncInput): Promise<SyncResult> {
       });
     } catch (e: unknown) {
       if ((e as { code?: string }).code !== "P2002") throw e;
-      const raced = await prisma.entitlement.updateMany({
+      const raced = await db.entitlement.updateMany({
         where: { userId, plan: { not: "ADMIN" } },
         data,
       });
       if (raced.count !== 1) {
-        const afterRace = await prisma.entitlement.findUnique({ where: { userId } });
+        const afterRace = await db.entitlement.findUnique({ where: { userId } });
         if (afterRace?.plan === "ADMIN") {
           return refuseAdminMutation({ userId, provider, plan, status, providerEventId, ip });
         }
         return { applied: false, reason: "create_conflict" };
       }
     }
-    await auditEvent({
-      userId,
-      action: `payment.entitlement_${status.toLowerCase()}`,
-      targetId: providerEventId || providerSubscriptionId || userId,
-      metadata: JSON.stringify({ provider, plan, status, providerEventId, reason: "applied" }),
-      ...(ip ? { ip } : {}),
-    });
+    if (db === prisma) {
+      await auditEvent({
+        userId,
+        action: `payment.entitlement_${status.toLowerCase()}`,
+        targetId: providerEventId || providerSubscriptionId || userId,
+        metadata: JSON.stringify({ provider, plan, status, providerEventId, reason: "applied" }),
+        ...(ip ? { ip } : {}),
+      });
+    }
     return { applied: true, reason: "applied" };
   }
 
   return { applied: false, reason: "update_conflict" };
 }
 
-export async function revokeToFree(userId: string, provider: string, reason: string, providerEventId?: string, eventTimestamp?: number | null) {
-  const existing = await prisma.entitlement.findUnique({ where: { userId } });
+export async function revokeToFree(
+  userId: string,
+  provider: string,
+  reason: string,
+  providerEventId?: string,
+  eventTimestamp?: number | null,
+  db: BillingDb = prisma,
+) {
+  const existing = await db.entitlement.findUnique({ where: { userId } });
   if (existing?.plan === "ADMIN") {
     return refuseAdminMutation({
       userId,
@@ -186,13 +200,16 @@ export async function revokeToFree(userId: string, provider: string, reason: str
     cancelAtPeriodEnd: true,
     providerEventId,
     eventTimestamp,
+    db,
   });
   if (!result.applied) return result;
-  await auditEvent({
-    userId,
-    action: "payment.entitlement_expired",
-    targetId: providerEventId || userId,
-    metadata: JSON.stringify({ provider, reason, providerEventId }),
-  });
+  if (db === prisma) {
+    await auditEvent({
+      userId,
+      action: "payment.entitlement_expired",
+      targetId: providerEventId || userId,
+      metadata: JSON.stringify({ provider, reason, providerEventId }),
+    });
+  }
   return { applied: true, reason };
 }

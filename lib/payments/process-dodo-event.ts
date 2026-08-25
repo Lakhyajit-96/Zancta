@@ -1,12 +1,17 @@
 /**
  * Durable Dodo webhook processing: verify first, then claim, then mutate, then succeed.
  * Failed processing stays retryable. Duplicates of succeeded events are no-ops.
+ *
+ * Transaction boundary: local Payment / PaymentSubscription / PaymentCustomer /
+ * PaymentCheckout / Entitlement writes and WebhookEvent markSucceeded share one
+ * Prisma $transaction. claimEvent, Dodo HTTP, email, and analytics stay outside.
  */
 import crypto from "crypto";
 import prisma from "@/lib/db";
 import { auditEvent } from "@/lib/audit";
 import { deriveFromSubscription, isStaleEvent } from "@/lib/payments/billing-state";
 import { revokeToFree, syncEntitlement } from "@/lib/payments/entitlement-sync";
+import type { BillingDb } from "@/lib/payments/billing-db";
 import { notifyBillingEvent } from "@/lib/email/billing-notify";
 import { recordProductEvent } from "@/lib/analytics/server-events";
 
@@ -102,8 +107,8 @@ async function claimEvent(input: {
   return "process";
 }
 
-async function markSucceeded(webhookId: string) {
-  await prisma.webhookEvent.update({
+async function markSucceeded(webhookId: string, db: BillingDb = prisma) {
+  await db.webhookEvent.update({
     where: { providerEventId: webhookId },
     data: { status: "succeeded", processedAt: new Date(), lastError: null },
   });
@@ -138,22 +143,22 @@ async function resolveUserId(opts: {
   return { userId: null, deletedUser: false };
 }
 
-async function upsertCustomer(userId: string, customerId: string | null, email: string | null) {
+async function upsertCustomer(userId: string, customerId: string | null, email: string | null, db: BillingDb) {
   if (!customerId) return;
-  const owned = await prisma.paymentCustomer.findUnique({ where: { providerCustomerId: customerId } });
+  const owned = await db.paymentCustomer.findUnique({ where: { providerCustomerId: customerId } });
   if (owned && owned.userId !== userId) {
     console.error("[dodo] refusing PaymentCustomer reassignment");
     return;
   }
-  const byUser = await prisma.paymentCustomer.findUnique({ where: { userId } });
+  const byUser = await db.paymentCustomer.findUnique({ where: { userId } });
   if (byUser) {
-    await prisma.paymentCustomer.update({
+    await db.paymentCustomer.update({
       where: { userId },
       data: { providerCustomerId: customerId, ...(email ? { email } : {}) },
     }).catch(() => {});
     return;
   }
-  await prisma.paymentCustomer.create({
+  await db.paymentCustomer.create({
     data: { userId, provider: "dodo", providerCustomerId: customerId, email: email || undefined },
   }).catch(() => {});
 }
@@ -169,8 +174,9 @@ async function upsertSubscription(opts: {
   cancelAtPeriodEnd?: boolean;
   webhookId: string;
   eventTimestamp?: number | null;
+  db: BillingDb;
 }): Promise<"applied" | "stale"> {
-  const existing = await prisma.paymentSubscription.findUnique({
+  const existing = await opts.db.paymentSubscription.findUnique({
     where: { providerSubscriptionId: opts.subscriptionId },
   });
   if (existing && existing.userId !== opts.userId) {
@@ -180,7 +186,7 @@ async function upsertSubscription(opts: {
     return "stale";
   }
   const providerUpdatedAt = opts.eventTimestamp != null ? new Date(opts.eventTimestamp * 1000) : new Date();
-  await prisma.paymentSubscription.upsert({
+  await opts.db.paymentSubscription.upsert({
     where: { providerSubscriptionId: opts.subscriptionId },
     create: {
       userId: opts.userId,
@@ -214,8 +220,9 @@ async function applyEntitlementFromSubscription(opts: {
   customerId: string | null;
   webhookId: string;
   eventTimestamp?: number | null;
+  db: BillingDb;
 }) {
-  const sub = await prisma.paymentSubscription.findUnique({
+  const sub = await opts.db.paymentSubscription.findUnique({
     where: { providerSubscriptionId: opts.subscriptionId },
   });
   if (!sub) return { applied: false, reason: "missing_subscription" };
@@ -238,9 +245,221 @@ async function applyEntitlementFromSubscription(opts: {
       cancelAtPeriodEnd: derived.cancelAtPeriodEnd,
       providerEventId: opts.webhookId,
       eventTimestamp: opts.eventTimestamp,
+      db: opts.db,
     });
   }
-  return revokeToFree(opts.userId, "dodo", derived.reason, opts.webhookId, opts.eventTimestamp);
+  return revokeToFree(opts.userId, "dodo", derived.reason, opts.webhookId, opts.eventTimestamp, opts.db);
+}
+
+async function persistMappedUserEvent(opts: {
+  db: BillingDb;
+  userId: string;
+  webhookId: string;
+  eventType: string;
+  eventTimestamp: number | null;
+  data: Record<string, unknown>;
+  paymentId: string | null;
+  subscriptionId: string | null;
+  customerId: string | null;
+  email: string | null;
+  planFromMeta: string;
+  cps: Date | null;
+  cpe: Date | null;
+  cancelAtEnd: boolean;
+}): Promise<{ stale: boolean }> {
+  const {
+    db,
+    userId,
+    webhookId,
+    eventTimestamp,
+    data,
+    paymentId,
+    subscriptionId,
+    customerId,
+    email,
+    planFromMeta,
+    cps,
+    cpe,
+    cancelAtEnd,
+  } = opts;
+  const t = opts.eventType.toLowerCase();
+
+  await upsertCustomer(userId, customerId, email, db);
+
+  if (t === "payment.succeeded" || t === "payment_succeeded") {
+    if (paymentId) {
+      await db.payment.upsert({
+        where: { providerPaymentId: paymentId },
+        create: {
+          userId,
+          provider: "dodo",
+          providerPaymentId: paymentId,
+          providerSubscriptionId: subscriptionId || undefined,
+          amount: Number(data.total_amount ?? data.amount ?? 0),
+          currency: String(data.currency || "INR"),
+          status: "succeeded",
+        },
+        update: {
+          userId,
+          status: "succeeded",
+          amount: Number(data.total_amount ?? data.amount ?? 0),
+          currency: String(data.currency || "INR"),
+          ...(subscriptionId ? { providerSubscriptionId: subscriptionId } : {}),
+        },
+      });
+    }
+    await db.paymentCheckout.updateMany({
+      where: { userId, status: "created" },
+      data: { status: "completed" },
+    });
+    if (subscriptionId) {
+      const subApply = await upsertSubscription({
+        userId,
+        subscriptionId,
+        customerId,
+        plan: planFromMeta,
+        status: "active",
+        currentPeriodStart: cps,
+        currentPeriodEnd: cpe,
+        cancelAtPeriodEnd: cancelAtEnd,
+        webhookId,
+        eventTimestamp,
+        db,
+      });
+      if (subApply === "stale") {
+        await markSucceeded(webhookId, db);
+        return { stale: true };
+      }
+      await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp, db });
+    }
+  } else if (
+    t.includes("subscription.active") ||
+    t === "subscription.renewed" ||
+    t === "subscription_renewed" ||
+    t.includes("subscription.updated") ||
+    t === "subscription.plan_changed"
+  ) {
+    if (!subscriptionId) throw new Error("subscription event missing subscription id");
+    const remoteStatus = asString(data.status)?.toLowerCase() || "active";
+    const subApply = await upsertSubscription({
+      userId,
+      subscriptionId,
+      customerId,
+      plan: planFromMeta,
+      status: LIVE_OR_HOLD(remoteStatus),
+      currentPeriodStart: cps,
+      currentPeriodEnd: cpe,
+      cancelAtPeriodEnd: cancelAtEnd,
+      webhookId,
+      eventTimestamp,
+      db,
+    });
+    if (subApply === "stale") {
+      await markSucceeded(webhookId, db);
+      return { stale: true };
+    }
+    await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp, db });
+  } else if (t.includes("subscription.on_hold") || t === "subscription_on_hold") {
+    if (!subscriptionId) throw new Error("subscription event missing subscription id");
+    await upsertSubscription({
+      userId,
+      subscriptionId,
+      customerId,
+      plan: planFromMeta,
+      status: "on_hold",
+      currentPeriodStart: cps,
+      currentPeriodEnd: cpe,
+      cancelAtPeriodEnd: cancelAtEnd,
+      webhookId,
+      eventTimestamp,
+      db,
+    });
+    await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp, db });
+  } else if (t.includes("subscription.cancelled") || t === "subscription_cancelled" || t === "subscription.canceled") {
+    if (!subscriptionId) throw new Error("subscription event missing subscription id");
+    await upsertSubscription({
+      userId,
+      subscriptionId,
+      customerId,
+      plan: planFromMeta,
+      status: "cancelled",
+      currentPeriodStart: cps,
+      currentPeriodEnd: cpe,
+      cancelAtPeriodEnd: true,
+      webhookId,
+      eventTimestamp,
+      db,
+    });
+    await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp, db });
+  } else if (t.includes("subscription.failed") || t === "subscription_failed") {
+    if (subscriptionId) {
+      await upsertSubscription({
+        userId,
+        subscriptionId,
+        customerId,
+        plan: planFromMeta,
+        status: "failed",
+        currentPeriodStart: cps,
+        currentPeriodEnd: cpe,
+        cancelAtPeriodEnd: cancelAtEnd,
+        webhookId,
+        eventTimestamp,
+        db,
+      });
+      await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp, db });
+    }
+  } else if (t.includes("payment.failed") || t === "payment_failed") {
+    if (paymentId) {
+      await db.payment.upsert({
+        where: { providerPaymentId: paymentId },
+        create: {
+          userId,
+          provider: "dodo",
+          providerPaymentId: paymentId,
+          providerSubscriptionId: subscriptionId || undefined,
+          amount: Number(data.total_amount ?? data.amount ?? 0),
+          currency: String(data.currency || "INR"),
+          status: "failed",
+        },
+        update: { status: "failed", userId },
+      });
+    }
+  } else if (t.includes("subscription.expired") || t === "subscription_expired") {
+    if (!subscriptionId) throw new Error("subscription event missing subscription id");
+    await upsertSubscription({
+      userId,
+      subscriptionId,
+      customerId,
+      plan: planFromMeta,
+      status: "expired",
+      currentPeriodStart: cps,
+      currentPeriodEnd: cpe,
+      cancelAtPeriodEnd: true,
+      webhookId,
+      eventTimestamp,
+      db,
+    });
+    await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp, db });
+  } else if (t.includes("refund.succeeded") || t === "refund_succeeded") {
+    if (paymentId) {
+      await db.payment.updateMany({
+        where: { providerPaymentId: paymentId },
+        data: { status: "refunded" },
+      });
+    }
+    await revokeToFree(userId, "dodo", "refund_succeeded", webhookId, eventTimestamp, db);
+  } else if (t.includes("dispute") || t.includes("chargeback")) {
+    if (subscriptionId) {
+      await db.paymentSubscription.updateMany({
+        where: { providerSubscriptionId: subscriptionId },
+        data: { status: "on_hold" },
+      });
+    }
+    await revokeToFree(userId, "dodo", "dispute", webhookId, eventTimestamp, db);
+  }
+
+  await markSucceeded(webhookId, db);
+  return { stale: false };
 }
 
 async function cancelOrphanSubscription(subscriptionId: string) {
@@ -294,242 +513,102 @@ export async function processVerifiedDodoEvent(input: {
     const cancelAtEnd = Boolean(data.cancel_at_next_billing_date ?? data.cancel_at_period_end ?? false);
 
     if (mapped.deletedUser) {
-      if (paymentId) {
-        await prisma.payment.upsert({
-          where: { providerPaymentId: paymentId },
-          create: {
-            userId: null,
-            provider: "dodo",
-            providerPaymentId: paymentId,
-            providerSubscriptionId: subscriptionId || undefined,
-            amount: Number(data.total_amount ?? data.amount ?? 0),
-            currency: String(data.currency || "INR"),
-            status: t.includes("fail") ? "failed" : "succeeded",
-          },
-          update: { userId: null },
-        });
-      }
       if (subscriptionId) await cancelOrphanSubscription(subscriptionId);
-      await markSucceeded(webhookId);
+      await prisma.$transaction(async (tx) => {
+        if (paymentId) {
+          await tx.payment.upsert({
+            where: { providerPaymentId: paymentId },
+            create: {
+              userId: null,
+              provider: "dodo",
+              providerPaymentId: paymentId,
+              providerSubscriptionId: subscriptionId || undefined,
+              amount: Number(data.total_amount ?? data.amount ?? 0),
+              currency: String(data.currency || "INR"),
+              status: t.includes("fail") ? "failed" : "succeeded",
+            },
+            update: { userId: null },
+          });
+        }
+        await markSucceeded(webhookId, tx as BillingDb);
+      });
       await auditEvent({
         action: "payment.webhook_deleted_user",
         targetId: webhookId,
         metadata: JSON.stringify({ eventType, subscriptionId, paymentId }),
+      }).catch((e) => {
+        console.error("[dodo] deleted-user audit failed", e instanceof Error ? e.message : String(e));
       });
       return { ok: true, noUser: true };
     }
 
     if (!mapped.userId) {
-      if (paymentId) {
-        await prisma.payment.upsert({
-          where: { providerPaymentId: paymentId },
-          create: {
-            provider: "dodo",
-            providerPaymentId: paymentId,
-            providerSubscriptionId: subscriptionId || undefined,
-            amount: Number(data.total_amount ?? data.amount ?? 0),
-            currency: String(data.currency || "INR"),
-            status: t.includes("fail") ? "failed" : "processing",
-          },
-          update: {},
-        });
-      }
-      await markSucceeded(webhookId);
+      await prisma.$transaction(async (tx) => {
+        if (paymentId) {
+          await tx.payment.upsert({
+            where: { providerPaymentId: paymentId },
+            create: {
+              provider: "dodo",
+              providerPaymentId: paymentId,
+              providerSubscriptionId: subscriptionId || undefined,
+              amount: Number(data.total_amount ?? data.amount ?? 0),
+              currency: String(data.currency || "INR"),
+              status: t.includes("fail") ? "failed" : "processing",
+            },
+            update: {},
+          });
+        }
+        await markSucceeded(webhookId, tx as BillingDb);
+      });
       return { ok: true, noUser: true };
     }
 
     const userId = mapped.userId;
-    await upsertCustomer(userId, customerId, email);
-
-    if (t === "payment.succeeded" || t === "payment_succeeded") {
-      if (paymentId) {
-        await prisma.payment.upsert({
-          where: { providerPaymentId: paymentId },
-          create: {
-            userId,
-            provider: "dodo",
-            providerPaymentId: paymentId,
-            providerSubscriptionId: subscriptionId || undefined,
-            amount: Number(data.total_amount ?? data.amount ?? 0),
-            currency: String(data.currency || "INR"),
-            status: "succeeded",
-          },
-          update: {
-            userId,
-            status: "succeeded",
-            amount: Number(data.total_amount ?? data.amount ?? 0),
-            currency: String(data.currency || "INR"),
-            ...(subscriptionId ? { providerSubscriptionId: subscriptionId } : {}),
-          },
-        });
-      }
-      await prisma.paymentCheckout.updateMany({
-        where: { userId, status: "created" },
-        data: { status: "completed" },
-      });
-      if (subscriptionId) {
-        const subApply = await upsertSubscription({
-          userId,
-          subscriptionId,
-          customerId,
-          plan: planFromMeta,
-          status: "active",
-          currentPeriodStart: cps,
-          currentPeriodEnd: cpe,
-          cancelAtPeriodEnd: cancelAtEnd,
-          webhookId,
-          eventTimestamp,
-        });
-        if (subApply === "stale") {
-          await markSucceeded(webhookId);
-          return { ok: true, stale: true };
-        }
-        await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp });
-      }
-    } else if (
-      t.includes("subscription.active") ||
-      t === "subscription.renewed" ||
-      t === "subscription_renewed" ||
-      t.includes("subscription.updated") ||
-      t === "subscription.plan_changed"
-    ) {
-      if (!subscriptionId) throw new Error("subscription event missing subscription id");
-      const remoteStatus = asString(data.status)?.toLowerCase() || "active";
-      const subApply = await upsertSubscription({
-        userId,
-        subscriptionId,
-        customerId,
-        plan: planFromMeta,
-        status: LIVE_OR_HOLD(remoteStatus),
-        currentPeriodStart: cps,
-        currentPeriodEnd: cpe,
-        cancelAtPeriodEnd: cancelAtEnd,
-        webhookId,
-        eventTimestamp,
-      });
-      if (subApply === "stale") {
-        await markSucceeded(webhookId);
-        return { ok: true, stale: true };
-      }
-      await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp });
-    } else if (t.includes("subscription.on_hold") || t === "subscription_on_hold") {
-      if (!subscriptionId) throw new Error("subscription event missing subscription id");
-      await upsertSubscription({
-        userId,
-        subscriptionId,
-        customerId,
-        plan: planFromMeta,
-        status: "on_hold",
-        currentPeriodStart: cps,
-        currentPeriodEnd: cpe,
-        cancelAtPeriodEnd: cancelAtEnd,
-        webhookId,
-        eventTimestamp,
-      });
-      await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp });
-    } else if (t.includes("subscription.cancelled") || t === "subscription_cancelled" || t === "subscription.canceled") {
-      if (!subscriptionId) throw new Error("subscription event missing subscription id");
-      await upsertSubscription({
-        userId,
-        subscriptionId,
-        customerId,
-        plan: planFromMeta,
-        status: "cancelled",
-        currentPeriodStart: cps,
-        currentPeriodEnd: cpe,
-        cancelAtPeriodEnd: true,
-        webhookId,
-        eventTimestamp,
-      });
-      await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp });
-    } else if (t.includes("subscription.failed") || t === "subscription_failed") {
-      if (subscriptionId) {
-        await upsertSubscription({
-          userId,
-          subscriptionId,
-          customerId,
-          plan: planFromMeta,
-          status: "failed",
-          currentPeriodStart: cps,
-          currentPeriodEnd: cpe,
-          cancelAtPeriodEnd: cancelAtEnd,
-          webhookId,
-          eventTimestamp,
-        });
-        await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp });
-      }
-    } else if (t.includes("payment.failed") || t === "payment_failed") {
-      if (paymentId) {
-        await prisma.payment.upsert({
-          where: { providerPaymentId: paymentId },
-          create: {
-            userId,
-            provider: "dodo",
-            providerPaymentId: paymentId,
-            providerSubscriptionId: subscriptionId || undefined,
-            amount: Number(data.total_amount ?? data.amount ?? 0),
-            currency: String(data.currency || "INR"),
-            status: "failed",
-          },
-          update: { status: "failed", userId },
-        });
-      }
-    } else if (t.includes("subscription.expired") || t === "subscription_expired") {
-      if (!subscriptionId) throw new Error("subscription event missing subscription id");
-      await upsertSubscription({
-        userId,
-        subscriptionId,
-        customerId,
-        plan: planFromMeta,
-        status: "expired",
-        currentPeriodStart: cps,
-        currentPeriodEnd: cpe,
-        cancelAtPeriodEnd: true,
-        webhookId,
-        eventTimestamp,
-      });
-      await applyEntitlementFromSubscription({ userId, subscriptionId, customerId, webhookId, eventTimestamp });
-    } else if (t.includes("refund.succeeded") || t === "refund_succeeded") {
-      if (paymentId) {
-        await prisma.payment.updateMany({
-          where: { providerPaymentId: paymentId },
-          data: { status: "refunded" },
-        });
-      }
-      await revokeToFree(userId, "dodo", "refund_succeeded", webhookId, eventTimestamp);
-    } else if (t.includes("dispute") || t.includes("chargeback")) {
-      if (subscriptionId) {
-        await prisma.paymentSubscription.updateMany({
-          where: { providerSubscriptionId: subscriptionId },
-          data: { status: "on_hold" },
-        });
-      }
-      await revokeToFree(userId, "dodo", "dispute", webhookId, eventTimestamp);
-    }
-
-    await notifyBillingEvent({
-      eventType,
+    const persist = await prisma.$transaction(async (tx) => persistMappedUserEvent({
+      db: tx as BillingDb,
       userId,
-      fallbackEmail: email,
-      planId: planFromMeta,
+      webhookId,
+      eventType,
+      eventTimestamp,
       data,
       paymentId,
-      currentPeriodEnd: cpe,
-      cancelAtPeriodEnd: cancelAtEnd,
-    });
+      subscriptionId,
+      customerId,
+      email,
+      planFromMeta,
+      cps,
+      cpe,
+      cancelAtEnd,
+    }));
 
-    const et = eventType.toLowerCase();
-    if (et === "subscription.active") {
-      await recordProductEvent({ event: "subscription_active", userId, metadata: { plan: planFromMeta || "unknown" } });
-    } else if (et.includes("subscription.cancelled") || et === "subscription_cancelled" || et === "subscription.canceled") {
-      await recordProductEvent({ event: "subscription_cancelled", userId, metadata: { plan: planFromMeta || "unknown" } });
-    } else if (et.includes("payment.failed") || et === "payment_failed") {
-      await recordProductEvent({ event: "payment_failed", userId });
-    } else if (et.includes("refund.succeeded") || et === "refund_succeeded") {
-      await recordProductEvent({ event: "refund_completed", userId });
+    if (persist.stale) return { ok: true, stale: true };
+
+    try {
+      await notifyBillingEvent({
+        eventType,
+        userId,
+        fallbackEmail: email,
+        planId: planFromMeta,
+        data,
+        paymentId,
+        currentPeriodEnd: cpe,
+        cancelAtPeriodEnd: cancelAtEnd,
+      });
+
+      const et = eventType.toLowerCase();
+      if (et === "subscription.active") {
+        await recordProductEvent({ event: "subscription_active", userId, metadata: { plan: planFromMeta || "unknown" } });
+      } else if (et.includes("subscription.cancelled") || et === "subscription_cancelled" || et === "subscription.canceled") {
+        await recordProductEvent({ event: "subscription_cancelled", userId, metadata: { plan: planFromMeta || "unknown" } });
+      } else if (et.includes("payment.failed") || et === "payment_failed") {
+        await recordProductEvent({ event: "payment_failed", userId });
+      } else if (et.includes("refund.succeeded") || et === "refund_succeeded") {
+        await recordProductEvent({ event: "refund_completed", userId });
+      }
+    } catch (e) {
+      console.error("[dodo] post-commit notify failed", e instanceof Error ? e.message : String(e));
     }
 
-    await markSucceeded(webhookId);
     return { ok: true };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

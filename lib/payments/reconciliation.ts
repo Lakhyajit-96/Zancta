@@ -18,6 +18,7 @@ import {
   unixSeconds,
 } from "@/lib/payments/billing-state";
 import { revokeToFree, syncEntitlement } from "@/lib/payments/entitlement-sync";
+import type { BillingDb } from "@/lib/payments/billing-db";
 import type { SubscriptionRecord } from "@/lib/payments/types";
 
 export type DriftKind =
@@ -161,7 +162,9 @@ export async function reconcileFromProvider(
     cancelAtPeriodEnd: remote.cancelAtPeriodEnd,
   });
 
-  await prisma.paymentSubscription.upsert({
+  await prisma.$transaction(async (tx) => {
+    // Local subscription + entitlement only. Provider GET stays outside this callback.
+    await tx.paymentSubscription.upsert({
       where: { providerSubscriptionId: remote.providerSubscriptionId },
       create: {
         userId,
@@ -197,10 +200,12 @@ export async function reconcileFromProvider(
         currentPeriodEnd: remote.currentPeriodEnd,
         cancelAtPeriodEnd: derived.cancelAtPeriodEnd,
         eventTimestamp,
+        db: tx as BillingDb,
       });
     } else if (derived.plan === "EXPIRED") {
-      await revokeToFree(userId, "dodo", derived.reason, undefined, eventTimestamp);
+      await revokeToFree(userId, "dodo", derived.reason, undefined, eventTimestamp, tx as BillingDb);
     }
+  });
 
   const after = await detectLocalBillingDrift(userId);
   return after.map((item) => ({ ...item, repaired: !findings.some((f) => f.kind === item.kind) ? item.repaired : true }));
