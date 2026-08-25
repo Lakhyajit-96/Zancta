@@ -4,6 +4,7 @@ import prisma from "@/lib/db";
 import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken } from "@/lib/token";
+import { isLivePaymentsEnabled } from "@/lib/payments/live";
 
 const STEP_UP_ERROR =
   "Re-authentication required. Request a new confirmation code from your account email and try again.";
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
   const subscriptionIds = new Set(liveSubs.map((s) => s.providerSubscriptionId));
   if (ent?.providerSubscriptionId) subscriptionIds.add(ent.providerSubscriptionId);
 
-  if (subscriptionIds.size > 0) {
+  if (subscriptionIds.size > 0 && isLivePaymentsEnabled()) {
     const { getPaymentProvider } = await import("@/lib/payments");
     const provider = getPaymentProvider("dodo");
     for (const subscriptionId of subscriptionIds) {
@@ -100,6 +101,14 @@ export async function POST(req: NextRequest) {
     await prisma.entitlement.updateMany({
       where: { userId },
       data: { cancelAtPeriodEnd: true, status: "CANCELLED", plan: "CANCELLED" },
+    });
+  } else if (subscriptionIds.size > 0) {
+    await auditEvent({
+      userId,
+      action: "payment.skip_provider_cancel_live_disabled",
+      targetId: userId,
+      metadata: JSON.stringify({ skippedSubscriptions: subscriptionIds.size }),
+      ip,
     });
   }
 

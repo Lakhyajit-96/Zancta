@@ -1,6 +1,7 @@
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
+import { disableLivePaymentMutations, enableLivePaymentMutations, restoreLivePaymentEnv, snapshotLivePaymentEnv } from "./live-payment-env";
 
 const state = { userId: "" };
 const cancelSub = vi.fn(async () => {});
@@ -47,6 +48,8 @@ async function postCancel(userId: string, body: Record<string, unknown> = { conf
 }
 
 describe("P2-PAY-2 cancellation subscription ownership", () => {
+  const prevLive = snapshotLivePaymentEnv();
+
   beforeEach(() => {
     cancelSub.mockClear();
     getSub.mockClear();
@@ -58,6 +61,12 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     }));
     cancelSub.mockImplementation(async () => {});
     state.userId = "";
+    restoreLivePaymentEnv(prevLive);
+    disableLivePaymentMutations();
+  });
+
+  afterEach(() => {
+    restoreLivePaymentEnv(prevLive);
   });
 
   afterAll(async () => {
@@ -70,6 +79,7 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
   });
 
   it("1. authenticated user cancels own subscription", async () => {
+    enableLivePaymentMutations();
     const userId = await createUser("own");
     const subId = `sub_own_${stamp}`;
     const periodEnd = new Date(Date.now() + 20 * 86400000);
@@ -90,6 +100,7 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
   });
 
   it("2. entitlement provider ID is ownership-verified before the provider call", async () => {
+    enableLivePaymentMutations();
     const userId = await createUser("ent_id");
     const subId = `sub_ent_${stamp}`;
     await prisma.entitlement.create({
@@ -155,6 +166,7 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
   });
 
   it("5. fallback finds the caller's latest subscription and calls the provider", async () => {
+    enableLivePaymentMutations();
     const userId = await createUser("fallback");
     const older = `sub_fb_old_${stamp}`;
     const latest = `sub_fb_new_${stamp}`;
@@ -215,6 +227,7 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
   });
 
   it("8. provider failure leaves Premium intact", async () => {
+    enableLivePaymentMutations();
     const userId = await createUser("fail");
     const subId = `sub_fail_${stamp}`;
     await prisma.entitlement.create({
@@ -248,5 +261,30 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true, cancelAtPeriodEnd: true, already: true });
     expect(cancelSub).not.toHaveBeenCalled();
+  });
+
+  it("10. live=false never calls the provider for an owned subscription", async () => {
+    const userId = await createUser("live_off");
+    const subId = `sub_live_off_${stamp}`;
+    const periodEnd = new Date(Date.now() + 20 * 86400000);
+    await prisma.entitlement.create({
+      data: { userId, plan: "PREMIUM", status: "ACTIVE", source: "dodo", providerSubscriptionId: subId, currentPeriodEnd: periodEnd },
+    });
+    await prisma.paymentSubscription.create({
+      data: { userId, provider: "dodo", providerSubscriptionId: subId, plan: "PREMIUM_MONTHLY", status: "active", currentPeriodEnd: periodEnd },
+    });
+
+    const res = await postCancel(userId);
+    const body = await res.json() as { live?: boolean; error?: string };
+    expect(res.status).toBe(503);
+    expect(body.live).toBe(false);
+    expect(cancelSub).not.toHaveBeenCalled();
+    expect(getSub).not.toHaveBeenCalled();
+    expect((await prisma.entitlement.findUnique({ where: { userId } }))).toMatchObject({
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      cancelAtPeriodEnd: false,
+    });
+    expect((await prisma.paymentSubscription.findUnique({ where: { providerSubscriptionId: subId } }))?.cancelAtPeriodEnd).toBe(false);
   });
 });

@@ -191,6 +191,7 @@ describe("Dodo webhook signature failures are externally generic", () => {
     });
     expect(result.status).toBe(200);
     expect(result.json).toMatchObject({ ok: true });
+    expect(process.env.PAYMENTS_LIVE_ENABLED).toBe("false");
     expect(result.text).not.toContain("Invalid webhook signature");
     expect(result.text).not.toContain("Missing webhook headers");
   });

@@ -14,6 +14,9 @@ describe("API authorization binds to the session, not client IDs", () => {
     expect(src).toMatch(/EMAIL_UNVERIFIED/);
     expect(src).toMatch(/getEntitlement/);
     expect(src).toMatch(/currency: "INR"/);
+    expect(src).toMatch(/isLivePaymentsEnabled/);
+    expect(src).toMatch(/entitlement\.plan === "ADMIN"/);
+    expect(src).toMatch(/CHECKOUT_PLANS/);
     expect(src).not.toMatch(/successUrl:\s*body|body\?\.successUrl|body\?\.productId|body\?\.amount/);
     expect(src).toMatch(/body\?\.userId && body\.userId !== liveUser\.id/);
     expect(src).not.toMatch(/userId: body/);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getPaymentProvider, isLivePaymentsEnabled } from "@/lib/payments";
+import { PROVIDER_MUTATION_DISABLED } from "@/lib/payments/live";
 import type { PlanId } from "@/lib/payments/types";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
   }
 
   const entitlement = await getEntitlement(liveUser.id);
+  if (entitlement.plan === "ADMIN") {
+    return NextResponse.json({ error: "Operator accounts cannot start Premium checkout." }, { status: 409 });
+  }
   if (entitlement.plan === "PREMIUM" && entitlement.status === "ACTIVE" && entitlement.providerBacked) {
     return NextResponse.json({ error: "Premium is already active on this account." }, { status: 409 });
   }
@@ -72,19 +76,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "A checkout is already in progress. Try again in a moment." }, { status: 409 });
   }
 
+  if (!isLivePaymentsEnabled()) {
+    return NextResponse.json(
+      { live: false, error: "Checkout is not enabled." },
+      { status: 503 }
+    );
+  }
+
   const monthly = process.env.DODO_PRODUCT_MONTHLY_ID || process.env.DODO_PAYMENTS_PRODUCT_MONTHLY_ID;
   const annual = process.env.DODO_PRODUCT_ANNUAL_ID || process.env.DODO_PAYMENTS_PRODUCT_ANNUAL_ID;
   if (!monthly || !annual) {
     return NextResponse.json(
       { error: "Payment products not configured. Checkout is unavailable." },
-      { status: 503 }
-    );
-  }
-
-  const dodoEnv = (process.env.DODO_ENVIRONMENT || "test").toLowerCase();
-  if ((dodoEnv === "live" || dodoEnv === "production") && !isLivePaymentsEnabled()) {
-    return NextResponse.json(
-      { error: "Live checkout is not enabled yet." },
       { status: 503 }
     );
   }
@@ -132,6 +135,9 @@ export async function POST(req: NextRequest) {
     const msg = (e as Error).message || "Checkout failed";
     // Do not leak raw provider key errors with secrets
     console.error("[checkout] failed", msg);
+    if (msg === PROVIDER_MUTATION_DISABLED) {
+      return NextResponse.json({ live: false, error: "Checkout is not enabled." }, { status: 503 });
+    }
     return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }

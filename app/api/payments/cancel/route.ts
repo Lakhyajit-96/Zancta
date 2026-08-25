@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getPaymentProvider } from "@/lib/payments";
+import { isLivePaymentsEnabled } from "@/lib/payments/live";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 
@@ -59,6 +60,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No subscription to cancel" }, { status: 404 });
   }
   const subscriptionId = owned.providerSubscriptionId;
+
+  if (!isLivePaymentsEnabled()) {
+    return NextResponse.json(
+      { live: false, error: "Billing changes are not available while checkout is disabled." },
+      { status: 503 }
+    );
+  }
 
   const provider = getPaymentProvider("dodo");
   await provider.cancelSubscription(subscriptionId, true);

@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { hashToken } from "@/lib/token";
+import { disableLivePaymentMutations, enableLivePaymentMutations, restoreLivePaymentEnv, snapshotLivePaymentEnv } from "./live-payment-env";
 
 type TokenRow = { userId: string; token: string; usedAt: Date | null; expires: Date };
 
@@ -170,6 +171,8 @@ function seedCode(userId: string, plain: string, expiresInMs = 15 * 60 * 1000) {
 }
 
 describe("Account deletion step-up (P0-2)", () => {
+  const prevLive = snapshotLivePaymentEnv();
+
   beforeEach(() => {
     state.userId = "user-a";
     state.tokens = [];
@@ -184,7 +187,13 @@ describe("Account deletion step-up (P0-2)", () => {
     state.rateLimitOk = true;
     cancel.mockClear();
     getSub.mockClear();
+    restoreLivePaymentEnv(prevLive);
+    disableLivePaymentMutations();
     vi.resetModules();
+  });
+
+  afterEach(() => {
+    restoreLivePaymentEnv(prevLive);
   });
 
   it("1. authenticated session alone cannot delete", async () => {
@@ -302,7 +311,19 @@ describe("Account deletion step-up (P0-2)", () => {
     expect(state.deletedUsers.has("user-a")).toBe(true);
   });
 
-  it("17 + 19. provider cancellation still occurs before destructive deletion", async () => {
+  it("17. live=false skips provider cancellation and still deletes locally", async () => {
+    seedCode("user-a", "prem-code");
+    state.subscriptions = [{ userId: "user-a", providerSubscriptionId: "sub_1", status: "active" }];
+    const { POST } = await import("@/app/api/account/delete/route");
+    const res = await POST(deleteReq({ confirm: "DELETE", stepUpToken: "prem-code" }));
+    expect(res.status).toBe(200);
+    expect(cancel).not.toHaveBeenCalled();
+    expect(getSub).not.toHaveBeenCalled();
+    expect(state.deletedUsers.has("user-a")).toBe(true);
+  });
+
+  it("17b. live=true still cancels the provider subscription before destructive deletion", async () => {
+    enableLivePaymentMutations();
     seedCode("user-a", "prem-code");
     state.subscriptions = [{ userId: "user-a", providerSubscriptionId: "sub_1", status: "active" }];
     const { POST } = await import("@/app/api/account/delete/route");
@@ -313,7 +334,8 @@ describe("Account deletion step-up (P0-2)", () => {
     expect(state.deletedUsers.has("user-a")).toBe(true);
   });
 
-  it("18. provider unreachable still prevents deletion and restores the code", async () => {
+  it("18. provider unreachable still prevents deletion and restores the code when live", async () => {
+    enableLivePaymentMutations();
     seedCode("user-a", "prem-code");
     state.subscriptions = [{ userId: "user-a", providerSubscriptionId: "sub_1", status: "active" }];
     state.cancelShouldThrow = true;

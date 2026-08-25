@@ -6,6 +6,7 @@ import { processVerifiedDodoEvent } from "@/lib/payments/process-dodo-event";
 import { detectLocalBillingDrift, reconcileFromProvider } from "@/lib/payments/reconciliation";
 import { DodoProvider } from "@/lib/payments/providers/dodo";
 import crypto from "crypto";
+import { enableLivePaymentMutations, restoreLivePaymentEnv, snapshotLivePaymentEnv } from "./live-payment-env";
 
 const cancel = vi.fn(async () => {});
 
@@ -243,8 +244,33 @@ describe("billing webhook lifecycle", () => {
       rawBody: "{}",
     });
     expect(result).toMatchObject({ ok: true, noUser: true });
-    expect(cancel).toHaveBeenCalled();
+    expect(cancel).not.toHaveBeenCalled();
     expect(await prisma.entitlement.findUnique({ where: { userId } })).toBeTruthy();
+  });
+
+  it("cancels an orphan subscription at the provider only when live payments are enabled", async () => {
+    const prev = snapshotLivePaymentEnv();
+    cancel.mockClear();
+    enableLivePaymentMutations();
+    try {
+      const result = await processVerifiedDodoEvent({
+        webhookId: `wh_${stamp}_deleted_live`,
+        eventType: "subscription.active",
+        timestamp: String(Math.floor(Date.now() / 1000)),
+        payload: {
+          event_type: "subscription.active",
+          data: {
+            subscription_id: `sub_deleted_live_${stamp}`,
+            metadata: { userId: "missing_user_id_live", planId: "PREMIUM_MONTHLY" },
+          },
+        },
+        rawBody: "{}",
+      });
+      expect(result).toMatchObject({ ok: true, noUser: true });
+      expect(cancel).toHaveBeenCalledWith(`sub_deleted_live_${stamp}`, true);
+    } finally {
+      restoreLivePaymentEnv(prev);
+    }
   });
 
   it("rejects forged webhook signatures over the HTTP route", async () => {

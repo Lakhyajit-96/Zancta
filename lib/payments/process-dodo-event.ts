@@ -463,6 +463,11 @@ async function persistMappedUserEvent(opts: {
 }
 
 async function cancelOrphanSubscription(subscriptionId: string) {
+  const { isLivePaymentsEnabled } = await import("@/lib/payments/live");
+  if (!isLivePaymentsEnabled()) {
+    console.warn("[dodo] skipping orphan provider cancel; live payments disabled");
+    return;
+  }
   try {
     const { getPaymentProvider } = await import("@/lib/payments");
     await getPaymentProvider("dodo").cancelSubscription(subscriptionId, true);

@@ -17,6 +17,7 @@ import type {
   VerifyWebhookResult,
 } from "../types";
 import { parseProviderDate } from "@/lib/payments/billing-state";
+import { assertProviderMutationsAllowed } from "@/lib/payments/live";
 import { getAppOrigin } from "@/lib/seo";
 
 function requireEnv(name: string): string {
@@ -27,7 +28,7 @@ function requireEnv(name: string): string {
 
 function getBaseUrl(): string {
   // Dodo API base — test vs live via DODO_ENVIRONMENT
-  const env = (process.env.DODO_ENVIRONMENT || "test").toLowerCase();
+  const env = (process.env.DODO_ENVIRONMENT || "test").trim().toLowerCase();
   if (env === "live" || env === "production") return "https://live.dodopayments.com";
   return "https://test.dodopayments.com";
 }
@@ -120,6 +121,7 @@ export class DodoProvider implements PaymentProvider {
   }
 
   async createCheckout(input: CreateCheckoutInput): Promise<CheckoutResult> {
+    assertProviderMutationsAllowed();
     const productId = this.productIdForPlan(input.planId);
     if (!productId) throw new Error(`Dodo product not configured for plan ${input.planId} (set DODO_PRODUCT_MONTHLY_ID / DODO_PRODUCT_ANNUAL_ID)`);
 
@@ -181,6 +183,7 @@ export class DodoProvider implements PaymentProvider {
   }
 
   async cancelSubscription(subscriptionId: string, cancelAtPeriodEnd = true): Promise<void> {
+    assertProviderMutationsAllowed();
     const base = getBaseUrl();
     const res = await fetch(`${base}/subscriptions/${encodeURIComponent(subscriptionId)}`, {
       method: "PATCH",
@@ -194,6 +197,7 @@ export class DodoProvider implements PaymentProvider {
   }
 
   async refundPayment(input: RefundInput): Promise<void> {
+    assertProviderMutationsAllowed();
     const base = getBaseUrl();
     const res = await fetch(`${base}/payments/${encodeURIComponent(input.paymentId)}/refund`, {
       method: "POST",

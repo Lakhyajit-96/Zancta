@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
 import { hashProviderIdentity } from "@/lib/deleted-identity";
 import { generateSecureToken, hashToken } from "@/lib/token";
+import { disableLivePaymentMutations, restoreLivePaymentEnv, snapshotLivePaymentEnv } from "./live-payment-env";
 
 const state = { userId: "" };
 const cancel = vi.fn(async () => {});
@@ -29,6 +30,7 @@ delete process.env.UPSTASH_REDIS_REST_URL;
 delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
 describe("Account deletion lifecycle", () => {
+  const prevLive = snapshotLivePaymentEnv();
   const ts = Date.now();
   const password = "Test12345!";
   let oauthUserId = "";
@@ -92,6 +94,11 @@ describe("Account deletion lifecycle", () => {
     await prisma.user.deleteMany({ where: { id: { in: [oauthUserId, premiumUserId] } } }).catch(() => {});
   });
 
+  afterEach(() => {
+    restoreLivePaymentEnv(prevLive);
+    disableLivePaymentMutations();
+  });
+
   async function issueStepUp(userId: string) {
     const plain = generateSecureToken();
     await prisma.accountDeletionToken.create({
@@ -122,10 +129,11 @@ describe("Account deletion lifecycle", () => {
     })).not.toBeNull();
   });
 
-  it("14. premium deletion cancels the provider subscription before removing the account", async () => {
+  it("14. premium deletion skips provider cancel while live payments are disabled", async () => {
     state.userId = premiumUserId;
     cancel.mockClear();
     getSub.mockClear();
+    disableLivePaymentMutations();
     const stepUpToken = await issueStepUp(premiumUserId);
     const { POST } = await import("@/app/api/account/delete/route");
     const req = new NextRequest("http://localhost:3000/api/account/delete", {
@@ -135,8 +143,8 @@ describe("Account deletion lifecycle", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
-    expect(cancel).toHaveBeenCalledWith(`sub_${ts}`, true);
-    expect(getSub).toHaveBeenCalledWith(`sub_${ts}`);
+    expect(cancel).not.toHaveBeenCalled();
+    expect(getSub).not.toHaveBeenCalled();
     expect(await prisma.user.findUnique({ where: { id: premiumUserId } })).toBeNull();
   });
 });
