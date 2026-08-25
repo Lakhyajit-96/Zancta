@@ -83,12 +83,19 @@ describe("resend-verification lifecycle", () => {
   });
 
   it("per-email cooldown kicks in after 3 sends in an hour (no infinite resend loop)", async () => {
+    const before = await prisma.verificationToken.findMany({ where: { identifier: unverifiedEmail } });
     const third = await call(unverifiedEmail, "10.1.0.5"); // 3rd send for this email
     expect(third.status).toBe(200);
+    expect(third.body.message).toBe(GENERIC);
     expect(third.body.cooldown).toBeUndefined();
-    const fourth = await call(unverifiedEmail, "10.1.0.6"); // 4th — blocked
+    const afterThird = await prisma.verificationToken.findMany({ where: { identifier: unverifiedEmail } });
+    expect(afterThird[0].token).not.toBe(before[0].token);
+    const fourth = await call(unverifiedEmail, "10.1.0.6"); // 4th — blocked, generic
     expect(fourth.status).toBe(200);
-    expect(fourth.body.cooldown).toBe(true);
+    expect(fourth.body).toEqual({ ok: true, message: GENERIC });
+    const afterFourth = await prisma.verificationToken.findMany({ where: { identifier: unverifiedEmail } });
+    expect(afterFourth).toHaveLength(1);
+    expect(afterFourth[0].token).toBe(afterThird[0].token);
   });
 
   it("invalid email input is rejected with 400", async () => {

@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { signupSchema } from "@/lib/validators";
 import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
+import { limitAuthEmailDelivery } from "@/lib/auth-email-rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { safeServerError } from "@/lib/safe-error";
@@ -59,6 +60,10 @@ export async function POST(req: NextRequest) {
     // retry delivery. Public message stays generic.
     if (existing && !existing.deletedAt && !existing.emailVerified) {
       stage = "email-send";
+      const rlEmail = await limitAuthEmailDelivery("resend-verify", email);
+      if (!rlEmail.ok) {
+        return NextResponse.json(signupAck);
+      }
       const sent = await createAndSendVerification(existing.id, email);
       await auditEvent({ userId: existing.id, action: "verification_email_requested", targetId: existing.id, ip });
       if (!sent.ok) {

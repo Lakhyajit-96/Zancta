@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { rateLimitAsync, getClientIp } from "@/lib/rate-limit";
+import { limitAuthEmailDelivery } from "@/lib/auth-email-rate-limit";
 import { auditEvent } from "@/lib/audit";
 import { hashToken, generateSecureToken } from "@/lib/token";
 import { getAppOrigin } from "@/lib/seo";
@@ -23,9 +24,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Per-email cooldown so a targeted address can't be flooded with resends.
-  const rlEmail = await rateLimitAsync(`resend-verify-email:${email}`, 3, 60 * 60 * 1000);
+  // Same HMAC key as the signup unverified-resend path. Generic 200 on
+  // cooldown so this is not an existence or "this address is throttled" oracle.
+  const rlEmail = await limitAuthEmailDelivery("resend-verify", email);
   if (!rlEmail.ok) {
-    return NextResponse.json({ ok: true, cooldown: true, message: "Please wait a while before requesting another verification email." });
+    return NextResponse.json({ ok: true, message: GENERIC_SENT });
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
