@@ -92,7 +92,7 @@ export default async function AccountPage() {
 
         <section className="card-surface border-error/30 p-6 md:p-8" aria-labelledby="account-danger">
           <h2 id="account-danger" className="eyebrow text-error">Danger zone</h2>
-          <p className="mt-3 text-xs text-muted-foreground">Delete account and all associated application data (sessions, entitlement, local billing rows). Dodo retains customer, payment, subscription and checkout records as Merchant of Record; those cannot be deleted here. This cannot be undone.</p>
+          <p className="mt-3 text-xs text-muted-foreground">Delete account and all associated application data (sessions, entitlement, local billing rows). When live checkout is enabled, ZANCTA first attempts to cancel any known Dodo subscription at period end; if that cannot be confirmed, the account is not deleted. Live checkout is not currently enabled, so deleting your ZANCTA account does not send a cancellation to Dodo. Dodo retains customer, payment, subscription and checkout records as Merchant of Record; those cannot be deleted here. This cannot be undone.</p>
           <DeleteForm />
         </section>
 

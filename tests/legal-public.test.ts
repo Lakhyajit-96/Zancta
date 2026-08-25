@@ -153,10 +153,24 @@ describe("public legal and AI-search facts", () => {
     expect(src).toMatch(/does not erase every related record/);
     expect(src).toMatch(/deleting a ZANCTA account does not, by itself, disconnect the operator Bing integration/);
     expect(src).toMatch(/selected file bytes are read and processed in the browser/);
+    expect(src).toMatch(/When live checkout is enabled, ZANCTA first attempts to cancel any known Dodo subscription at period end/);
+    expect(src).toMatch(/if that provider cancel cannot be confirmed, the account is not deleted/);
+    expect(src).toMatch(/Live checkout is not currently enabled, so account deletion does not send a cancel request to Dodo/);
+    expect(src).toMatch(/local deletion still proceeds/);
+    expect(src).not.toMatch(/after attempting to cancel any known Dodo subscription at period end/);
+    expect(src).not.toMatch(/always cancels your provider subscription/i);
+    expect(src).not.toMatch(/PAYMENTS_LIVE_ENABLED|skip_provider_cancel_live_disabled/);
     expect(src).not.toMatch(/Nothing is stored on ZANCTA/);
     expect(src).not.toMatch(/everything is permanently deleted/i);
     expect(src).not.toMatch(/HMAC|sha256|contact-email:|signin-email:|rl:/);
     expect(src).not.toMatch(/SENTRY_DSN|GOCSPX/);
+
+    const account = await readFile(path.join(process.cwd(), "app/account/page.tsx"), "utf8");
+    expect(account).toMatch(/When live checkout is enabled, ZANCTA first attempts to cancel any known Dodo subscription at period end/);
+    expect(account).toMatch(/if that cannot be confirmed, the account is not deleted/);
+    expect(account).toMatch(/Live checkout is not currently enabled, so deleting your ZANCTA account does not send a cancellation to Dodo/);
+    expect(account).not.toMatch(/always cancels your provider subscription/i);
+    expect(account).not.toMatch(/after attempting to cancel any known Dodo subscription/);
   });
 
   it("does not change public or operator OAuth scopes for this privacy documentation phase", async () => {
