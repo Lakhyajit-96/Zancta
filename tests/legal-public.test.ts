@@ -135,6 +135,41 @@ describe("public legal and AI-search facts", () => {
     expect(src).not.toMatch(/AES-256|GCM|INTEGRATION_ENCRYPTION/);
   });
 
+  it("privacy policy discloses confirmed production data flows without overclaiming deletion", async () => {
+    const src = await readFile(path.join(process.cwd(), "app/privacy/page.tsx"), "utf8");
+    expect(src).toContain("Bing Webmaster — Site Operator Integrations");
+    expect(src).toContain("webmaster.manage");
+    expect(src).toContain("zancta_op_oauth_bing");
+    expect(src).toMatch(/does not currently send a Bing-side token revocation/);
+    expect(src).toMatch(/name, email, topic, subject, message/);
+    expect(src).toMatch(/not stored as a ZANCTA application database record/);
+    expect(src).toMatch(/Resend/);
+    expect(src).toMatch(/not currently invoked/);
+    expect(src).toMatch(/Upstash Redis/);
+    expect(src).toMatch(/Vercel/);
+    expect(src).toMatch(/Supabase/);
+    expect(src).toMatch(/profile image/);
+    expect(src).toMatch(/OAuth account records/);
+    expect(src).toMatch(/does not erase every related record/);
+    expect(src).toMatch(/deleting a ZANCTA account does not, by itself, disconnect the operator Bing integration/);
+    expect(src).toMatch(/selected file bytes are read and processed in the browser/);
+    expect(src).not.toMatch(/Nothing is stored on ZANCTA/);
+    expect(src).not.toMatch(/everything is permanently deleted/i);
+    expect(src).not.toMatch(/HMAC|sha256|contact-email:|signin-email:|rl:/);
+    expect(src).not.toMatch(/SENTRY_DSN|GOCSPX/);
+  });
+
+  it("does not change public or operator OAuth scopes for this privacy documentation phase", async () => {
+    const googleAuth = await readFile(path.join(process.cwd(), "lib/auth.ts"), "utf8");
+    const googleOperator = await readFile(path.join(process.cwd(), "lib/integrations/google/oauth.ts"), "utf8");
+    const bingOauth = await readFile(path.join(process.cwd(), "lib/integrations/bing/oauth.ts"), "utf8");
+    expect(googleAuth).toMatch(/Google\(\{\s*clientId: process\.env\.GOOGLE_CLIENT_ID/);
+    expect(googleAuth).not.toMatch(/scope:/);
+    expect(googleOperator).toContain("https://www.googleapis.com/auth/webmasters");
+    expect(googleOperator).toContain("https://www.googleapis.com/auth/analytics.readonly");
+    expect(bingOauth).toContain('const BING_SCOPE = "webmaster.manage"');
+  });
+
   it("marketing page titles are unique and not one-word stubs", async () => {
     const files = [
       "app/tools/page.tsx",

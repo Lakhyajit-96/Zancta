@@ -60,7 +60,7 @@ export default async function AccountPage() {
               </p>
             </div>
           ) : null}
-          <p className="mt-1 text-xs text-muted-foreground">Local tools and their limits are the same on Free and Premium. Premium reserves an ad-free experience if ads are introduced. No file bytes are stored.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Core local tools stay on Free with the same file and page limits. Premium adds Local OCR Power — extra OCR languages and scanned PDF OCR up to 20 pages. Ads are not live; Premium reserves an ad-free experience if they are introduced. No file bytes are stored.</p>
           {ent.integrityIssue === "missing_provider_subscription" && (
             <p className="mt-2 text-xs text-warning">A Premium record exists without a provider-backed subscription, so paid access is not active. Subscribe from pricing if you want Premium.</p>
           )}

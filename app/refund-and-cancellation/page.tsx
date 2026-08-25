@@ -18,7 +18,7 @@ export default function RefundAndCancellationPage() {
     >
       <ContentSection title="What Premium is today">
         <p>
-          Premium currently includes the same implemented local tools and the same file and page limits as Free. It is optional financial support for development, plus a reserved ad-free experience if ads are introduced later. Advertising networks are not enabled on the site today.
+          Premium includes the same implemented local tools and the same file and page limits as Free, plus Local OCR Power: additional OCR language packs (Hindi, Bengali, Tamil, Spanish, French, and German) and scanned PDF OCR up to 20 pages, in the browser. English image OCR remains free. Premium also reserves an ad-free experience if ads are introduced later. Advertising networks are not enabled on the site today.
         </p>
         <p>
           Listed prices are {LEGAL_PUBLIC.monthlyDisplayINR} or {LEGAL_PUBLIC.annualDisplayINR}. The charge shown at {LEGAL_PUBLIC.paymentProviderName} checkout is authoritative.
@@ -26,7 +26,7 @@ export default function RefundAndCancellationPage() {
       </ContentSection>
       <ContentSection title="How to cancel">
         <p>
-          Sign in, open <Link href="/account" className="underline">Account</Link>, and cancel Premium at period end when that control is shown. Cancellation is sent to {LEGAL_PUBLIC.paymentProviderName}. You keep Premium until the paid period ends, then access returns to Free. Local tools remain available on Free.
+          Sign in, open <Link href="/account" className="underline">Account</Link>, and cancel Premium at period end when that control is shown. Cancellation is sent to {LEGAL_PUBLIC.paymentProviderName}. You keep Premium until the paid period ends, then access returns to Free. Implemented local tools remain available on Free; Local OCR Power does not.
         </p>
         <p>
           ZANCTA does not offer an in-app “cancel immediately and refund unused days” control. Period-end cancel is the implemented path.
@@ -46,7 +46,7 @@ export default function RefundAndCancellationPage() {
           Provider-initiated refunds, where allowed, are processed by {LEGAL_PUBLIC.paymentProviderName} according to its published refund and dispute rules (including a typical merchant-dashboard window of 30 days from the original transaction, and card-network dispute processes that are separate from any “no refund” wording). Settlement timing depends on the customer’s payment method and bank.
         </p>
         <p>
-          Because Free and Premium currently use the same local processing, a refund does not remove tool access that was already available without paying.
+          A refund does not remove the implemented local tools that remain available on Free, including English image OCR. Local OCR Power is a Premium capability and is not included on Free.
         </p>
       </ContentSection>
       <ContentSection title="Disputes" className="md:col-span-2">

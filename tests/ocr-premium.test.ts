@@ -11,7 +11,7 @@ import {
 } from "@/lib/ocr-languages";
 import { classifyPdfText, scannedPdfPageCapError } from "@/lib/ocr-pdf";
 import { mintOcrLangToken, verifyOcrLangToken } from "@/lib/ocr-lang-token";
-import { PREMIUM_CONTRACT } from "@/lib/payments/premium-contract";
+import { PREMIUM_BENEFITS, PREMIUM_CONTRACT } from "@/lib/payments/premium-contract";
 
 async function source(rel: string) {
   return readFile(path.join(process.cwd(), rel), "utf8");
@@ -22,6 +22,29 @@ describe("Local OCR Power contract", () => {
     expect(PREMIUM_CONTRACT.localOcrPowerImplemented).toBe(true);
     expect(PREMIUM_CONTRACT.sameFileAndPageLimitsAsFree).toBe(true);
     expect(PREMIUM_CONTRACT.higherLimitsImplemented).toBe(false);
+    expect([...PREMIUM_BENEFITS]).toEqual([
+      "Everything in Free",
+      "Local OCR Power: Hindi, Bengali, Tamil, Spanish, French, and German language packs",
+      "Scanned PDF OCR in the browser, up to 20 pages",
+      "Reserved ad-free experience when ads are introduced",
+    ]);
+  });
+
+  it("Refund and Account copy name Local OCR Power instead of treating Free and Premium as identical", async () => {
+    const refund = await source("app/refund-and-cancellation/page.tsx");
+    const account = await source("app/account/page.tsx");
+    const terms = await source("app/terms/page.tsx");
+    const pricing = await source("app/pricing/page.tsx");
+    expect(refund).toMatch(/Local OCR Power/);
+    expect(refund).not.toMatch(/same local processing/);
+    expect(refund).not.toMatch(/already available without paying/);
+    expect(account).toMatch(/Local OCR Power/);
+    expect(account).not.toMatch(/Local tools and their limits are the same on Free and Premium/);
+    expect(terms).toMatch(/Local OCR Power/);
+    expect(pricing).toMatch(/Local OCR Power/);
+    const contract = await source("lib/payments/premium-contract.ts");
+    expect(contract).toContain("localOcrPowerImplemented: true");
+    expect(contract).toContain("adsShipped: false");
   });
 
   it("parses only allowlisted premium pack filenames", () => {
