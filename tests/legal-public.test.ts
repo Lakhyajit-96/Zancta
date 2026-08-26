@@ -208,4 +208,23 @@ describe("public legal and AI-search facts", () => {
     }
     expect(new Set(titles).size).toBe(titles.length);
   });
+
+  it("ships RFC 9116 security.txt at the well-known path", async () => {
+    const rel = path.join("public", ".well-known", "security.txt");
+    const body = await readFile(path.join(process.cwd(), rel), "utf8");
+    expect(rel.replace(/\\/g, "/")).toBe("public/.well-known/security.txt");
+    expect(body).toMatch(/^Contact:\s*mailto:security@zancta\.tech$/m);
+    expect(body).toMatch(/^Canonical:\s*https:\/\/zancta\.tech\/\.well-known\/security\.txt$/m);
+    expect(body).toMatch(/^Policy:\s*https:\/\/zancta\.tech\/security$/m);
+    expect(body).not.toMatch(/^(Encryption|Acknowledgments|Hiring|Preferred-Languages):/im);
+    const expiresLine = body.match(/^Expires:\s*(.+)$/m);
+    expect(expiresLine?.[1]).toBeTruthy();
+    const expires = Date.parse(expiresLine![1].trim());
+    expect(Number.isNaN(expires)).toBe(false);
+    expect(expiresLine![1].trim()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/);
+    const yearMs = 365 * 24 * 60 * 60 * 1000;
+    expect(expires).toBeGreaterThan(Date.now());
+    expect(expires - Date.now()).toBeLessThanOrEqual(yearMs);
+    expect(body).toContain(LEGAL_PUBLIC.securityEmail);
+  });
 });
