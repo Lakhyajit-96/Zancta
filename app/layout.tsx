@@ -62,6 +62,9 @@ export const viewport: Viewport = {
   themeColor: "#100f11",
 };
 
+// Per-request CSP nonce (proxy.ts) cannot be baked into prerendered HTML.
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
