@@ -346,6 +346,22 @@ describe("Account deletion step-up (P0-2)", () => {
     expect(state.tokens[0].usedAt).toBeNull();
   });
 
+  it("18c. Dodo timeout prevents deletion, restores step-up, and does not fake a local cancel", async () => {
+    enableLivePaymentMutations();
+    seedCode("user-a", "timeout-code");
+    state.subscriptions = [{ userId: "user-a", providerSubscriptionId: "sub_1", status: "active" }];
+    const { PROVIDER_UNAVAILABLE } = await import("@/lib/http/timed-fetch");
+    cancel.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
+    const { POST } = await import("@/app/api/account/delete/route");
+    const res = await POST(deleteReq({ confirm: "DELETE", stepUpToken: "timeout-code" }));
+    expect(res.status).toBe(502);
+    expect(JSON.stringify(await res.json())).not.toMatch(/provider_unavailable|AbortError|dodopayments/i);
+    expect(state.deletedUsers.has("user-a")).toBe(false);
+    expect(state.tokens[0].usedAt).toBeNull();
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(getSub).not.toHaveBeenCalled();
+  });
+
   it("20 + 21. successful deletion removes the intended account and sessions", async () => {
     seedCode("user-a", "plain-code-a");
     const { POST } = await import("@/app/api/account/delete/route");

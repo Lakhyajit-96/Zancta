@@ -1,4 +1,5 @@
 import { allIndexablePaths, assertIndexableUrl, canonicalSitemapUrl } from "@/lib/seo/public-urls";
+import { INDEXNOW_TIMEOUT_MS, timedFetch } from "@/lib/http/timed-fetch";
 
 const ALLOWED_HOST = "zancta.tech";
 const MAX_URLS = 20;
@@ -89,12 +90,20 @@ export async function notifyIndexNow(urls: string[]): Promise<{ ok: boolean; sta
   const payload = buildIndexNowPayload(urls);
   if (!payload) return { ok: false, status: 503, accepted: 0 };
   if (payload.urlList.length === 0) return { ok: false, status: 400, accepted: 0 };
-  const res = await fetch(INDEXNOW_ENDPOINT, {
-    method: "POST",
-    headers: { "content-type": "application/json; charset=utf-8" },
-    body: JSON.stringify(payload),
-  });
-  return { ok: res.ok || res.status === 202, status: res.status, accepted: payload.urlList.length };
+  try {
+    const res = await timedFetch(
+      INDEXNOW_ENDPOINT,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json; charset=utf-8" },
+        body: JSON.stringify(payload),
+      },
+      INDEXNOW_TIMEOUT_MS,
+    );
+    return { ok: res.ok || res.status === 202, status: res.status, accepted: payload.urlList.length };
+  } catch {
+    return { ok: false, status: 503, accepted: 0 };
+  }
 }
 
 export function allowedIndexNowHost(): string {

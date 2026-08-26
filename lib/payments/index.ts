@@ -22,4 +22,5 @@ export function getActiveProviderName(): ProviderName {
 
 export * from "./types";
 export { isLivePaymentsEnabled, assertProviderMutationsAllowed, PROVIDER_MUTATION_DISABLED } from "./live";
+export { PROVIDER_UNAVAILABLE, isProviderUnavailableError } from "@/lib/http/timed-fetch";
 export { PREMIUM_CONTRACT, FREE_BENEFITS, PREMIUM_BENEFITS } from "./premium-contract";

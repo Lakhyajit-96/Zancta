@@ -2,6 +2,8 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vites
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { disableLivePaymentMutations, enableLivePaymentMutations, restoreLivePaymentEnv, snapshotLivePaymentEnv } from "./live-payment-env";
+import { PROVIDER_UNAVAILABLE } from "@/lib/http/timed-fetch";
+import { getEntitlement } from "@/lib/entitlement";
 
 const state = { userId: "" };
 const createCheckout = vi.fn(async () => ({
@@ -201,5 +203,22 @@ describe("checkout live-gate and identity safety", () => {
     const res = await postCheckout(user.id, { planId: "ENTERPRISE" });
     expect(res.status).toBe(400);
     expect(createCheckout).not.toHaveBeenCalled();
+  });
+
+  it("provider timeout fails safely without Premium, checkout row, or retry", async () => {
+    const user = await createVerifiedUser("timeout");
+    await prisma.entitlement.create({ data: { userId: user.id, plan: "FREE", status: "ACTIVE" } });
+    enableLivePaymentMutations();
+    createCheckout.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
+    const res = await postCheckout(user.id);
+    const json = await res.json() as { error?: string; checkoutUrl?: string; live?: boolean };
+    expect(res.status).toBe(502);
+    expect(json.checkoutUrl).toBeUndefined();
+    expect(json.live).toBeUndefined();
+    expect(json.error).toBe("Checkout failed");
+    expect(JSON.stringify(json)).not.toMatch(/provider_unavailable|AbortError|dodopayments/i);
+    expect(createCheckout).toHaveBeenCalledTimes(1);
+    expect(await prisma.paymentCheckout.count({ where: { userId: user.id } })).toBe(0);
+    expect((await getEntitlement(user.id)).plan).toBe("FREE");
   });
 });

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getPaymentProvider, isLivePaymentsEnabled } from "@/lib/payments";
 import { PROVIDER_MUTATION_DISABLED } from "@/lib/payments/live";
+import { PROVIDER_UNAVAILABLE } from "@/lib/http/timed-fetch";
 import type { PlanId } from "@/lib/payments/types";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
@@ -137,6 +138,9 @@ export async function POST(req: NextRequest) {
     console.error("[checkout] failed", msg);
     if (msg === PROVIDER_MUTATION_DISABLED) {
       return NextResponse.json({ live: false, error: "Checkout is not enabled." }, { status: 503 });
+    }
+    if (msg === PROVIDER_UNAVAILABLE) {
+      return NextResponse.json({ error: "Checkout failed" }, { status: 502 });
     }
     return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }

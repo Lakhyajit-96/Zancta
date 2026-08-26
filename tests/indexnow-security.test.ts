@@ -7,9 +7,12 @@ import {
   getIndexNowKey,
   indexNowKeyFileResponse,
   isAllowedIndexNowUrl,
+  notifyIndexNow,
   sanitizeIndexNowUrls,
 } from "@/lib/indexnow";
 import { allIndexablePaths, canonicalSitemapUrl } from "@/lib/seo/public-urls";
+import { INDEXNOW_TIMEOUT_MS } from "@/lib/http/timed-fetch";
+import { hungFetchMock } from "./hung-fetch";
 
 const TEST_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 const DASHED_KEY = "Ab12-Cd34-Ef56-Gh78-Ij90klmn";
@@ -173,9 +176,10 @@ describe("POST /api/indexnow", () => {
     expect(res.body.accepted).toBe(2);
     expect(JSON.stringify(res.body)).not.toContain(TEST_KEY);
     expect(fetch).toHaveBeenCalledOnce();
-    const [endpoint, init] = vi.mocked(fetch).mock.calls[0] as [string, { body: string }];
+    const [endpoint, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
     expect(endpoint).toBe("https://api.indexnow.org/indexnow");
-    const sent = JSON.parse(init.body) as { host: string; urlList: string[]; keyLocation: string };
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+    const sent = JSON.parse(String(init.body)) as { host: string; urlList: string[]; keyLocation: string };
     expect(sent.host).toBe("zancta.tech");
     expect(sent.urlList).toEqual(["https://zancta.tech/", "https://zancta.tech/tools"]);
     expect(sent.keyLocation).toBe(`https://zancta.tech/${TEST_KEY}.txt`);
@@ -214,5 +218,28 @@ describe("IndexNow client isolation", () => {
         expect(text, file).not.toMatch(/INDEXNOW_KEY|INDEXNOW_NOTIFY_SECRET/);
       }
     }
+  });
+});
+
+describe("IndexNow outbound timeout", () => {
+  const prevKey = process.env.INDEXNOW_KEY;
+
+  afterEach(() => {
+    process.env.INDEXNOW_KEY = prevKey;
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("aborts a hung IndexNow fetch and returns a bounded failure", async () => {
+    process.env.INDEXNOW_KEY = TEST_KEY;
+    vi.useFakeTimers();
+    const fetchSpy = hungFetchMock();
+    vi.stubGlobal("fetch", fetchSpy);
+    const pending = notifyIndexNow(["https://zancta.tech/"]);
+    await vi.advanceTimersByTimeAsync(INDEXNOW_TIMEOUT_MS);
+    const result = await pending;
+    expect(result).toEqual({ ok: false, status: 503, accepted: 0 });
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    expect((fetchSpy.mock.calls[0][1] as RequestInit).signal).toBeInstanceOf(AbortSignal);
   });
 });

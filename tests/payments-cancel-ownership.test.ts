@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vites
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db";
 import { disableLivePaymentMutations, enableLivePaymentMutations, restoreLivePaymentEnv, snapshotLivePaymentEnv } from "./live-payment-env";
+import { PROVIDER_UNAVAILABLE } from "@/lib/http/timed-fetch";
 
 const state = { userId: "" };
 const cancelSub = vi.fn(async () => {});
@@ -280,6 +281,52 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     expect(body.live).toBe(false);
     expect(cancelSub).not.toHaveBeenCalled();
     expect(getSub).not.toHaveBeenCalled();
+    expect((await prisma.entitlement.findUnique({ where: { userId } }))).toMatchObject({
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      cancelAtPeriodEnd: false,
+    });
+    expect((await prisma.paymentSubscription.findUnique({ where: { providerSubscriptionId: subId } }))?.cancelAtPeriodEnd).toBe(false);
+  });
+
+  it("PATCH timeout leaves local cancelAtPeriodEnd unchanged and does not retry", async () => {
+    enableLivePaymentMutations();
+    const userId = await createUser("patch_timeout");
+    const subId = `sub_patch_timeout_${stamp}`;
+    await prisma.entitlement.create({
+      data: { userId, plan: "PREMIUM", status: "ACTIVE", source: "dodo", providerSubscriptionId: subId },
+    });
+    await prisma.paymentSubscription.create({
+      data: { userId, provider: "dodo", providerSubscriptionId: subId, plan: "PREMIUM_MONTHLY", status: "active" },
+    });
+    cancelSub.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
+
+    await expect(postCancel(userId)).rejects.toThrow(PROVIDER_UNAVAILABLE);
+    expect(cancelSub).toHaveBeenCalledTimes(1);
+    expect(getSub).not.toHaveBeenCalled();
+    expect((await prisma.entitlement.findUnique({ where: { userId } }))).toMatchObject({
+      plan: "PREMIUM",
+      status: "ACTIVE",
+      cancelAtPeriodEnd: false,
+    });
+    expect((await prisma.paymentSubscription.findUnique({ where: { providerSubscriptionId: subId } }))?.cancelAtPeriodEnd).toBe(false);
+  });
+
+  it("GET-after-PATCH timeout leaves local cancelAtPeriodEnd unchanged and does not retry", async () => {
+    enableLivePaymentMutations();
+    const userId = await createUser("get_timeout");
+    const subId = `sub_get_timeout_${stamp}`;
+    await prisma.entitlement.create({
+      data: { userId, plan: "PREMIUM", status: "ACTIVE", source: "dodo", providerSubscriptionId: subId },
+    });
+    await prisma.paymentSubscription.create({
+      data: { userId, provider: "dodo", providerSubscriptionId: subId, plan: "PREMIUM_MONTHLY", status: "active" },
+    });
+    getSub.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
+
+    await expect(postCancel(userId)).rejects.toThrow(PROVIDER_UNAVAILABLE);
+    expect(cancelSub).toHaveBeenCalledTimes(1);
+    expect(getSub).toHaveBeenCalledTimes(1);
     expect((await prisma.entitlement.findUnique({ where: { userId } }))).toMatchObject({
       plan: "PREMIUM",
       status: "ACTIVE",

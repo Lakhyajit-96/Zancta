@@ -19,6 +19,11 @@ import type {
 import { parseProviderDate } from "@/lib/payments/billing-state";
 import { assertProviderMutationsAllowed } from "@/lib/payments/live";
 import { getAppOrigin } from "@/lib/seo";
+import {
+  DODO_READ_TIMEOUT_MS,
+  DODO_WRITE_TIMEOUT_MS,
+  timedFetch,
+} from "@/lib/http/timed-fetch";
 
 function requireEnv(name: string): string {
   const v = process.env[name];
@@ -130,19 +135,23 @@ export class DodoProvider implements PaymentProvider {
     // We use product_id checkout: POST /checkouts  { product_id, customer: { email }, return_url, metadata }
     const appUrl = getAppOrigin();
     const returnUrl = input.successUrl || `${appUrl}/account?checkout=success`;
-    const res = await fetch(`${base}/checkouts`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
+    const res = await timedFetch(
+      `${base}/checkouts`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          product_cart: [{ product_id: productId, quantity: 1 }],
+          customer: { email: input.email },
+          return_url: returnUrl,
+          metadata: { userId: input.userId, planId: input.planId },
+        }),
       },
-      body: JSON.stringify({
-        product_cart: [{ product_id: productId, quantity: 1 }],
-        customer: { email: input.email },
-        return_url: returnUrl,
-        metadata: { userId: input.userId, planId: input.planId },
-      }),
-    });
+      DODO_WRITE_TIMEOUT_MS,
+    );
 
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     if (!res.ok) {
@@ -157,9 +166,11 @@ export class DodoProvider implements PaymentProvider {
 
   async getPayment(paymentId: string): Promise<PaymentRecord | null> {
     const base = getBaseUrl();
-    const res = await fetch(`${base}/payments/${encodeURIComponent(paymentId)}`, {
-      headers: { Authorization: `Bearer ${this.apiKey}` },
-    });
+    const res = await timedFetch(
+      `${base}/payments/${encodeURIComponent(paymentId)}`,
+      { headers: { Authorization: `Bearer ${this.apiKey}` } },
+      DODO_READ_TIMEOUT_MS,
+    );
     if (res.status === 404) return null;
     const j = (await res.json().catch(() => null)) as Record<string, unknown> | null;
     if (!res.ok || !j) return null;
@@ -173,9 +184,11 @@ export class DodoProvider implements PaymentProvider {
 
   async getSubscription(subscriptionId: string): Promise<SubscriptionRecord | null> {
     const base = getBaseUrl();
-    const res = await fetch(`${base}/subscriptions/${encodeURIComponent(subscriptionId)}`, {
-      headers: { Authorization: `Bearer ${this.apiKey}` },
-    });
+    const res = await timedFetch(
+      `${base}/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      { headers: { Authorization: `Bearer ${this.apiKey}` } },
+      DODO_READ_TIMEOUT_MS,
+    );
     if (res.status === 404) return null;
     const j = (await res.json().catch(() => null)) as Record<string, unknown> | null;
     if (!res.ok || !j) return null;
@@ -185,11 +198,15 @@ export class DodoProvider implements PaymentProvider {
   async cancelSubscription(subscriptionId: string, cancelAtPeriodEnd = true): Promise<void> {
     assertProviderMutationsAllowed();
     const base = getBaseUrl();
-    const res = await fetch(`${base}/subscriptions/${encodeURIComponent(subscriptionId)}`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ cancel_at_next_billing_date: cancelAtPeriodEnd }),
-    });
+    const res = await timedFetch(
+      `${base}/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ cancel_at_next_billing_date: cancelAtPeriodEnd }),
+      },
+      DODO_WRITE_TIMEOUT_MS,
+    );
     if (!res.ok) {
       const j = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       throw new Error((j.message as string) || `Cancel failed ${res.status}`);
@@ -199,11 +216,15 @@ export class DodoProvider implements PaymentProvider {
   async refundPayment(input: RefundInput): Promise<void> {
     assertProviderMutationsAllowed();
     const base = getBaseUrl();
-    const res = await fetch(`${base}/payments/${encodeURIComponent(input.paymentId)}/refund`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: input.amount, reason: input.reason }),
-    });
+    const res = await timedFetch(
+      `${base}/payments/${encodeURIComponent(input.paymentId)}/refund`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: input.amount, reason: input.reason }),
+      },
+      DODO_WRITE_TIMEOUT_MS,
+    );
     if (!res.ok) {
       const j = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       throw new Error((j.message as string) || `Refund failed ${res.status}`);

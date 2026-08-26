@@ -273,6 +273,40 @@ describe("billing webhook lifecycle", () => {
     }
   });
 
+  it("orphan Dodo timeout does not mark the webhook succeeded and remains retryable", async () => {
+    const prev = snapshotLivePaymentEnv();
+    cancel.mockClear();
+    enableLivePaymentMutations();
+    const { PROVIDER_UNAVAILABLE } = await import("@/lib/http/timed-fetch");
+    cancel.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
+    const webhookId = `wh_${stamp}_orphan_timeout`;
+    try {
+      const result = await processVerifiedDodoEvent({
+        webhookId,
+        eventType: "subscription.active",
+        timestamp: String(Math.floor(Date.now() / 1000)),
+        payload: {
+          event_type: "subscription.active",
+          data: {
+            subscription_id: `sub_orphan_timeout_${stamp}`,
+            metadata: { userId: "missing_user_id_timeout", planId: "PREMIUM_MONTHLY" },
+          },
+        },
+        rawBody: "{}",
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.retry).toBe(true);
+      expect(cancel).toHaveBeenCalledTimes(1);
+      const row = await prisma.webhookEvent.findUnique({ where: { providerEventId: webhookId } });
+      expect(row?.status).toBe("failed");
+      expect(row?.processedAt).toBeNull();
+    } finally {
+      restoreLivePaymentEnv(prev);
+      cancel.mockReset();
+      cancel.mockImplementation(async () => {});
+    }
+  });
+
   it("rejects forged webhook signatures over the HTTP route", async () => {
     process.env.DODO_WEBHOOK_SECRET = TEST_SECRET;
     const { POST } = await import("@/app/api/payments/webhooks/dodo/route");
