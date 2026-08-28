@@ -289,7 +289,7 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     expect((await prisma.paymentSubscription.findUnique({ where: { providerSubscriptionId: subId } }))?.cancelAtPeriodEnd).toBe(false);
   });
 
-  it("PATCH timeout leaves local cancelAtPeriodEnd unchanged and does not retry", async () => {
+  it("PATCH timeout returns 502 and leaves local cancelAtPeriodEnd unchanged", async () => {
     enableLivePaymentMutations();
     const userId = await createUser("patch_timeout");
     const subId = `sub_patch_timeout_${stamp}`;
@@ -301,7 +301,11 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     });
     cancelSub.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
 
-    await expect(postCancel(userId)).rejects.toThrow(PROVIDER_UNAVAILABLE);
+    const res = await postCancel(userId);
+    const body = await res.json() as { error?: string };
+    expect(res.status).toBe(502);
+    expect(body.error).toBe("Cancellation failed");
+    expect(JSON.stringify(body)).not.toMatch(/provider_unavailable|AbortError|dodopayments/i);
     expect(cancelSub).toHaveBeenCalledTimes(1);
     expect(getSub).not.toHaveBeenCalled();
     expect((await prisma.entitlement.findUnique({ where: { userId } }))).toMatchObject({
@@ -312,7 +316,7 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     expect((await prisma.paymentSubscription.findUnique({ where: { providerSubscriptionId: subId } }))?.cancelAtPeriodEnd).toBe(false);
   });
 
-  it("GET-after-PATCH timeout leaves local cancelAtPeriodEnd unchanged and does not retry", async () => {
+  it("GET-after-PATCH timeout returns 502 and leaves local cancelAtPeriodEnd unchanged", async () => {
     enableLivePaymentMutations();
     const userId = await createUser("get_timeout");
     const subId = `sub_get_timeout_${stamp}`;
@@ -324,7 +328,11 @@ describe("P2-PAY-2 cancellation subscription ownership", () => {
     });
     getSub.mockRejectedValueOnce(new Error(PROVIDER_UNAVAILABLE));
 
-    await expect(postCancel(userId)).rejects.toThrow(PROVIDER_UNAVAILABLE);
+    const res = await postCancel(userId);
+    const body = await res.json() as { error?: string };
+    expect(res.status).toBe(502);
+    expect(body.error).toBe("Cancellation failed");
+    expect(JSON.stringify(body)).not.toMatch(/provider_unavailable|AbortError|dodopayments/i);
     expect(cancelSub).toHaveBeenCalledTimes(1);
     expect(getSub).toHaveBeenCalledTimes(1);
     expect((await prisma.entitlement.findUnique({ where: { userId } }))).toMatchObject({

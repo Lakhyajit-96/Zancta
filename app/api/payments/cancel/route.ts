@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getPaymentProvider } from "@/lib/payments";
 import { isLivePaymentsEnabled } from "@/lib/payments/live";
+import { PROVIDER_UNAVAILABLE } from "@/lib/http/timed-fetch";
 import { rateLimitAsync } from "@/lib/rate-limit";
 import { auditEvent } from "@/lib/audit";
 
@@ -69,8 +70,18 @@ export async function POST(req: NextRequest) {
   }
 
   const provider = getPaymentProvider("dodo");
-  await provider.cancelSubscription(subscriptionId, true);
-  const remote = await provider.getSubscription(subscriptionId);
+  let remote;
+  try {
+    await provider.cancelSubscription(subscriptionId, true);
+    remote = await provider.getSubscription(subscriptionId);
+  } catch (e) {
+    const msg = (e as Error).message || "Cancellation failed";
+    console.error("[billing-cancel] failed", msg);
+    if (msg === PROVIDER_UNAVAILABLE) {
+      return NextResponse.json({ error: "Cancellation failed" }, { status: 502 });
+    }
+    throw e;
+  }
   if (!remote) {
     return NextResponse.json({ error: "Provider did not return the subscription after cancel" }, { status: 502 });
   }
