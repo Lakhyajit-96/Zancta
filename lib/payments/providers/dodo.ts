@@ -269,8 +269,11 @@ export function mapDodoSubscriptionJson(j: Record<string, unknown>, subscription
     providerSubscriptionId: String(j.subscription_id || j.id || subscriptionId),
     providerCustomerId: j.customer_id ? String(j.customer_id) : undefined,
     status: String(j.status || "pending").toLowerCase(),
-    currentPeriodStart: j.current_period_start ? new Date(String(j.current_period_start)) : null,
-    currentPeriodEnd: j.current_period_end ? new Date(String(j.current_period_end)) : null,
+    // Dodo subscriptions expose the paid window as previous_billing_date (period start)
+    // and next_billing_date (next charge = period end). Prefer explicit current_period_*
+    // when a payload provides them; otherwise fall back to the billing-date fields.
+    currentPeriodStart: parseProviderDate(j.current_period_start ?? j.previous_billing_date),
+    currentPeriodEnd: parseProviderDate(j.current_period_end ?? j.next_billing_date),
     cancelAtPeriodEnd: Boolean(j.cancel_at_next_billing_date ?? j.cancel_at_period_end ?? false),
     createdAt: parseProviderDate(j.created_at),
     cancelledAt: parseProviderDate(j.cancelled_at),

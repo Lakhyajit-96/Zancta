@@ -63,7 +63,9 @@ describe("P2-PAY-1 reconciliation / webhook ordering", () => {
     expect(mapped.createdAt?.toISOString()).toBe("2026-01-01T00:00:00.000Z");
     expect(mapped.cancelledAt?.toISOString()).toBe("2026-02-01T00:00:00.000Z");
     expect(mapped.previousBillingDate?.toISOString()).toBe("2026-01-15T00:00:00.000Z");
-    expect(mapped.currentPeriodEnd).toBeNull();
+    // previous_billing_date maps to the period start; next_billing_date to the period end.
+    expect(mapped.currentPeriodStart?.toISOString()).toBe("2026-01-15T00:00:00.000Z");
+    expect(mapped.currentPeriodEnd?.toISOString()).toBe("2026-03-01T00:00:00.000Z");
     expect(mapped.cancelAtPeriodEnd).toBe(true);
   });
 

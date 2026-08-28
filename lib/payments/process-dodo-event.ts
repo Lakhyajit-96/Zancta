@@ -9,7 +9,7 @@
 import crypto from "crypto";
 import prisma from "@/lib/db";
 import { auditEvent } from "@/lib/audit";
-import { deriveFromSubscription, isStaleEvent } from "@/lib/payments/billing-state";
+import { deriveFromSubscription, isStaleEvent, parseProviderDate } from "@/lib/payments/billing-state";
 import { revokeToFree, syncEntitlement } from "@/lib/payments/entitlement-sync";
 import type { BillingDb } from "@/lib/payments/billing-db";
 import { notifyBillingEvent } from "@/lib/email/billing-notify";
@@ -513,8 +513,10 @@ export async function processVerifiedDodoEvent(input: {
     const email = asString(data.customer_email ?? data.email ?? asRecord(data.customer).email);
     const mapped = await resolveUserId({ userIdFromMeta, email, subscriptionId });
     const t = eventType.toLowerCase();
-    const cps = data.current_period_start ? new Date(String(data.current_period_start)) : null;
-    const cpe = data.current_period_end ? new Date(String(data.current_period_end)) : null;
+    // Dodo webhooks carry the paid window as previous_billing_date / next_billing_date.
+    // Prefer explicit current_period_* when present, else map the billing-date fields.
+    const cps = parseProviderDate(data.current_period_start ?? data.previous_billing_date);
+    const cpe = parseProviderDate(data.current_period_end ?? data.next_billing_date);
     const cancelAtEnd = Boolean(data.cancel_at_next_billing_date ?? data.cancel_at_period_end ?? false);
 
     if (mapped.deletedUser) {
