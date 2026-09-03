@@ -83,7 +83,7 @@ Browser tab
 
 Server (only when needed)
   Auth, accounts, entitlements
-  Contact form, transactional email (Resend)
+  Contact form, transactional email (Hostinger Mail or Resend)
   Rate limiting (Upstash)
   Premium language-pack delivery (authenticated)
   Payments (Dodo) — checkout currently gated off
@@ -104,7 +104,7 @@ Merchant of record, when checkout is enabled: Dodo Payments.
 - Prisma 7 + PostgreSQL
 - Auth.js (credentials + optional Google/GitHub)
 - pdf-lib, PDF.js, Tesseract.js, browser-image-compression
-- Resend, Upstash Redis, Dodo Payments (gated)
+- Hostinger Mail or Resend, Upstash Redis, Dodo Payments (gated)
 - Vitest + Playwright
 
 See [architecture](docs/architecture/overview.md).

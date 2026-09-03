@@ -14,6 +14,7 @@ function stubMandatoryProduction(overrides: Record<string, string | undefined> =
   const base: Record<string, string | undefined> = {
     AUTH_SECRET: "test-auth-secret-value-do-not-leak",
     DATABASE_URL: "postgresql://prod-user:prod-pass@db.example:5432/zancta",
+    EMAIL_PROVIDER: "resend",
     RESEND_API_KEY: "re_test_live_key_do_not_leak",
     EMAIL_FROM: "noreply@mail.zancta.tech",
     UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
@@ -127,6 +128,38 @@ describe("assertProductionConfig — Production contract", () => {
     expect(res.missing).toContain("EMAIL_FROM");
   });
 
+  it("Production + Hostinger email provider configured → ok without Resend", async () => {
+    stubMandatoryProduction({
+      EMAIL_PROVIDER: "hostinger",
+      RESEND_API_KEY: undefined,
+      EMAIL_FROM: undefined,
+      HOSTINGER_MAIL_API_TOKEN: "hostinger-token-do-not-leak",
+      HOSTINGER_MAIL_MAILBOX_RESOURCE_ID: "AC49fb3789b4ef7597d34bf38337ab",
+      HOSTINGER_MAIL_FROM: "support@zancta.tech",
+    });
+    const { assertProductionConfig } = await loadConfig();
+    const res = assertProductionConfig();
+    expect(res.ok).toBe(true);
+    expect(res.missing).toEqual([]);
+  });
+
+  it("Production + Hostinger email provider incomplete → fails with variable names only", async () => {
+    stubMandatoryProduction({
+      EMAIL_PROVIDER: "hostinger",
+      RESEND_API_KEY: undefined,
+      EMAIL_FROM: undefined,
+      HOSTINGER_MAIL_API_TOKEN: undefined,
+      HOSTINGER_MAIL_MAILBOX_RESOURCE_ID: undefined,
+      HOSTINGER_MAIL_FROM: undefined,
+    });
+    const { assertProductionConfig } = await loadConfig();
+    const res = assertProductionConfig();
+    expect(res.ok).toBe(false);
+    expect(res.missing).toContain("HOSTINGER_MAIL_API_TOKEN");
+    expect(res.missing).toContain("HOSTINGER_MAIL_MAILBOX_RESOURCE_ID");
+    expect(res.missing).toContain("HOSTINGER_MAIL_FROM");
+  });
+
   it("Production + payments disabled + Dodo vars absent → pass", async () => {
     stubMandatoryProduction({ PAYMENTS_LIVE_ENABLED: "false" });
     delete process.env.DODO_API_KEY;
@@ -203,6 +236,7 @@ describe("error safety — names only, never values", () => {
     "test-auth-secret-value-do-not-leak",
     "postgresql://prod-user:prod-pass@db.example:5432/zancta",
     "re_test_live_key_do_not_leak",
+    "hostinger-token-do-not-leak",
     "upstash-token-do-not-leak",
   ];
 

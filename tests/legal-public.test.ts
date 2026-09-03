@@ -144,6 +144,7 @@ describe("public legal and AI-search facts", () => {
     expect(src).toMatch(/name, email, topic, subject, message/);
     expect(src).toMatch(/not stored as a ZANCTA application database record/);
     expect(src).toMatch(/Resend/);
+    expect(src).toMatch(/Hostinger Mail/);
     expect(src).toMatch(/not currently invoked/);
     expect(src).toMatch(/Upstash Redis/);
     expect(src).toMatch(/Vercel/);

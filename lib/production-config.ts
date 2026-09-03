@@ -8,7 +8,10 @@ import { productionDatabaseUrlMissing } from "@/lib/database-url";
  *    (NODE_ENV=production AND VERCEL_ENV=production):
  *    AUTH_SECRET (or NEXTAUTH_SECRET), DATABASE_URL (PostgreSQL only),
  *    UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN,
- *    RESEND_API_KEY, EMAIL_FROM (must contain @).
+ *    and a configured transactional email provider.
+ *    Resend requires RESEND_API_KEY + EMAIL_FROM.
+ *    Hostinger requires HOSTINGER_MAIL_API_TOKEN,
+ *    HOSTINGER_MAIL_MAILBOX_RESOURCE_ID, and HOSTINGER_MAIL_FROM or EMAIL_FROM.
  *
  * B. Feature-gated: Dodo live credentials only when
  *    PAYMENTS_LIVE_ENABLED=true. Payments currently stay disabled;
@@ -34,6 +37,38 @@ function envPresentAny(...names: string[]): boolean {
   return names.some((name) => envPresent(name));
 }
 
+function configuredEmailProvider(): "resend" | "hostinger" | null {
+  const provider = (process.env.EMAIL_PROVIDER || "").trim().toLowerCase();
+  if (provider === "resend" || provider === "hostinger") return provider;
+  if (provider) return null;
+  if (envPresent("HOSTINGER_MAIL_API_TOKEN") && !envPresent("RESEND_API_KEY")) return "hostinger";
+  if (envPresent("RESEND_API_KEY")) return "resend";
+  return null;
+}
+
+function missingTransactionalEmailConfig(): string[] {
+  const providerRaw = (process.env.EMAIL_PROVIDER || "").trim().toLowerCase();
+  if (providerRaw && providerRaw !== "resend" && providerRaw !== "hostinger") return ["EMAIL_PROVIDER"];
+
+  const provider = configuredEmailProvider();
+  if (provider === "hostinger") {
+    const missing: string[] = [];
+    if (!envPresent("HOSTINGER_MAIL_API_TOKEN")) missing.push("HOSTINGER_MAIL_API_TOKEN");
+    if (!envPresentAny("HOSTINGER_MAIL_MAILBOX_RESOURCE_ID", "HOSTINGER_MAILBOX_RESOURCE_ID")) {
+      missing.push("HOSTINGER_MAIL_MAILBOX_RESOURCE_ID");
+    }
+    const from = (process.env.HOSTINGER_MAIL_FROM || process.env.EMAIL_FROM || "").trim();
+    if (!from.includes("@")) missing.push("HOSTINGER_MAIL_FROM");
+    return missing;
+  }
+
+  const missing: string[] = [];
+  if (!envPresent("RESEND_API_KEY")) missing.push("RESEND_API_KEY");
+  const emailFrom = process.env.EMAIL_FROM?.trim() ?? "";
+  if (!emailFrom.includes("@")) missing.push("EMAIL_FROM");
+  return missing;
+}
+
 /** Vercel Production runtime only. Local `next start` without VERCEL_ENV is not this. */
 export function isVercelProductionRuntime(): boolean {
   return process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production";
@@ -55,9 +90,7 @@ function missingMandatoryProduction(): string[] {
 
   if (!envPresentAny("AUTH_SECRET", "NEXTAUTH_SECRET")) missing.push("AUTH_SECRET");
   if (productionDatabaseUrlMissing()) missing.push("DATABASE_URL");
-  if (!envPresent("RESEND_API_KEY")) missing.push("RESEND_API_KEY");
-  const emailFrom = process.env.EMAIL_FROM?.trim() ?? "";
-  if (!emailFrom.includes("@")) missing.push("EMAIL_FROM");
+  missing.push(...missingTransactionalEmailConfig());
   // Required in production so the Phase 6A-1 fail-closed limiter has a distributed backend.
   if (!envPresent("UPSTASH_REDIS_REST_URL")) missing.push("UPSTASH_REDIS_REST_URL");
   if (!envPresent("UPSTASH_REDIS_REST_TOKEN")) missing.push("UPSTASH_REDIS_REST_TOKEN");

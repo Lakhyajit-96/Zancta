@@ -11,7 +11,7 @@ How ZANCTA is observed in production. No fabricated metrics. Sentry is **not** p
 | Runtime / request logs | Vercel Logs | CLI `vercel logs --environment production --level error --since 24h --limit 40` on 23 August 2026 returned no error lines (empty result). That is not a claim of zero 404s. |
 | Structured errors | `lib/observability/errors.ts` (`logError`) | Category + severity JSON on stderr; no file bytes, OCR text, or secrets by design |
 | Sanitized 500s | `lib/safe-error.ts` | Redacts credentials in URLs before logging |
-| Production config | `lib/production-config.ts` | Missing `DATABASE_URL` / `AUTH_SECRET` / Resend |
+| Production config | `lib/production-config.ts` | Missing `DATABASE_URL` / `AUTH_SECRET` / transactional email provider |
 | Rate-limit failures | `lib/rate-limit.ts` | Redis errors; fail-closed on Vercel Production when Upstash is configured |
 | Webhook / checkout | `app/api/payments/**` | Event type / generic messages, not card data |
 | Contact | `app/api/contact/route.ts` | Logs **reference id**, not the visitor email body |
@@ -44,7 +44,7 @@ That is acceptable on Hobby with current traffic. Revisit Sentry only when produ
 | Application 500 | Vercel Logs, `logError` category | Fix code; consider Sentry if volume hides patterns |
 | API / Auth | Logs + Upstash | Confirm fail-closed vs lockout |
 | Payments / webhooks | `[webhook:dodo]`, `[checkout]` | Keep checkout off until authorized; then alert on signature failures |
-| Email | `[contact]`, `[auth/…] send failed` | Resend dashboard + `EMAIL_FROM` |
+| Email | `[contact]`, `[auth/…] send failed` | Hostinger Mail or Resend dashboard + configured sender |
 | OCR language packs | `/api/ocr/**` | Auth token and traineddata tracing, never OCR text |
 | Performance | Speed Insights once data exists; Playwright benches locally | Do not claim CWV without measurements |
 

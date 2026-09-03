@@ -25,9 +25,16 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `GOOGLE_CLIENT_SECRET` | Google OAuth secret | NO with ID | local / production | SECRET | none | `lib/auth.ts` | Google | local / Vercel | Must pair with ID. |
 | `GITHUB_CLIENT_ID` | GitHub OAuth | NO | local / production | PUBLIC ID | none | `lib/auth.ts`, signin/signup | GitHub | local / Vercel | |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth secret | NO with ID | local / production | SECRET | none | `lib/auth.ts` | GitHub | local / Vercel | |
-| `RESEND_API_KEY` | Transactional email | YES (prod) | production; optional local | SECRET | none (console transport locally) | `lib/email/index.ts`, `lib/production-config.ts` | Resend | local / Vercel Production | Not on Vercel Preview (13B). |
-| `EMAIL_FROM` | Verified From address | YES (prod) | production | PUBLIC mailbox | none | `lib/email/index.ts` | Resend | local / Vercel Production | Use `noreply@mail.zancta.tech`. Not on Vercel Preview (13B). |
-| `EMAIL_REPLY_TO` | Support Reply-To override | NO | all | PUBLIC mailbox | `support@zancta.tech` via `lib/legal-public.ts` | `lib/email/contacts.ts` | Hostinger mailbox | local / Vercel | |
+| `EMAIL_PROVIDER` | Transactional email provider selector | NO (recommended; required to select explicitly) | production; optional local | neither | Hostinger when only its token exists; otherwise Resend when its key exists | `lib/email/index.ts`, `lib/production-config.ts` | Email provider | local / Vercel Production | Use `hostinger` or `resend`; omission uses the documented credential-based fallback. Not on Vercel Preview (13B). |
+| `RESEND_API_KEY` | Resend transactional email | YES when `EMAIL_PROVIDER=resend` | production; optional local | SECRET | none (console transport locally) | `lib/email/index.ts`, `lib/production-config.ts` | Resend | local / Vercel Production | Not on Vercel Preview (13B). |
+| `EMAIL_FROM` | Resend verified From address or Hostinger fallback sender mailbox | YES for Resend; optional if `HOSTINGER_MAIL_FROM` set | production | PUBLIC mailbox | none | `lib/email/index.ts` | Email provider | local / Vercel Production | Resend uses `noreply@mail.zancta.tech`; Hostinger uses a managed mailbox such as `support@zancta.tech`. |
+| `EMAIL_REPLY_TO` | Resend support Reply-To override | NO | all | PUBLIC mailbox | `support@zancta.tech` via `lib/legal-public.ts` | `lib/email/contacts.ts` | Resend | local / Vercel | Ignored by Hostinger Mail API mode, which sends from its managed mailbox. |
+| `HOSTINGER_MAIL_API_TOKEN` | Hostinger Mail API token | YES when `EMAIL_PROVIDER=hostinger` | production; optional local | SECRET | none | `lib/email/index.ts`, `lib/production-config.ts` | Hostinger Mail | local / Vercel Production | Create under Agentic Mail → API access. Never `NEXT_PUBLIC_`. |
+| `HOSTINGER_MAIL_API_URL` | Hostinger Mail API base URL | NO | all | PUBLIC URL | `https://api.mail.hostinger.com` | `lib/email/index.ts` | Hostinger Mail | local / Vercel Production | Must be the Mail API host, not the general Hostinger API host. |
+| `HOSTINGER_MAIL_MAILBOX_RESOURCE_ID` | Managed mailbox resource ID | YES when `EMAIL_PROVIDER=hostinger` | production; optional local | PUBLIC-ish ID | runtime discovery from `/api/v1/me` if omitted | `lib/email/index.ts`, `lib/production-config.ts` | Hostinger Mail | local / Vercel Production | Use the `AC...` ID for the sending mailbox. |
+| `HOSTINGER_MAIL_FROM` | Hostinger managed sender mailbox | YES when `EMAIL_PROVIDER=hostinger` unless `EMAIL_FROM` is a Hostinger mailbox | production; optional local | PUBLIC mailbox | none | `lib/email/index.ts`, `lib/production-config.ts` | Hostinger Mail | local / Vercel Production | Example: `support@zancta.tech`. |
+| `HOSTINGER_MAIL_TIMEOUT_MS` | Hostinger Mail API request timeout | NO | all | neither | `10000` | `lib/email/index.ts` | Hostinger Mail | optional | Capped at 60000 ms. |
+| `HOSTINGER_MAIL_RETRY_BASE_DELAY_MS` | Hostinger transient retry base delay | NO | all | neither | `250` | `lib/email/index.ts` | Hostinger Mail | optional | Capped at 5000 ms; max attempts are bounded in code. |
 | `PAYMENTS_PROVIDER` | Payment adapter name | NO | production | neither | `dodo` | `lib/payments/index.ts` | Dodo | local / Vercel Production | Only `dodo` is implemented. Not on Vercel Preview (13B). |
 | `DODO_API_KEY` | Dodo REST API | YES when checkout/webhooks run | production | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | local / Vercel Production | Required at call time, not at boot. Not on Vercel Preview (13B). |
 | `DODO_WEBHOOK_SECRET` | Webhook HMAC | YES for webhooks | production | SECRET | none | `lib/payments/providers/dodo.ts` | Dodo | local / Vercel Production | Preferred name. Not on Vercel Preview (13B). |
@@ -53,7 +60,7 @@ This document does not contain secrets. Fill real values only in gitignored file
 | `VERCEL_ENV` | `production` / `preview` / `development` | platform | Vercel | neither | unset off-Vercel | auth cookies, rate limit, contact schema, production-config, preview isolation | Vercel | automatic | |
 | `VERCEL` | Present on Vercel | platform | Vercel | neither | unset | `lib/production-config.ts` | Vercel | automatic | |
 | `PREVIEW_ALLOW_PRODUCTION_MUTATIONS` | Allow Preview `/api` writes | NO | preview only | flag | unset → blocked | `lib/preview-isolation.ts`, `proxy.ts` | none | do not set | Leave unset. Preview HTTP mutations stay blocked. |
-| `PREVIEW_ALLOW_PRODUCTION_EMAIL` | Allow Resend from Preview | NO | preview only | flag | unset → console/suppress | `lib/email/index.ts` | Resend | do not set | Leave unset. Preview has no Resend key. |
+| `PREVIEW_ALLOW_PRODUCTION_EMAIL` | Allow production email provider from Preview | NO | preview only | flag | unset → console/suppress | `lib/email/index.ts` | Email provider | do not set | Leave unset. Preview has no production email credentials. |
 | `PREVIEW_ALLOW_PRODUCTION_DATA` | Allow Preview `/admin` to query DB | NO | preview only | flag | unset → redirect | `app/admin/layout.tsx` | none | do not set | Leave unset. Preview `/admin` must not become a data browser. |
 | `INTEGRATION_ENCRYPTION_KEY` | AES-256-GCM key for operator OAuth tokens | YES to Connect Google/Bing | production | SECRET | none | `lib/integrations/crypto.ts` | none | Vercel Production only | 32 bytes as 64 hex chars or 32-byte base64. Never Preview. |
 | `GOOGLE_OPERATOR_CLIENT_ID` | Operator Google OAuth client | YES to Connect Google APIs | production | PUBLIC ID | falls back to `GOOGLE_CLIENT_ID` if unset | `lib/integrations/google/oauth.ts` | Google | Vercel Production | Redirect `https://zancta.tech/api/admin/integrations/google/callback`. Distinct from user sign-in usage even if the same Cloud project. |
@@ -68,20 +75,25 @@ Platform-only variables (`NODE_ENV`, `VERCEL`, `VERCEL_ENV`) are not owner-fille
 
 ## 2. Production-required variables
 
-Must be set on **Vercel Production** for the live app to function as designed:
+The following are required on **Vercel Production** for the live app to function as designed:
 
 - `DATABASE_URL`
 - `AUTH_SECRET` (or `NEXTAUTH_SECRET`)
 - `NEXTAUTH_URL` (`https://zancta.tech`)
 - `AUTH_TRUST_HOST` (`true`)
-- `RESEND_API_KEY`
-- `EMAIL_FROM`
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 - `PAYMENTS_LIVE_ENABLED` = `false` until live checkout is authorized
 - `DODO_ENVIRONMENT` (keep `test` while checkout is off)
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (if Google sign-in should appear)
 - `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` (if GitHub sign-in should appear)
+
+Choose one transactional email provider:
+
+- Hostinger: `EMAIL_PROVIDER=hostinger`, `HOSTINGER_MAIL_API_TOKEN`, `HOSTINGER_MAIL_MAILBOX_RESOURCE_ID`, and `HOSTINGER_MAIL_FROM` or `EMAIL_FROM`.
+- Resend: `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, and `EMAIL_FROM`.
+
+`HOSTINGER_MAIL_API_URL` is optional and defaults to `https://api.mail.hostinger.com`. `EMAIL_REPLY_TO` applies to Resend support mail only; Hostinger sends from its managed mailbox without a custom Reply-To field.
 
 Required for IndexNow (distribution), not for serving tools:
 
@@ -164,7 +176,8 @@ Do not point tests at production `DATABASE_URL`.
 | `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` | `https://zancta.tech` in production |
 | OAuth | Google Cloud Console / GitHub Developer Settings |
 | `RESEND_API_KEY` / `EMAIL_FROM` | Resend dashboard; verified domain `mail.zancta.tech` |
-| `EMAIL_REPLY_TO` | Hostinger mailbox `support@zancta.tech` |
+| Hostinger Mail variables | Hostinger Agentic Mail → API access and managed mailbox settings |
+| `EMAIL_REPLY_TO` | Resend support Reply-To override; ignored in Hostinger mode |
 | Dodo keys / product IDs | Dodo Payments dashboard |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 Admin → Data stream |
 | `INDEXNOW_KEY` | Bing IndexNow key generator |
@@ -180,7 +193,9 @@ Do not invent these. Paste into local `.env` and Vercel Production (names only l
 
 1. `DATABASE_URL`
 2. `AUTH_SECRET` (if rotating; otherwise keep existing Vercel value)
-3. `RESEND_API_KEY`
+3. The selected email provider variables:
+   - Hostinger: `EMAIL_PROVIDER`, `HOSTINGER_MAIL_API_TOKEN`, `HOSTINGER_MAIL_MAILBOX_RESOURCE_ID`, and `HOSTINGER_MAIL_FROM` or `EMAIL_FROM`.
+   - Resend: `EMAIL_PROVIDER`, `RESEND_API_KEY`, and `EMAIL_FROM`.
 4. `DODO_API_KEY`
 5. `DODO_WEBHOOK_SECRET`
 6. `DODO_PRODUCT_MONTHLY_ID`
@@ -192,76 +207,28 @@ Do not invent these. Paste into local `.env` and Vercel Production (names only l
 12. `INDEXNOW_KEY`
 13. `INDEXNOW_NOTIFY_SECRET`
 
-Confirm in Vercel (do not change in this phase): `PAYMENTS_LIVE_ENABLED=false`, `EMAIL_FROM`, `EMAIL_REPLY_TO`, `NEXTAUTH_URL`, `AUTH_TRUST_HOST`.
+Confirm in Vercel (do not change in this phase): `PAYMENTS_LIVE_ENABLED=false`, `NEXTAUTH_URL`, `AUTH_TRUST_HOST`, and the selected email provider configuration.
 
 ---
 
-## 8. Local / Vercel mismatch matrix
+## 8. Local / Vercel environment policy
 
-Snapshot: names and presence only (no values). Recovery date: 2026-08-23.  
-Re-run locally with `node scripts/report-env-presence.mjs` (prints `PRESENT` / `EMPTY` / `MISSING` only).
+This section describes scope and safety rules, not the presence or value of any deployment secret. Use `node scripts/report-env-presence.mjs` locally when a names-only check is needed; it prints `PRESENT`, `EMPTY`, or `MISSING` without values.
 
-### What happened to `.env`
-
-The working-tree `.env` was **deleted** by an earlier agent session after a Vercel CLI env run; it was **not** removed by Git. Git never tracked `.env` or `.env.production` (only `.env.example`). No stash contained them.
-
-**Newest original snapshot** was restored to gitignored `.env` and `.env.production` from local editor history (August 2026). Public URL class in that snapshot is the canonical `zancta.tech` host. IndexNow keys are owner-filled; they must never be committed.
-
-Older leftover: `.env.bak12c` (19 Aug 2026) — same auth/database/OAuth/Resend/Upstash secrets as the restored file; older public URLs were the legacy `vercel.app` host; Dodo fields differed (`test` vs restored `live`). Not used for restore.
-
-`.env.vercel-check` is an empty Encrypted CLI dump. Not used for restore. Vercel Production values were **not** downloaded (Encrypted pull does not yield usable local values).
-
-### Local files after 12H-17E restore
-
-| File | Status |
+| Scope | Policy |
 |---|---|
-| `.env` | **PRESENT** (restored original + additive `PAYMENTS_LIVE_ENABLED=false`, ads off, empty IndexNow slots) |
-| `.env.local` | **MISSING** (not required) |
-| `.env.development` | **MISSING** |
-| `.env.production` | **PRESENT** (same restored content as `.env`) |
-| `.env.test` | **MISSING** |
-| `.env.bak12c` | present, gitignored older backup |
-| `.env.vercel-check` | present, gitignored empty Encrypted dump |
-
-### Vercel scopes (`vercel env ls`) — names only, 23 August 2026 (Phase 13B)
-
-Values were not read.
-
-**Development (Vercel):** no environment variables.
-
-**Preview only:** `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_SECRET` (distinct values from Production).
-
-**Preview and Production:** `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`, `AUTH_TRUST_HOST`.
-
-**Production only:** `PAYMENTS_PROVIDER`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `INDEXNOW_NOTIFY_SECRET`, `INDEXNOW_KEY`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, `DODO_ENVIRONMENT`, `DODO_PRODUCT_MONTHLY_ID`, `DODO_PRODUCT_ANNUAL_ID`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, plus Production `DATABASE_URL` / `AUTH_SECRET` / `NEXTAUTH_SECRET`.
+| Local development | Use `.env` copied from `.env.example`; keep all real values local and gitignored. |
+| Vercel Development | Do not rely on Development scope for production services. |
+| Vercel Preview | Use separate database and authentication secrets. Do not provide production email, payment, OAuth, analytics, or rate-limit credentials. |
+| Vercel Production | Configure the selected email provider and other required services in the Vercel dashboard. Never copy values into Git or chat. |
 
 ### Preview safety
 
-Preview uses a **separate** Supabase project (`zancta-preview`, ref `imrdduumorsnzbefmhcq`). Production remains `biyegdvpyoxqrzqeocuy`. Hosts and credentials are distinct. Historical Prisma migration SQL is SQLite (`DATETIME`); Preview received the current Postgres schema via `prisma migrate diff --from-empty --to-schema` (same method as local tests). Production schema was not modified.
+Preview and Production must use separate database and authentication credentials. Leave `PREVIEW_ALLOW_PRODUCTION_*` unset so Preview mutations and operator data access remain blocked. Production-only email, payment, OAuth, analytics, IndexNow, and rate-limit credentials must not be shared with Preview.
 
-**Credential scoping:** Preview has its own `DATABASE_URL`, `AUTH_SECRET`, and `NEXTAUTH_SECRET`. Preview still has no Production Resend, Dodo, Upstash, GA4, OAuth, or `PAYMENTS_PROVIDER` names.
+Live payments remain disabled until explicitly authorized. Do not change payment flags or provider credentials as part of email configuration.
 
-**Code isolation:** mutating `/api/*` and OAuth callbacks return 503 (`PREVIEW_ALLOW_PRODUCTION_*` remain unset). Resend is not used; live payments cannot enable; `/admin` does not query the database; Preview does not use Upstash. GET `/api/payments/checkout` still answers `{live:false}`.
-
-Google/GitHub OAuth is **explicitly absent** on Preview.
-
-`*.vercel.app` URLs also require Vercel login.
-
-Do **not** set `PREVIEW_ALLOW_PRODUCTION_*`. Preview HTTP writes stay blocked even though the database is now separate.
-
-| Check | Finding |
-|---|---|
-| PRESENT BOTH | `AUTH_TRUST_HOST`, `NODE_ENV`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME` |
-| PRODUCTION ONLY | Production `DATABASE_URL`, Production `AUTH_SECRET` / `NEXTAUTH_SECRET`, Resend, Dodo, Upstash, GA4, IndexNow, OAuth pairs, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
-| PREVIEW ONLY | Preview `DATABASE_URL`, Preview `AUTH_SECRET` / `NEXTAUTH_SECRET` |
-| LOCAL ONLY | `AUTH_USE_SECURE_COOKIES`, `NEXT_PUBLIC_ADS_ENABLED` |
-| EMPTY (do not commit) | Never put `INDEXNOW_KEY` or `INDEXNOW_NOTIFY_SECRET` in Git. Configure them in Vercel Production. |
-| UNUSED/LEGACY | `NEXT_PUBLIC_APP_NAME` (both). `DODO_PAYMENTS_*` aliases unused. `SENTRY_DSN` unset both |
-| Value mismatch (flagged, not overwritten) | Restored local `DODO_ENVIRONMENT=live`; Vercel Encrypted value unknown. Checkout remains off because `PAYMENTS_LIVE_ENABLED=false`. Do not change Vercel Production payment flags. |
-| Missing from Vercel Development | All names |
-| Missing from Vercel Preview vs Production | Production `DATABASE_URL` / auth secrets, Resend, Dodo, Upstash, GA4, IndexNow, OAuth, `NEXTAUTH_URL`, `EMAIL_REPLY_TO`, `PAYMENTS_LIVE_ENABLED`, `PAYMENTS_PROVIDER` |
-| Public/secret mismatch | None observed. Public `NEXT_PUBLIC_*` in restored files: `APP_URL`, `APP_NAME`, `GA_MEASUREMENT_ID`, `ADS_ENABLED`. IndexNow is not public. |
-| Duplicate | Both `AUTH_SECRET` and `NEXTAUTH_SECRET` locally and on Vercel |
+---
 
 ---
 
@@ -280,8 +247,6 @@ Do **not** set `PREVIEW_ALLOW_PRODUCTION_*`. Preview HTTP writes stay blocked ev
 | `NEXT_PUBLIC_ENABLE_*` | Historical docs name. **Not read by code.** |
 | `GA_ID` | Historical name. **Not read by code.** Use `NEXT_PUBLIC_GA_MEASUREMENT_ID`. |
 | SQLite `DATABASE_URL=file:…` | Default in `lib/db.ts` is incompatible with current Prisma Postgres schema. Do not use. |
-
-Leftover local files (not variables): `.env.bak12c`, `.env.vercel-check` — gitignored copies. Do not commit. Treat as obsolete backups, not as the live template.
 
 ---
 
@@ -304,7 +269,7 @@ Tests: `docker compose -f docker-compose.test.yml up -d --wait` then `npm test`.
 1. Open the project → Settings → Environment Variables.
 2. Use `.env.production.example` as the checklist.
 3. Mark secrets as Sensitive / Encrypted.
-4. Never add `NEXT_PUBLIC_` to IndexNow, Dodo, Resend, database, or auth secrets.
+4. Never add `NEXT_PUBLIC_` to IndexNow, Dodo, email-provider, database, or auth secrets.
 5. After changing Production env, **redeploy** so runtime and the IndexNow key file pick up values.
 6. `vercel env run -e production` may still inject **empty** Encrypted values in this CLI; that does not prove Production runtime is empty. Confirm in the Vercel dashboard (reveal once).
 
@@ -318,6 +283,7 @@ Tests: `docker compose -f docker-compose.test.yml up -d --wait` then `npm test`.
 | `NEXTAUTH_SECRET` | Same as `AUTH_SECRET` if that alias is the live one | Keep one source of truth. |
 | `DATABASE_URL` | Provider rotate password; update Vercel; redeploy | Brief downtime if the old URL is revoked first. |
 | `RESEND_API_KEY` | Resend dashboard → new key → Vercel → revoke old | Mail stops until redeploy. |
+| `HOSTINGER_MAIL_API_TOKEN` | Hostinger Agentic Mail → API access → new token → Vercel → revoke old | Hostinger mail stops until redeploy. |
 | Dodo API / webhook | Dodo dashboard → Vercel → redeploy | Webhooks 401 until the new secret is live. |
 | OAuth client secrets | Google/GitHub consoles → Vercel → redeploy | Sign-in fails until both ID and secret match. |
 | Upstash | New token → Vercel → redeploy | Rate limit fail-closed in production if URL remains without a valid token. |
@@ -336,7 +302,7 @@ Never rotate by committing the new value. Never paste secrets into issue tracker
 - [ ] `AUTH_SECRET` or `NEXTAUTH_SECRET` set
 - [ ] `NEXTAUTH_URL=https://zancta.tech`
 - [ ] `AUTH_TRUST_HOST=true`
-- [ ] Resend key + `EMAIL_FROM`
+- [ ] Selected email provider is configured: Hostinger variables for `EMAIL_PROVIDER=hostinger`, or Resend key + `EMAIL_FROM` for `EMAIL_PROVIDER=resend`
 - [ ] Upstash URL + token
 - [ ] OAuth pairs complete or intentionally omitted
 - [ ] Dodo test credentials present; environment `test`
@@ -354,5 +320,5 @@ Never rotate by committing the new value. Never paste secrets into issue tracker
 **C. Required testing** — §4 (mostly injected)  
 **D. Optional production** — Sentry DSNs, IndexNow (until distribution), ads flag, `DATABASE_SSL`  
 **E. Public `NEXT_PUBLIC_*`** — `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_ADS_ENABLED`; unused `NEXT_PUBLIC_APP_NAME`  
-**F. Third-party** — Resend, Dodo, Google, GitHub, GA4, Upstash, IndexNow/Bing, Sentry  
+**F. Third-party** — Hostinger Mail, Resend, Dodo, Google, GitHub, GA4, Upstash, IndexNow/Bing, Sentry
 **G. Deprecated/unused** — §9

@@ -11,7 +11,7 @@
 | [Releases / rollback](operations/releases.md) | Current deploy and rollback target |
 | [Migrations](operations/migrations.md) | PostgreSQL baseline, Production migrate, CI |
 | [Observability](operations/observability.md) | Logs, GA4, Speed Insights, Sentry policy |
-| [Email](operations/email.md) | Resend production notes |
+| [Email](operations/email.md) | Transactional email provider notes |
 | [BIMI](operations/email-bimi.md) | Sender-identity diagnosis (not purchased) |
 | [Security](security/overview.md) | Engineering notes; policy is [SECURITY.md](../SECURITY.md) |
 | [Growth strategy](growth/strategy.md) | Internal product/SEO notes |

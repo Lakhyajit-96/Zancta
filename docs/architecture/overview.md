@@ -9,7 +9,7 @@ Browser
       → API routes (auth, account, contact, payments, OCR packs, IndexNow)
           → PostgreSQL (Prisma)
           → Dodo Payments (checkout currently gated)
-          → Resend (transactional email)
+          → Hostinger Mail or Resend (transactional email)
           → Upstash Redis (rate limits)
           → GA4 (after consent only)
 ```

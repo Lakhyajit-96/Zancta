@@ -7,5 +7,5 @@
 | [releases.md](releases.md) | Current deploy and rollback target |
 | [migrations.md](migrations.md) | PostgreSQL baseline and Production migrate deploy |
 | [observability.md](observability.md) | Logs, GA4, Speed Insights, Sentry policy |
-| [email.md](email.md) | Resend production notes |
+| [email.md](email.md) | Transactional email provider notes |
 | [email-bimi.md](email-bimi.md) | BIMI diagnosis (not purchased) |
