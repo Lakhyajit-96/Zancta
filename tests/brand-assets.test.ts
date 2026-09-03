@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createHash } from "crypto";
 import { existsSync, readFileSync } from "fs";
 import path from "path";
+import manifest from "@/app/manifest";
 import { jsonLdOrganization } from "@/lib/seo";
 import { renderEmailHtml, safeHttpsUrl } from "@/lib/email/layout";
 import { welcomeEmail, verificationEmail } from "@/lib/email/templates";
@@ -35,6 +36,8 @@ describe("brand assets and search identity", () => {
     "public/icon-192.png",
     "public/icon-512.png",
     "public/apple-touch-icon.png",
+    "app/favicon.ico",
+    "public/browserconfig.xml",
     "public/icons/favicon-16.png",
     "public/icons/favicon-32.png",
     "public/icons/favicon-48.png",
@@ -87,6 +90,27 @@ describe("brand assets and search identity", () => {
     expect(json).toContain("https://zancta.tech/icons/favicon-512.png");
     expect(json).not.toContain("Lakhyajit Changmai");
     expect(json).not.toMatch(/legalName|telephone|address|founder/i);
+  });
+
+  it("root metadata prioritizes the canonical ZANCTA favicon for crawlers", () => {
+    const src = readFileSync(path.join(root, "app/layout.tsx"), "utf8");
+    const iconBlock = src.match(/icons:\s*\{[\s\S]*?manifest:/)?.[0] ?? "";
+    expect(iconBlock).toContain('url: "/favicon.ico", sizes: "48x48", type: "image/x-icon"');
+    expect(iconBlock).toMatch(/icon:\s*\[\s*\{\s*url:\s*"\/favicon\.ico"/);
+    expect(iconBlock).toMatch(/shortcut:\s*\[\s*\{\s*url:\s*"\/favicon\.ico"/);
+    expect(iconBlock).not.toMatch(/vercel/i);
+  });
+
+  it("web app manifest exposes only ZANCTA icon endpoints", () => {
+    const appManifest = manifest();
+    expect(appManifest.icons?.map((icon) => icon.src)).toEqual([
+      "/favicon.ico",
+      "/icons/favicon-48.png",
+      "/icons/favicon-192.png",
+      "/icons/favicon-512.png",
+      "/icons/favicon-512.png",
+    ]);
+    expect(JSON.stringify(appManifest)).not.toMatch(/vercel/i);
   });
 });
 

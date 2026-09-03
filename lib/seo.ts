@@ -9,6 +9,8 @@ type SEOProps = {
 };
 
 const CANONICAL_PRODUCTION_URL = "https://zancta.tech";
+export const ZANCTA_ICON_512 = "/icons/favicon-512.png";
+export const ZANCTA_OG_IMAGE = "/assets/zancta-brand/og-images/zancta-og-hero.png";
 
 function stripSlash(url: string): string {
   return url.replace(/\/$/, "");
@@ -66,7 +68,7 @@ export function pageAbsoluteUrl(path: string): string {
 }
 
 const OG_IMAGE = {
-  url: "/assets/zancta-brand/og-images/zancta-og-hero.png",
+  url: ZANCTA_OG_IMAGE,
   width: 1200,
   height: 630,
   alt: "ZANCTA — local PDF and image tools",
@@ -120,7 +122,8 @@ export function jsonLdOrganization(): object {
     "@id": `${PUBLIC_SITE_URL}/#organization`,
     name: "ZANCTA",
     url: `${PUBLIC_SITE_URL}/`,
-    logo: `${PUBLIC_SITE_URL}/icons/favicon-512.png`,
+    logo: `${PUBLIC_SITE_URL}${ZANCTA_ICON_512}`,
+    image: `${PUBLIC_SITE_URL}${ZANCTA_ICON_512}`,
     description: "Independently operated browser-based PDF and image tools that process supported files locally in the visitor's browser.",
     contactPoint: [
       {
