@@ -96,7 +96,6 @@ export async function loadGoogleDashboard(range: string | null, start?: string |
         ga4DimensionReport(access, ga4PropertyId, dates.startDate, dates.endDate, ["operatingSystem"], ["activeUsers", "sessions"]),
         ga4DimensionReport(access, ga4PropertyId, dates.startDate, dates.endDate, ["date"], ["activeUsers", "sessions", "eventCount"], 90),
         ga4AdminMetadata(access, ga4PropertyId),
-        ga4DimensionReport(access, ga4PropertyId, dates.startDate, dates.endDate, ["eventName", "customEvent:tool"], ["eventCount"]),
       ])
     : null;
 
@@ -131,7 +130,6 @@ export async function loadGoogleDashboard(range: string | null, start?: string |
     operatingSystems: ga4?.[11] ?? missing,
     ga4Daily: ga4?.[12] ?? missing,
     ga4Admin: ga4?.[13] ?? missing,
-    toolsByParam: ga4?.[14] ?? missing,
     funnelRates: ga4FunnelRates(funnel as ApiResult<Record<string, number>>),
     importantUrls: IMPORTANT_URLS,
   };

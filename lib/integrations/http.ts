@@ -33,7 +33,7 @@ export async function providerFetch(
         latencyMs,
       });
     }
-    return ok(json, { latencyMs, fetchedAt: new Date().toISOString() });
+    return ok(json, { httpStatus: res.status, latencyMs, fetchedAt: new Date().toISOString() });
   } catch (error) {
     const latencyMs = Date.now() - started;
     const aborted = error instanceof Error && error.name === "AbortError";

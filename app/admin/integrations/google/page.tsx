@@ -88,7 +88,6 @@ export default async function GoogleIntegrationsPage({
           <JsonBlock title="GA4 daily trend" result={dash.ga4Daily!} />
           <JsonBlock title="Tool funnel events" result={dash.funnel!} />
           <JsonBlock title="Funnel rates" result={dash.funnelRates!} />
-          <JsonBlock title="Tools by event param" result={dash.toolsByParam!} />
           <JsonBlock title="OCR events" result={dash.ocr!} />
           <JsonBlock title="GA4 realtime" result={dash.realtime!} />
         </>
