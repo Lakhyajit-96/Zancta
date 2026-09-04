@@ -41,7 +41,7 @@ Free tools do not require an account. Limits, formats, and honest failure modes 
 | Guides for local processing | **LIVE** |
 | Accounts, email verification, OAuth | **LIVE** |
 | Consent-gated GA4 | **LIVE** |
-| Premium checkout (Dodo Payments) | **BUILT, NOT LIVE** — `GET /api/payments/checkout` returns `{"live":false}` |
+| Premium checkout (Dodo Payments) | **LIVE** — checkout is hosted by Dodo Payments and entitlement follows a verified provider webhook |
 | Display ads | **OFF** |
 | Background removal | **PLANNED** — deferred until local model licensing is verified |
 | Sentry error monitoring | **OPTIONAL** — inert unless a DSN is configured |
@@ -86,7 +86,7 @@ Server (only when needed)
   Contact form, transactional email (Hostinger Mail or Resend)
   Rate limiting (Upstash)
   Premium language-pack delivery (authenticated)
-  Payments (Dodo) — checkout currently gated off
+  Payments (Dodo) — live checkout with verified webhook entitlement
   Consent-gated analytics (GA4)
 ```
 
@@ -94,9 +94,9 @@ Local tools still download ordinary site assets (HTML, JS, fonts, OCR WASM). Tha
 
 ## Premium
 
-Premium (Local OCR Power) is implemented in code: extra OCR languages and scanned-PDF OCR (20-page cap). **Checkout is not enabled in production.** The pricing page states that Premium is currently unavailable while launch configuration completes.
+Premium (Local OCR Power) is implemented in code: extra OCR languages and scanned-PDF OCR (20-page cap). **Checkout is enabled in production** and is hosted by Dodo Payments.
 
-Merchant of record, when checkout is enabled: Dodo Payments.
+Merchant of record: Dodo Payments.
 
 ## Technology
 
@@ -104,7 +104,7 @@ Merchant of record, when checkout is enabled: Dodo Payments.
 - Prisma 7 + PostgreSQL
 - Auth.js (credentials + optional Google/GitHub)
 - pdf-lib, PDF.js, Tesseract.js, browser-image-compression
-- Hostinger Mail or Resend, Upstash Redis, Dodo Payments (gated)
+- Hostinger Mail or Resend, Upstash Redis, Dodo Payments
 - Vitest + Playwright
 
 See [architecture](docs/architecture/overview.md).
@@ -151,4 +151,4 @@ This repository’s application code is **proprietary**. See [LICENSE](LICENSE) 
 
 ## Project status
 
-ZANCTA is a live product at [zancta.tech](https://zancta.tech). Payments and ads are off. There is no published user count, revenue figure, or security certification.
+ZANCTA is a live product at [zancta.tech](https://zancta.tech). Premium checkout is live through Dodo Payments; ads remain off. There is no published user count, revenue figure, or security certification.
