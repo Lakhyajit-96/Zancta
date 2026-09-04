@@ -78,7 +78,7 @@
     "jsdom": "^26.0.0",
     "prisma": "^7.10.0",
     "tailwindcss": "^4",
-    "typescript": "^5",
+    "typescript": "^7",
     "vitest": "^3.0.0"
   },
   "keywords": [
