@@ -52,7 +52,7 @@
     "next-auth": "^5.0.0-beta.32",
     "nodemailer": "9.0.5",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.1.91",
+    "pdfjs-dist": "^6.3.289",
     "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
