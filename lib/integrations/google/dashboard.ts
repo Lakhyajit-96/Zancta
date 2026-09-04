@@ -37,7 +37,7 @@ export async function loadGoogleDashboard(range: string | null, start?: string |
     return { connection, dates, token, sites: token, property: null as string | null };
   }
 
-  const cached = await latestSnapshot<Record<string, unknown>>("google", "dashboard", dates.key);
+  const cached = await latestSnapshot<Record<string, unknown>>("google", "dashboard-v2", dates.key);
   if (cached?.payload && cached.state === "DATA_AVAILABLE") {
     return { connection, dates, token, property: connection.selectedProperty, fromCache: true, ...cached.payload };
   }
@@ -134,7 +134,7 @@ export async function loadGoogleDashboard(range: string | null, start?: string |
     importantUrls: IMPORTANT_URLS,
   };
 
-  await saveSnapshot("google", "dashboard", dates.key, totals.state, payload).catch(() => {});
+  await saveSnapshot("google", "dashboard-v2", dates.key, totals.state, payload).catch(() => {});
 
   return {
     connection: await getPublicConnection("google"),
