@@ -54,5 +54,5 @@ export async function GET(req: Request) {
     ga4PropertyId: ga4.data?.propertyId ?? null,
     ga4MeasurementId: ga4.data?.measurementId ?? null,
   });
-  return NextResponse.redirect(new URL("/admin/integrations/google?connected=1", req.url));
+  return NextResponse.redirect(new URL("/admin/integrations/google", req.url));
 }

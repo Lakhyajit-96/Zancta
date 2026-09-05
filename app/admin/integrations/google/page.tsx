@@ -14,6 +14,7 @@ export default async function GoogleIntegrationsPage({
   const params = await searchParams;
   const dash = await loadGoogleDashboard(params.range ?? "28d", params.start, params.end);
   const fallback = "totals" in dash ? dash.totals : dash.token;
+  const connected = dash.connection.status === "CONNECTED";
   return (
     <main className="mx-auto max-w-6xl space-y-8 px-6 py-12">
       <p className="text-sm"><Link className="underline" href="/admin/integrations">All integrations</Link></p>
@@ -33,11 +34,13 @@ export default async function GoogleIntegrationsPage({
       </p>
       <div className="flex gap-3">
         <a className="rounded-md border border-border px-3 py-2 text-sm" href="/api/admin/integrations/google/connect">
-          Connect Google
+          {connected ? "Reconnect Google" : "Connect Google"}
         </a>
-        <form action="/api/admin/integrations/google/disconnect" method="post">
-          <button className="rounded-md border border-border px-3 py-2 text-sm" type="submit">Disconnect</button>
-        </form>
+        {connected ? (
+          <form action="/api/admin/integrations/google/disconnect" method="post">
+            <button className="rounded-md border border-border px-3 py-2 text-sm" type="submit">Disconnect</button>
+          </form>
+        ) : null}
       </div>
       <nav className="flex flex-wrap gap-3 text-sm">
         <Link href="/admin/integrations/google?range=7d">7 days</Link>

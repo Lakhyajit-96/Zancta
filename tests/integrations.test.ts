@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { decryptSecret, encryptSecret, looksLikeSecret, signOAuthState, verifyOAuthState } from "@/lib/integrations/crypto";
 import { resolveDateRange } from "@/lib/integrations/date-range";
@@ -92,5 +94,25 @@ describe("operator integration API mapping", () => {
     expect(resolveDateRange("90d").key).toBe("90d");
     const custom = resolveDateRange("custom", "2026-01-01", "2026-01-31");
     expect(custom.key.startsWith("custom:")).toBe(true);
+  });
+});
+
+describe("Google integration connection actions", () => {
+  it("uses persisted status consistently for connected and disconnected actions", async () => {
+    const detail = await readFile(path.join(process.cwd(), "app/admin/integrations/google/page.tsx"), "utf8");
+    const overview = await readFile(path.join(process.cwd(), "app/admin/integrations/page.tsx"), "utf8");
+
+    expect(detail).toContain('const connected = dash.connection.status === "CONNECTED"');
+    expect(detail).toContain('{connected ? "Reconnect Google" : "Connect Google"}');
+    expect(detail).toMatch(/\{connected \? \([\s\S]*?google\/disconnect[\s\S]*?\) : null\}/);
+    expect(overview).toContain('const connected = connection.status === "CONNECTED"');
+    expect(overview).toContain('{google.status === "CONNECTED" ? "Reconnect Google" : "Connect Google"}');
+  });
+
+  it("redirects a successful OAuth callback without a stale status query parameter", async () => {
+    const callback = await readFile(path.join(process.cwd(), "app/api/admin/integrations/google/callback/route.ts"), "utf8");
+
+    expect(callback).toContain('new URL("/admin/integrations/google", req.url)');
+    expect(callback).not.toContain("connected=1");
   });
 });

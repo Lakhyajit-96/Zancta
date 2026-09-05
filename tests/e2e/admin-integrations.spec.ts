@@ -105,6 +105,10 @@ test.describe("operator integrations authorization", () => {
     await expect(page.getByRole("link", { name: "Google Analytics 4" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Bing Webmaster" })).toBeVisible();
 
+    await page.goto("/admin/integrations/google");
+    await expect(page.getByRole("link", { name: "Connect Google", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Disconnect", exact: true })).toHaveCount(0);
+
     const google = await page.request.get("/api/admin/integrations/google/connect", { maxRedirects: 0 });
     const googleLocation = google.headers()["location"] || google.url();
     expect(googleLocation).not.toMatch(/\/signin/i);
