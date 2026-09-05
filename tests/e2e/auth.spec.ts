@@ -46,7 +46,7 @@ test.describe("Auth — real flows", () => {
     await expect(page.getByText(email)).toBeVisible();
 
     // Account shows entitlement
-    await expect(page.getByText("FREE", { exact: true })).toBeVisible();
+    await expect(page.getByText("Free", { exact: true })).toBeVisible();
 
     // Delete
     await page.fill('input[placeholder="Type DELETE"]', "DELETE");

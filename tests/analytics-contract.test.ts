@@ -92,9 +92,15 @@ describe("param sanitization", () => {
     expect(out.plan).toBe("PREMIUM_MONTHLY");
   });
 
-  it("passes valid method", () => {
-    const out = sanitizeClientParams("signup_completed", { method: "credentials" });
-    expect(out.method).toBe("credentials");
+  it("passes valid auth methods", () => {
+    expect(sanitizeClientParams("signup_completed", { method: "credentials" }).method).toBe("credentials");
+    expect(sanitizeClientParams("signin_completed", { method: "google" }).method).toBe("google");
+    expect(sanitizeClientParams("signin_completed", { method: "github" }).method).toBe("github");
+  });
+
+  it("passes plan-selection and checkout intent", () => {
+    expect(sanitizeClientParams("pricing_plan_selected", { plan: "PREMIUM_MONTHLY" })).toEqual({ plan: "PREMIUM_MONTHLY" });
+    expect(sanitizeClientParams("checkout_started", { plan: "PREMIUM_ANNUAL" })).toEqual({ plan: "PREMIUM_ANNUAL" });
   });
 
   it("strips file-related params", () => {

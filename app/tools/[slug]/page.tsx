@@ -6,6 +6,7 @@ import { TrackView } from "@/components/analytics/track-view";
 import { TOOL_GUIDES } from "@/lib/tool-next-steps";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { isLivePaymentsEnabled } from "@/lib/payments/live";
 
 export function generateStaticParams() {
   return TOOLS.map((t) => ({ slug: t.slug }));
@@ -28,6 +29,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
   if (!tool) notFound();
 
   const related = relatedToolsFor(tool);
+  const checkoutLive = isLivePaymentsEnabled();
 
   return (
     <LayoutChrome showNav={true} showFooter={true}>
@@ -74,7 +76,7 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
 
       <main className="mx-auto max-w-[80rem] px-5 pb-20 pt-10 md:px-8 md:pt-12">
         {tool.available && <TrackView event="tool_view" params={{ tool: tool.slug }} />}
-        <ToolShell tool={tool} />
+        <ToolShell tool={tool} checkoutLive={checkoutLive} />
 
         {related.length > 0 && (
           <section className="mt-12 border-t pt-8">

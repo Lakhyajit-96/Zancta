@@ -9,6 +9,7 @@ import { OAuthButtons } from "@/components/marketing/oauth-buttons";
 import { describeAuthError } from "@/lib/auth-errors";
 import { safeInternalPath } from "@/lib/safe-redirect";
 import { PasswordField } from "@/components/ui/password-field";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 function SigninInner({ google, github }: { google: boolean; github: boolean }) {
   const router = useRouter();
@@ -23,7 +24,10 @@ function SigninInner({ google, github }: { google: boolean; github: boolean }) {
     try {
       const res = await signIn("credentials", { email, password, redirect: false });
       if (res?.error) setError("Invalid email or password. If you don’t have an account yet, create one first.");
-      else router.push(callbackUrl);
+      else {
+        trackEvent("signin_completed", { method: "credentials" });
+        router.push(callbackUrl);
+      }
     } catch { setError("Unable to sign in right now. Please try again."); }
     setLoading(false);
   };

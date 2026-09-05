@@ -25,7 +25,7 @@ import { fail, type ApiResult } from "../types";
 const IMPORTANT_URLS = [
   "https://zancta.tech/",
   "https://zancta.tech/tools",
-  "https://zancta.tech/tools/merge-pdf",
+  "https://zancta.tech/tools/pdf-merge",
   "https://zancta.tech/guides/local-processing",
 ];
 

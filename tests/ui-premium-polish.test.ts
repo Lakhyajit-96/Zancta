@@ -5,6 +5,15 @@ import { sanitizeClientParams } from "@/lib/analytics/events";
 import { sanitizeAnalyticsParams } from "@/lib/consent";
 
 describe("premium UI privacy regressions", () => {
+  it("does not ship the stale Premium launch-gate message", () => {
+    const ocr = readFileSync("components/ui/ocr-tool.tsx", "utf8");
+    const pricing = readFileSync("app/pricing/pricing-client.tsx", "utf8");
+    expect(ocr).not.toContain("Premium is currently unavailable while ZANCTA completes its launch process.");
+    expect(pricing).not.toContain("Premium is currently unavailable while ZANCTA completes its launch process.");
+    expect(ocr).toContain("Premium is available");
+    expect(pricing).toContain("checkoutLive");
+  });
+
   it("keeps the local-processing evidence claim exact", () => {
     const source = readFileSync("components/ui/tool-ui.tsx", "utf8");
     expect(source).toContain("Processed in this tab. File bytes are not uploaded.");

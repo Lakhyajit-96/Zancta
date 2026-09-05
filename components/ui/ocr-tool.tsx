@@ -28,7 +28,7 @@ function track(event: string, params?: Record<string, unknown>) {
   trackEvent(event as never, params);
 }
 
-export function OcrTool() {
+export function OcrTool({ checkoutLive }: { checkoutLive: boolean }) {
   const [file, setFile] = React.useState<File | null>(null);
   const [status, setStatus] = React.useState<OcrStatus>("idle");
   const [progress, setProgress] = React.useState<number | null>(null);
@@ -41,6 +41,7 @@ export function OcrTool() {
   const [premium, setPremium] = React.useState(false);
   const [notice, setNotice] = React.useState<string | null>(null);
   const premiumRef = React.useRef(false);
+  const premiumStatusErrorRef = React.useRef(false);
   const workerRef = React.useRef<import("tesseract.js").Worker | null>(null);
   const runIdRef = React.useRef(0);
   const statusFetched = React.useRef(false);
@@ -60,14 +61,17 @@ export function OcrTool() {
     if (statusFetched.current) return premiumRef.current;
     try {
       const res = await fetch("/api/ocr/status", { credentials: "same-origin" });
+      if (!res.ok) throw new Error("Premium status unavailable");
       const data = await res.json().catch(() => ({ premium: false })) as { premium?: boolean };
       const value = data.premium === true;
       premiumRef.current = value;
       setPremium(value);
+      premiumStatusErrorRef.current = false;
       statusFetched.current = true;
       return value;
     } catch {
-      statusFetched.current = true;
+      premiumStatusErrorRef.current = true;
+      statusFetched.current = false;
       return false;
     }
   };
@@ -87,7 +91,11 @@ export function OcrTool() {
     if (selected && isOcrPdf(selected)) {
       void ensurePremiumStatus().then((hasPremium) => {
         if (!hasPremium) {
-          setNotice("Scanned PDF OCR is Local OCR Power — a Premium capability. English image OCR remains free. Premium is currently unavailable while ZANCTA completes its launch process.");
+          setNotice(premiumStatusErrorRef.current
+            ? "Premium access could not be verified right now. Please try again."
+            : checkoutLive
+              ? "Scanned PDF OCR is Local OCR Power. Premium is available — sign in or create an account to continue."
+              : "Scanned PDF OCR is Local OCR Power — a Premium capability. Premium checkout is currently unavailable.");
           track("premium_feature_view", { tool: "ocr" });
         }
       });
@@ -101,7 +109,11 @@ export function OcrTool() {
     if (!isPremiumOcrLanguage(next) && !(file && isOcrPdf(file))) return;
     const hasPremium = await ensurePremiumStatus();
     if (!hasPremium) {
-      setNotice("Local OCR Power (additional languages and scanned PDF OCR) is a Premium capability. Premium is currently unavailable while ZANCTA completes its launch process.");
+      setNotice(premiumStatusErrorRef.current
+        ? "Premium access could not be verified right now. Please try again."
+        : checkoutLive
+          ? "Local OCR Power is available with Premium. Sign in or create an account to continue."
+          : "Local OCR Power is a Premium capability. Premium checkout is currently unavailable.");
       track("premium_feature_view", { tool: "ocr" });
     }
   };
@@ -123,9 +135,11 @@ export function OcrTool() {
       const hasPremium = await ensurePremiumStatus();
       if (runId !== runIdRef.current) return;
       if (!hasPremium) {
-        setError(pdf
-          ? "Scanned PDF OCR is a Premium capability. English image OCR remains free."
-          : "This language pack is a Premium capability. English OCR remains free.");
+        setError(premiumStatusErrorRef.current
+          ? "Premium access could not be verified right now. Please try again."
+          : pdf
+            ? "Scanned PDF OCR is a Premium capability. English image OCR remains free."
+            : "This language pack is a Premium capability. English OCR remains free.");
         setStatus("failed");
         track("premium_feature_view", { tool: "ocr" });
         return;

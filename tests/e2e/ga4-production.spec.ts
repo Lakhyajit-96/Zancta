@@ -123,8 +123,15 @@ test("production GA4 stays silent until consent, then fires product events witho
   await page.getByRole("button", { name: /Download/i }).first().click();
   await page.waitForTimeout(1500);
   await page.goto("https://zancta.tech/tools/ocr");
+  const checkoutHealth = await page.request.get("https://zancta.tech/api/payments/checkout");
+  const checkoutState = await checkoutHealth.json() as { live?: boolean };
   await page.getByLabel("OCR language").selectOption("hin");
   await expect(page.getByRole("link", { name: "See Premium" })).toBeVisible({ timeout: 15_000 });
+  if (checkoutState.live) {
+    await expect(page.getByText(/Premium is available with Premium|Local OCR Power is available with Premium/)).toBeVisible();
+  } else {
+    await expect(page.getByText(/Premium checkout is currently unavailable/)).toBeVisible();
+  }
   const beforeUpgrade = await dataLayerEvents(page);
   await page.getByRole("link", { name: "See Premium" }).click();
   await expect(page).toHaveURL(/\/pricing/);

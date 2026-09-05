@@ -468,9 +468,9 @@ function DeferredToolShell() {
   </section>;
 }
 
-export function ToolShell({ tool }: { tool: ToolMeta }) {
+export function ToolShell({ tool, checkoutLive }: { tool: ToolMeta; checkoutLive: boolean }) {
   return tool.slug === "ocr"
-    ? <OcrTool />
+    ? <OcrTool checkoutLive={checkoutLive} />
     : tool.slug === "pdf-text-extractor"
       ? <PdfTextExtractor />
       : tool.slug === "background-remover"

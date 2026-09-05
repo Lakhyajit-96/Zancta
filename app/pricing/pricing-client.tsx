@@ -5,6 +5,7 @@ import { useState } from "react";
 import { StaggerGroup, StaggerItem } from "@/components/marketing/motion";
 
 import { FREE_BENEFITS, PREMIUM_BENEFITS } from "@/lib/payments/premium-contract";
+import { trackEvent } from "@/lib/analytics/tracker";
 
 type PlanId = "PREMIUM_MONTHLY" | "PREMIUM_ANNUAL";
 
@@ -14,6 +15,8 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
   const [error, setError] = useState("");
 
   async function startCheckout(planId: PlanId) {
+    trackEvent("pricing_plan_selected", { plan: planId });
+    trackEvent("checkout_started", { plan: planId });
     setError("");
     setBusy(planId);
     const res = await fetch("/api/payments/checkout", {
@@ -109,7 +112,7 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
               </button>
             ) : (
               <p className="mt-8 text-sm leading-6 text-muted-foreground">
-                Premium is currently unavailable while ZANCTA completes its launch process.
+                Premium checkout is currently unavailable while ZANCTA verifies payment availability.
               </p>
             )}
           </section>
@@ -146,7 +149,7 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
               </button>
             ) : (
               <p className="mt-8 text-sm leading-6 text-muted-foreground">
-                Premium is currently unavailable while ZANCTA completes its launch process.
+                Premium checkout is currently unavailable while ZANCTA verifies payment availability.
               </p>
             )}
           </section>
@@ -158,7 +161,7 @@ export function PricingClient({ checkoutLive }: { checkoutLive: boolean }) {
       <p className="mt-8 text-center text-xs text-muted-foreground">
         {checkoutLive
           ? "Checkout is hosted by Dodo Payments. ZANCTA does not store card data. The charge shown at checkout is authoritative. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free. Ad-free access is reserved for if ads launch later — ads are not live today. Cancel at period end from Account. Billing questions: billing@zancta.tech."
-          : "Prices are listed in INR. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free, plus a reserved ad-free experience if ads launch later. Premium is currently unavailable while ZANCTA completes its launch process."}
+          : "Prices are listed in INR. Premium includes Local OCR Power (additional languages and scanned PDF OCR). Other file and page limits match Free, plus a reserved ad-free experience if ads launch later. Premium checkout is currently unavailable while ZANCTA verifies payment availability."}
       </p>
     </div>
   );

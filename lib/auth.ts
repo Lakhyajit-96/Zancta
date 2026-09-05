@@ -10,6 +10,7 @@ import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { signinSchema } from "@/lib/validators";
 import { auditEvent } from "@/lib/audit";
+import { recordProductEvent } from "@/lib/analytics/server-events";
 import { oauthIntentCookieName, verifyOAuthIntent } from "@/lib/oauth-intent";
 import { consumeDeletedProviderIdentity, hasDeletedProviderIdentity } from "@/lib/deleted-identity";
 import { tokenMatchesAuthVersion } from "@/lib/auth-version";
@@ -153,6 +154,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async signIn({ account, user, profile }) {
       await clearOAuthIntentCookie();
+      if (user.id) {
+        const method = account?.provider === "google" || account?.provider === "github" ? account.provider : "credentials";
+        await recordProductEvent({ event: "signin_completed", userId: user.id, metadata: { method } }).catch(() => {});
+      }
       if (account && account.provider !== "credentials" && user.id) {
         await auditEvent({ userId: user.id, action: "oauth_signin", targetId: user.id, metadata: JSON.stringify({ provider: account.provider }) });
         const googleAttested =

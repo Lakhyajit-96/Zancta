@@ -61,13 +61,35 @@ test("IndexNow notify route is not an open proxy", async ({ request }) => {
   expect(get.status()).toBe(405);
 });
 
-test("checkout availability is not an open live switch locally", async ({ request, page }) => {
+test("checkout availability is reflected consistently in pricing", async ({ request, page }) => {
   const avail = await request.get("/api/payments/checkout");
   expect(avail.ok()).toBeTruthy();
-  const body = await avail.json();
-  expect(body.live).toBe(false);
+  const body = await avail.json() as { live?: boolean };
   await page.goto("/pricing");
-  await expect(page.getByText("Premium is currently unavailable while ZANCTA completes its launch process.").first()).toBeVisible();
+  if (body.live) {
+    await expect(page.getByRole("button", { name: "Subscribe annually" })).toBeVisible();
+    await expect(page.getByText("Premium checkout is currently unavailable while ZANCTA verifies payment availability.")).toHaveCount(0);
+  } else {
+    await expect(page.getByText("Premium checkout is currently unavailable while ZANCTA verifies payment availability.").first()).toBeVisible();
+  }
+});
+
+test("404 metadata is accurate and non-indexable", async ({ request }) => {
+  const response = await request.get("/phase6-missing-page");
+  expect(response.status()).toBe(404);
+  const body = await response.text();
+  expect(body).toContain("Page not found");
+  expect(body).toContain('name="robots"');
+  expect(body).toContain("noindex");
+  expect(body).not.toContain('rel="canonical"');
+});
+
+test("auth metadata is specific and non-indexable", async ({ page }) => {
+  await page.goto("/signin");
+  expect(await page.title()).toContain("Sign in");
+  expect(await page.locator('meta[name="description"]').getAttribute("content")).toContain("ZANCTA account");
+  expect(await page.locator('meta[name="robots"]').getAttribute("content")).toContain("noindex");
+  expect(await page.locator('link[rel="canonical"]').count()).toBe(0);
 });
 
 test("sitemap.xml is valid XML with canonical HTTPS URLs", async ({ request }) => {

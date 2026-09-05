@@ -74,20 +74,21 @@ describe("sitemap contract", () => {
     expect(src).not.toMatch(/alternates:\s*\{\s*canonical:/);
   });
 
-  it("private layouts noindex and self-canonicalize", async () => {
+  it("private layouts have specific metadata and noindex without canonicals", async () => {
     const files = [
-      ["app/signin/layout.tsx", "/signin"],
-      ["app/signup/layout.tsx", "/signup"],
-      ["app/account/layout.tsx", "/account"],
-      ["app/admin/layout.tsx", "/admin"],
-      ["app/forgot-password/layout.tsx", "/forgot-password"],
-      ["app/reset-password/layout.tsx", "/reset-password"],
-      ["app/verify-email/layout.tsx", "/verify-email"],
+      "app/signin/layout.tsx",
+      "app/signup/layout.tsx",
+      "app/account/layout.tsx",
+      "app/admin/layout.tsx",
+      "app/forgot-password/layout.tsx",
+      "app/reset-password/layout.tsx",
+      "app/verify-email/layout.tsx",
     ] as const;
-    for (const [rel, canonical] of files) {
+    for (const rel of files) {
       const src = await readFile(path.join(process.cwd(), rel), "utf8");
       expect(src, rel).toMatch(/index:\s*false/);
-      expect(src, rel).toContain(`canonical: "${canonical}"`);
+      expect(src, rel).toContain("title:");
+      expect(src, rel).not.toContain("canonical:");
     }
   });
 });

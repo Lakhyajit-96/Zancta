@@ -12,7 +12,7 @@ const faqs = [
 
 export const metadata = pageMeta(PATH, {
   title: "Compress PDF without uploading",
-  description: "What browser-local PDF compression actually does: object-stream rewrite, why image-heavy files often do not shrink, limits, and when another tool is a better fit.",
+  description: "Browser-local PDF compression: what object-stream rewrites do, why image-heavy files may not shrink, and when another workflow fits.",
 });
 
 export default function CompressPdfGuidePage() {

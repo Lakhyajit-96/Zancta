@@ -12,7 +12,7 @@ const faqs = [
 
 export const metadata = pageMeta(PATH, {
   title: "Remove EXIF before sharing",
-  description: "What photo EXIF and GPS metadata are, when they matter, what ZANCTA EXIF Cleaner actually removes by re-encoding JPG, PNG, and WebP locally, and what it does not prove.",
+  description: "What photo EXIF and GPS metadata are, what ZANCTA removes by re-encoding JPG, PNG, and WebP locally, and what it cannot prove.",
 });
 
 export default function RemoveExifGuidePage() {
