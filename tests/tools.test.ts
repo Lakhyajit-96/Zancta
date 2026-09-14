@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TOOLS, getTool } from "@/lib/tools";
 import { TOOL_GUIDES, TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
+import { OCR_LIMITS } from "@/lib/ocr-engine";
 describe("tool registry", () => {
   it("has 12 tools", () => expect(TOOLS.length).toBe(12));
   it("pdf-merge exists", () => expect(getTool("pdf-merge")?.name).toBe("Merge PDF"));
@@ -56,6 +57,11 @@ describe("tool registry", () => {
   it("tool FAQs expose useful task-specific questions", () => {
     expect(getTool("images-to-pdf")!.faq[0].q).toMatch(/images.*convert/i);
     expect(getTool("image-resize")!.faq[0].q).toMatch(/maximum output size/i);
+  });
+  it("OCR landing-page limits preserve the engine's separate image and PDF caps", () => {
+    expect(OCR_LIMITS.maxFileSize).toBe(20 * 1024 * 1024);
+    expect(OCR_LIMITS.maxPdfFileSize).toBe(50 * 1024 * 1024);
+    expect(OCR_LIMITS.scannedPdfPages).toBe(20);
   });
   it("merge FAQ does not imply Premium has higher limits", () => {
     const t = getTool("pdf-merge")!;

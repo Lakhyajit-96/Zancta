@@ -7,6 +7,7 @@ import { TOOL_GUIDES } from "@/lib/tool-next-steps";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLivePaymentsEnabled } from "@/lib/payments/live";
+import { OCR_LIMITS } from "@/lib/ocr-engine";
 
 export function generateStaticParams() {
   return TOOLS.map((t) => ({ slug: t.slug }));
@@ -56,7 +57,11 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
               </div>
               <div>
                 <dt className="font-medium text-foreground">Limits</dt>
-                <dd>Up to {Math.round(tool.maxFileSize / 1024 / 1024)} MB per file · {tool.maxFiles} file{tool.maxFiles === 1 ? "" : "s"}</dd>
+                <dd>
+                  {tool.slug === "ocr"
+                    ? `Images up to ${Math.round(OCR_LIMITS.maxFileSize / 1024 / 1024)} MB; scanned PDFs up to ${Math.round(OCR_LIMITS.maxPdfFileSize / 1024 / 1024)} MB and ${OCR_LIMITS.scannedPdfPages} pages.`
+                    : `Up to ${Math.round(tool.maxFileSize / 1024 / 1024)} MB per file · ${tool.maxFiles} file${tool.maxFiles === 1 ? "" : "s"}`}
+                </dd>
               </div>
               <div>
                 <dt className="font-medium text-foreground">After processing</dt>
