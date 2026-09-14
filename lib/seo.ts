@@ -119,9 +119,9 @@ export function jsonLdOrganization(): object {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": `${PUBLIC_SITE_URL}/#organization`,
+    "@id": `${pageAbsoluteUrl("/")}#organization`,
     name: "ZANCTA",
-    url: `${PUBLIC_SITE_URL}/`,
+    url: pageAbsoluteUrl("/"),
     logo: `${PUBLIC_SITE_URL}${ZANCTA_ICON_512}`,
     image: `${PUBLIC_SITE_URL}${ZANCTA_ICON_512}`,
     description: "Independently operated browser-based PDF and image tools that process supported files locally in the visitor's browser.",
@@ -155,14 +155,14 @@ export function jsonLdWebSite(): object {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": `${PUBLIC_SITE_URL}/#website`,
+    "@id": `${pageAbsoluteUrl("/")}#website`,
     name: "ZANCTA",
     alternateName: "ZANCTA",
-    url: `${PUBLIC_SITE_URL}/`,
+    url: pageAbsoluteUrl("/"),
     inLanguage: "en",
     description: "PDF and image tools that process supported files in the browser.",
     publisher: {
-      "@id": `${PUBLIC_SITE_URL}/#organization`,
+      "@id": `${pageAbsoluteUrl("/")}#organization`,
     },
   };
 }

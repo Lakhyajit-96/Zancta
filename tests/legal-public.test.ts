@@ -43,13 +43,20 @@ describe("public legal and AI-search facts", () => {
       name: "ZANCTA",
       alternateName: "ZANCTA",
     });
-    expect(String((jsonLdWebSite() as { url: string }).url)).toMatch(/\/$/);
+    expect((jsonLdWebSite() as { url: string }).url).toBe("https://zancta.tech");
+    expect((jsonLdWebSite() as { "@id": string })["@id"]).toBe("https://zancta.tech#website");
+    expect((jsonLdWebSite() as { publisher: { "@id": string } }).publisher["@id"]).toBe("https://zancta.tech#organization");
   });
 
   it("Organization structured data is the ZANCTA brand without founder or address", () => {
-    const json = JSON.stringify(jsonLdOrganization());
+    const organization = jsonLdOrganization() as { url: string; "@id": string; logo: string; image: string };
+    const json = JSON.stringify(organization);
     expect(json).toContain('"@type":"Organization"');
     expect(json).toContain("ZANCTA");
+    expect(organization.url).toBe("https://zancta.tech");
+    expect(organization["@id"]).toBe("https://zancta.tech#organization");
+    expect(organization.logo).toBe("https://zancta.tech/icons/favicon-512.png");
+    expect(organization.image).toBe("https://zancta.tech/icons/favicon-512.png");
     expect(json).toContain("support@zancta.tech");
     expect(json).not.toContain(PERSONAL_NAME);
     expect(json).not.toMatch(/"founder"/);

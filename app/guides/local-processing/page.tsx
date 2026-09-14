@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { ContentPage, ContentSection } from "@/components/marketing/content-page";
 
-import { pageMeta } from "@/lib/seo";
+import { jsonLdBreadcrumbList, pageMeta } from "@/lib/seo";
+
+const PATH = "/guides/local-processing";
 
 export const metadata = pageMeta("/guides/local-processing", {
   title: "Local processing — privacy, OCR, and PDF text",
@@ -10,6 +12,7 @@ export const metadata = pageMeta("/guides/local-processing", {
 
 export default function LocalProcessingGuidePage() {
   return (
+    <>
       <ContentPage
         crumbs={[{ name: "Home", href: "/" }, { name: "Local processing" }]}
         eyebrow="/guides/local-processing"
@@ -46,5 +49,17 @@ export default function LocalProcessingGuidePage() {
         <p>Password-protected PDFs, corrupt files, very large documents, and low-memory phones can fail. Each tool page lists size and batch limits. Background removal is not offered until a local model can be licensed. For recovery steps and accounts see <Link href="/help" className="underline">Help</Link> and the <Link href="/faq" className="underline">FAQ</Link>.</p>
       </ContentSection>
     </ContentPage>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(
+          jsonLdBreadcrumbList([
+            { name: "Home", path: "/" },
+            { name: "Local processing", path: PATH },
+          ])
+        ),
+      }}
+    />
+    </>
   );
 }
