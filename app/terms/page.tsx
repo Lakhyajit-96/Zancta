@@ -5,7 +5,7 @@ import { LEGAL_PUBLIC } from "@/lib/legal-public";
 import { pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta("/terms", {
-  title: "Product terms for ZANCTA",
+  title: "Product terms",
   description: "Product terms for ZANCTA's browser-based file tools, accounts, and optional Premium checkout.",
 });
 
