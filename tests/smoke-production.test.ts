@@ -34,6 +34,7 @@ const INDEXABLE_STATIC = [
   "/guides/compress-pdf-without-uploading",
   "/guides/split-pdf-without-uploading",
   "/guides/remove-exif-before-sharing",
+  "/guides/pdf-text-extraction-vs-ocr",
 ];
 
 const TOOL_ROUTES = TOOLS.filter((t) => t.available).map((t) => `/tools/${t.slug}`);
@@ -74,7 +75,7 @@ describe("SEO safety", () => {
 
 describe("route coverage", () => {
   it("sitemap includes all indexable static pages", () => {
-    expect(INDEXABLE_STATIC.length).toBe(19);
+    expect(INDEXABLE_STATIC.length).toBe(20);
   });
 
   it("sitemap includes all available tool routes", () => {

@@ -27,6 +27,7 @@ test.describe("a11y", () => {
     "/guides/compress-pdf-without-uploading",
     "/guides/split-pdf-without-uploading",
     "/guides/remove-exif-before-sharing",
+    "/guides/pdf-text-extraction-vs-ocr",
     "/tools/pdf-merge",
     "/tools/pdf-split",
     "/tools/pdf-compress",

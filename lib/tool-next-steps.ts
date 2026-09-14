@@ -74,5 +74,5 @@ export const TOOL_GUIDES: Partial<Record<ToolSlug, { href: string; label: string
   "images-to-pdf": { href: "/guides/jpg-vs-png-vs-webp", label: "JPG vs PNG vs WebP" },
   "exif-cleaner": { href: "/guides/remove-exif-before-sharing", label: "Remove EXIF before sharing" },
   ocr: { href: "/guides/browser-ocr-without-uploading", label: "How browser OCR works without uploading" },
-  "pdf-text-extractor": { href: "/guides/browser-ocr-without-uploading", label: "How browser OCR works without uploading" },
+  "pdf-text-extractor": { href: "/guides/pdf-text-extraction-vs-ocr", label: "PDF text extraction vs OCR" },
 };

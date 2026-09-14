@@ -12,6 +12,7 @@ const pages = [
   "/guides/compress-pdf-without-uploading",
   "/guides/split-pdf-without-uploading",
   "/guides/remove-exif-before-sharing",
+  "/guides/pdf-text-extraction-vs-ocr",
 ];
 
 test.describe("production a11y 12H-14", () => {

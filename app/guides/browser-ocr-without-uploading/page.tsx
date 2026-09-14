@@ -31,7 +31,7 @@ export default function BrowserOcrGuidePage() {
         </ContentSection>
         <ContentSection title="Images versus PDFs">
           <p>
-            A photograph of a page is an image. A “PDF scan” is often a stack of images inside a PDF wrapper, with no real text layer. <Link href="/tools/pdf-text-extractor" className="underline">PDF Text Extractor</Link> copies text that is already embedded. If none exists, it says so. Scanned PDF OCR on Image OCR (Premium) renders each page locally and runs OCR, with a 20-page cap so a phone is less likely to freeze.
+            A photograph of a page is an image. A “PDF scan” is often a stack of images inside a PDF wrapper, with no real text layer. <Link href="/tools/pdf-text-extractor" className="underline">PDF Text Extractor</Link> copies text that is already embedded. If none exists, it says so. Scanned PDF OCR on Image OCR (Premium) renders each page locally and runs OCR, with a 20-page cap so a phone is less likely to freeze. See the <Link href="/guides/pdf-text-extraction-vs-ocr" className="underline">PDF text extraction vs OCR comparison</Link> for a page-by-page decision guide.
           </p>
         </ContentSection>
         <ContentSection title="Languages">

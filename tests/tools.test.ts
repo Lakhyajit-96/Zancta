@@ -88,5 +88,6 @@ describe("tool registry", () => {
     expect(TOOL_GUIDES["pdf-compress"]?.href).toBe("/guides/compress-pdf-without-uploading");
     expect(TOOL_GUIDES["pdf-split"]?.href).toBe("/guides/split-pdf-without-uploading");
     expect(TOOL_GUIDES["exif-cleaner"]?.href).toBe("/guides/remove-exif-before-sharing");
+    expect(TOOL_GUIDES["pdf-text-extractor"]?.href).toBe("/guides/pdf-text-extraction-vs-ocr");
   });
 });

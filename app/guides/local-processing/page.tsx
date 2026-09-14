@@ -30,7 +30,7 @@ export default function LocalProcessingGuidePage() {
         <p>Start at <Link href="/tools/ocr" className="underline">Image OCR</Link> or the <Link href="/guides/browser-ocr-without-uploading" className="underline">browser OCR guide</Link>.</p>
       </ContentSection>
       <ContentSection title="PDF text extraction">
-        <p>PDF Text Extractor copies text that is already embedded in a text-native PDF. A scanned “PDF” that is only images has no such text; the tool reports that instead of inventing words. For scans, use Image OCR Local OCR Power (Premium, up to 20 pages) rather than expecting this extractor to invent text.</p>
+        <p>PDF Text Extractor copies text that is already embedded in a text-native PDF. A scanned “PDF” that is only images has no such text; the tool reports that instead of inventing words. For scans, use Image OCR Local OCR Power (Premium, up to 20 pages) rather than expecting this extractor to invent text. The <Link href="/guides/pdf-text-extraction-vs-ocr" className="underline">PDF text extraction vs OCR guide</Link> shows how to choose between the two.</p>
         <p>Start at <Link href="/tools/pdf-text-extractor" className="underline">PDF Text Extractor</Link>.</p>
       </ContentSection>
       <ContentSection title="Images and metadata">

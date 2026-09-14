@@ -24,6 +24,7 @@ export const INDEXABLE_STATIC_PATHS = [
   "/guides/compress-pdf-without-uploading",
   "/guides/split-pdf-without-uploading",
   "/guides/remove-exif-before-sharing",
+  "/guides/pdf-text-extraction-vs-ocr",
 ] as const;
 
 const BLOCKED_PATH = /\/(signin|signup|account|admin|api\/|verify-email|forgot-password|reset-password)/i;
