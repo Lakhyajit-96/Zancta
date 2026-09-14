@@ -26,6 +26,7 @@ export const INDEXABLE_STATIC_PATHS = [
   "/guides/remove-exif-before-sharing",
   "/guides/pdf-text-extraction-vs-ocr",
   "/guides/check-browser-file-tool-uploads",
+  "/guides/exif-data-before-sharing",
 ] as const;
 
 const BLOCKED_PATH = /\/(signin|signup|account|admin|api\/|verify-email|forgot-password|reset-password)/i;

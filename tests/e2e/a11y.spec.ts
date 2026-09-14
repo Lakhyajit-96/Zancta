@@ -29,6 +29,7 @@ test.describe("a11y", () => {
     "/guides/remove-exif-before-sharing",
     "/guides/pdf-text-extraction-vs-ocr",
     "/guides/check-browser-file-tool-uploads",
+    "/guides/exif-data-before-sharing",
     "/tools/pdf-merge",
     "/tools/pdf-split",
     "/tools/pdf-compress",

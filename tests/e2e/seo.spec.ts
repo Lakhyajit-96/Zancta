@@ -170,6 +170,7 @@ test("sitemap.xml is valid XML with canonical HTTPS URLs", async ({ request }) =
   expect(xml).toContain("https://zancta.tech/guides/split-pdf-without-uploading");
   expect(xml).toContain("https://zancta.tech/guides/remove-exif-before-sharing");
   expect(xml).toContain("https://zancta.tech/guides/check-browser-file-tool-uploads");
+  expect(xml).toContain("https://zancta.tech/guides/exif-data-before-sharing");
   expect(xml).not.toMatch(/localhost|127\.0\.0\.1|vercel\.app/i);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   expect(new Set(locs).size).toBe(locs.length);
@@ -199,6 +200,10 @@ test("SEO guides render with breadcrumbs and internal links", async ({ page }) =
   await page.goto("/guides/check-browser-file-tool-uploads");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/check whether a browser file tool uploads/i);
   await expect(page.getByRole("link", { name: /local processing guide/i })).toBeVisible();
+
+  await page.goto("/guides/exif-data-before-sharing");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/EXIF data can reveal/i);
+  await expect(page.getByRole("link", { name: "EXIF Cleaner" })).toBeVisible();
 
   await page.goto("/guides/compress-pdf-without-uploading");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/Compress a PDF/i);

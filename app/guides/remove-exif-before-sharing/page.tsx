@@ -28,6 +28,9 @@ export default function RemoveExifGuidePage() {
           <p>
             EXIF (Exchangeable Image File Format) is a common place cameras store settings and, when enabled, GPS. Files can also carry IPTC captions, XMP edit history, embedded thumbnails, and vendor MakerNotes. You do not need every acronym. The practical risk is: a recipient with a free inspector can read a location or a camera serial that you never typed into the message.
           </p>
+          <p>
+            For a broader explanation of what these fields can reveal before sharing, see <Link href="/guides/exif-data-before-sharing" className="underline">What EXIF data can reveal before you share a photo</Link>.
+          </p>
         </ContentSection>
         <ContentSection title="When metadata is useful">
           <p>

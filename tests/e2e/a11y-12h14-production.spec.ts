@@ -14,6 +14,7 @@ const pages = [
   "/guides/remove-exif-before-sharing",
   "/guides/pdf-text-extraction-vs-ocr",
   "/guides/check-browser-file-tool-uploads",
+  "/guides/exif-data-before-sharing",
 ];
 
 test.describe("production a11y 12H-14", () => {
