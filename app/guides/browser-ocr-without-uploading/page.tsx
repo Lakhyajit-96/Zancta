@@ -50,7 +50,7 @@ export default function BrowserOcrGuidePage() {
         </ContentSection>
         <ContentSection title="Privacy boundary" className="md:col-span-2">
           <p>
-            Local OCR does not hide the file from extensions or from the next website you paste the text into. Analytics, if allowed, may record that OCR finished — with the tool name and language code, never the recognized text. See the <Link href="/guides/local-processing" className="underline">local processing guide</Link>.
+            Local OCR does not hide the file from extensions or from the next website you paste the text into. Analytics, if allowed, may record that OCR finished — with the tool name and language code, never the recognized text. See the <Link href="/guides/local-processing" className="underline">local processing guide</Link>, or <Link href="/guides/check-browser-file-tool-uploads" className="underline">learn how to inspect a browser file workflow yourself</Link>.
           </p>
         </ContentSection>
       </ContentPage>

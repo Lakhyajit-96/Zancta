@@ -13,6 +13,7 @@ const pages = [
   "/guides/split-pdf-without-uploading",
   "/guides/remove-exif-before-sharing",
   "/guides/pdf-text-extraction-vs-ocr",
+  "/guides/check-browser-file-tool-uploads",
 ];
 
 test.describe("production a11y 12H-14", () => {
