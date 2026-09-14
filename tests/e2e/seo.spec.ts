@@ -34,6 +34,45 @@ test("tools catalog has unique metadata and twitter image", async ({ page }) => 
   expect(twitter || "").toMatch(/zancta-og-hero/);
 });
 
+test("every sitemap page publishes distinct title and description metadata", async ({ request }) => {
+  const sitemap = await request.get("/sitemap.xml");
+  const xml = await sitemap.text();
+  const paths = [...xml.matchAll(/<loc>https:\/\/zancta\.tech([^<]*)<\/loc>/g)].map((match) => match[1] || "/");
+  const titles: string[] = [];
+  const descriptions: string[] = [];
+
+  for (const path of paths) {
+    const response = await request.get(path);
+    expect(response.status(), path).toBe(200);
+    const html = await response.text();
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1] ?? "";
+    const description = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? "";
+    expect(title, path).not.toBe("");
+    expect(description, path).not.toBe("");
+    titles.push(title);
+    descriptions.push(description);
+  }
+
+  expect(new Set(titles).size).toBe(titles.length);
+  expect(new Set(descriptions).size).toBe(descriptions.length);
+});
+
+test("representative metadata stays page-specific and branded", async ({ page }) => {
+  for (const path of ["/", "/pricing", "/faq", "/tools/pdf-merge", "/guides/local-processing", "/privacy", "/terms"]) {
+    await page.goto(path);
+    const title = await page.title();
+    const description = await page.locator('meta[name="description"]').getAttribute("content");
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+    const ogTitle = await page.locator('meta[property="og:title"]').getAttribute("content");
+    const ogUrl = await page.locator('meta[property="og:url"]').getAttribute("content");
+    expect(title, path).toBeTruthy();
+    expect(description, path).toBeTruthy();
+    expect(canonical, path).toMatch(/^https:\/\/zancta\.tech\//);
+    expect(ogTitle, path).toBe(title);
+    expect(ogUrl, path).toBe(canonical);
+  }
+});
+
 test("SoftwareApplication avoids blanket pricing and llms.txt is factual", async ({ page, request }) => {
   await page.goto("/tools/pdf-merge");
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();

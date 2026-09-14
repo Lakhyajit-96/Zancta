@@ -9,6 +9,18 @@ describe("tool registry", () => {
   it("all have seo titles", () => {
     for (const t of TOOLS) expect(t.seoTitle.length).toBeGreaterThan(10);
   });
+  it("available tools have distinct search metadata", () => {
+    const available = TOOLS.filter((t) => t.available);
+    const titles = available.map((t) => t.seoTitle);
+    const descriptions = available.map((t) => t.seoDescription);
+    expect(new Set(titles).size).toBe(titles.length);
+    expect(new Set(descriptions).size).toBe(descriptions.length);
+    for (const t of available) {
+      expect(t.seoTitle).toContain("ZANCTA");
+      expect(t.seoDescription.length).toBeGreaterThan(50);
+      expect(t.seoDescription).not.toMatch(/#1|best|fastest|most secure|guaranteed/i);
+    }
+  });
   it("background remover is deferred and not advertised as working", () => {
     const t = getTool("background-remover")!;
     expect(t.available).toBe(false);
