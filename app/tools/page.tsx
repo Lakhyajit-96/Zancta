@@ -3,6 +3,7 @@ import { ToolGrid } from "@/components/marketing/tool-grid";
 import { MaskLines, Reveal } from "@/components/marketing/motion";
 import { TrackView } from "@/components/analytics/track-view";
 import { pageMeta } from "@/lib/seo";
+import Link from "next/link";
 
 export const metadata = pageMeta("/tools", {
   title: "Local PDF and image tools",
@@ -20,7 +21,10 @@ export default function ToolsPage() {
           <MaskLines as="h1" className="display-serif mt-5 max-w-2xl text-4xl md:text-6xl" lines={[<>Tool Suite</>]} />
           <Reveal delay={0.12}>
             <p className="mt-4 max-w-2xl text-2xl font-light tracking-[-0.03em] text-foreground md:text-3xl">Small tools. Serious privacy.</p>
-            <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">Eleven working local PDF and image tools, plus one clearly marked deferred capability. Choose a task and keep the file where it belongs.</p>
+            <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
+              Eleven working local PDF and image tools, plus one clearly marked deferred capability. Choose a task and keep the file where it belongs.{" "}
+              <Link href="/pricing" className="underline underline-offset-4 hover:text-foreground">See Premium pricing</Link> for Local OCR Power details.
+            </p>
           </Reveal>
         </div>
       </section>

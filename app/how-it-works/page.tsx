@@ -30,7 +30,10 @@ export default function HowItWorksPage() {
               className="display-serif mt-5 max-w-4xl text-4xl md:text-5xl"
               lines={[<>Four steps.</>, <>The file stays in this tab.</>]}
             />
-            <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">You can see what a tool accepts, what happens next, and where processing occurs before you start.</p>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+              You can see what a tool accepts, what happens next, and where processing occurs before you start.{" "}
+              <Link href="/tools" className="underline underline-offset-4 hover:text-foreground">Browse the tools</Link>.
+            </p>
           </div>
         </section>
 

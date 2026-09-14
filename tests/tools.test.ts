@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { TOOLS, getTool } from "@/lib/tools";
 import { TOOL_GUIDES, TOOL_NEXT_STEPS } from "@/lib/tool-next-steps";
 import { OCR_LIMITS } from "@/lib/ocr-engine";
+import { readFile } from "fs/promises";
+import path from "path";
 describe("tool registry", () => {
   it("has 12 tools", () => expect(TOOLS.length).toBe(12));
   it("pdf-merge exists", () => expect(getTool("pdf-merge")?.name).toBe("Merge PDF"));
@@ -62,6 +64,14 @@ describe("tool registry", () => {
     expect(OCR_LIMITS.maxFileSize).toBe(20 * 1024 * 1024);
     expect(OCR_LIMITS.maxPdfFileSize).toBe(50 * 1024 * 1024);
     expect(OCR_LIMITS.scannedPdfPages).toBe(20);
+  });
+  it("core discovery pages link users to the next relevant destination", async () => {
+    const howItWorks = await readFile(path.join(process.cwd(), "app/how-it-works/page.tsx"), "utf8");
+    const toolsPage = await readFile(path.join(process.cwd(), "app/tools/page.tsx"), "utf8");
+    expect(howItWorks).toContain('href="/tools"');
+    expect(howItWorks).toContain("Browse the tools");
+    expect(toolsPage).toContain('href="/pricing"');
+    expect(toolsPage).toContain("See Premium pricing");
   });
   it("merge FAQ does not imply Premium has higher limits", () => {
     const t = getTool("pdf-merge")!;
