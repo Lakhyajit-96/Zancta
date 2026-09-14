@@ -19,6 +19,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "research:evidence": "node scripts/research/evidence-harness.mjs",
     "operator:promote-admin": "node scripts/promote-operator-admin.mjs --production --confirm",
     "migrate:checksums": "node scripts/migrate.mjs checksums",
     "migrate:baseline": "node scripts/migrate.mjs write-baseline",
