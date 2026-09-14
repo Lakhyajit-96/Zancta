@@ -51,6 +51,11 @@ describe("tool registry", () => {
   it("pdf-to-images copy does not claim DPI or ZIP", () => {
     const t = getTool("pdf-to-images")!;
     expect(t.faq[0].a).not.toMatch(/DPI|ZIP/i);
+    expect(t.faq[0].q).toMatch(/image formats/i);
+  });
+  it("tool FAQs expose useful task-specific questions", () => {
+    expect(getTool("images-to-pdf")!.faq[0].q).toMatch(/images.*convert/i);
+    expect(getTool("image-resize")!.faq[0].q).toMatch(/maximum output size/i);
   });
   it("merge FAQ does not imply Premium has higher limits", () => {
     const t = getTool("pdf-merge")!;

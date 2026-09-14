@@ -133,7 +133,7 @@ export const TOOLS: ToolMeta[] = [
     h1: "PDF to Images — convert pages locally",
     available: true,
     related: ["images-to-pdf", "pdf-split", "image-convert"],
-    faq: [{ q: "What formats?", a: "PNG, JPEG, or WebP. Each page is a separate download. Scale is chosen automatically so pages stay within 12,000px." }],
+    faq: [{ q: "Which image formats can I export?", a: "Choose PNG, JPEG, or WebP. Each PDF page becomes a separate download, and scale is chosen automatically so pages stay within 12,000px." }],
   },
   {
     slug: "images-to-pdf",
@@ -154,7 +154,7 @@ export const TOOLS: ToolMeta[] = [
     h1: "Images to PDF — convert locally",
     available: true,
     related: ["pdf-to-images", "pdf-merge", "image-compress"],
-    faq: [{ q: "Max images?", a: "20 per batch. Premium uses the same limit." }],
+    faq: [{ q: "How many images can I convert at once?", a: "Up to 20 JPG, PNG, or WebP images per batch. Premium uses the same limit." }],
   },
   {
     slug: "image-compress",
@@ -220,7 +220,7 @@ export const TOOLS: ToolMeta[] = [
     h1: "Resize images — precise dimensions, privately",
     available: true,
     related: ["image-compress", "image-convert", "exif-cleaner"],
-    faq: [{ q: "Max size?", a: "12,000×12,000. Larger images show guidance." }],
+    faq: [{ q: "What is the maximum output size?", a: "The tool accepts images up to 50 MB and guides you when a target exceeds 12,000×12,000 pixels. Keep aspect preserves the original ratio when selected." }],
   },
   {
     slug: "background-remover",
