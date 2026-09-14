@@ -19,7 +19,7 @@ export default function SplitPdfGuidePage() {
   return (
     <>
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides/local-processing" }, { name: "Split PDF without uploading" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing", href: "/guides/local-processing" }, { name: "Split PDF without uploading" }]}
         eyebrow={PATH}
         title="Split a PDF without uploading it."
         intro="“Split PDF online” often means uploading a contract so a server can emit page 7. That is easy, and it is also a copy of the whole file on someone else’s disk. This page describes extracting a page range locally with ZANCTA Split PDF."
@@ -64,7 +64,7 @@ export default function SplitPdfGuidePage() {
           ))}
         </ContentSection>
       </ContentPage>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Guides", path: "/guides/local-processing" }, { name: "Split PDF without uploading", path: PATH }])) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Local processing", path: "/guides/local-processing" }, { name: "Split PDF without uploading", path: PATH }])) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaqPage(faqs)) }} />
     </>
   );

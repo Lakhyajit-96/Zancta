@@ -39,6 +39,15 @@ function applyApiAndIndexNowGuards(req: NextRequest): NextResponse | null {
 
 export default function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+
+  // Next config redirects are case-insensitive. Keep this legacy case variant
+  // exact so canonical /tools does not redirect to itself.
+  if (pathname === "/Tools") {
+    const destination = req.nextUrl.clone();
+    destination.pathname = "/tools";
+    return NextResponse.redirect(destination, 308);
+  }
+
   const isApi = pathname.startsWith("/api/");
   const isTxt = isRootTxtPath(pathname);
 

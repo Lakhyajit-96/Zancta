@@ -19,7 +19,7 @@ export default function ImageFormatGuidePage() {
   return (
     <>
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides/local-processing" }, { name: "JPG vs PNG vs WebP" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing", href: "/guides/local-processing" }, { name: "JPG vs PNG vs WebP" }]}
         eyebrow={PATH}
         title="JPG, PNG, or WebP — which format to use."
         intro="The same picture can be a 4 MB PNG, a 400 KB JPG, or a 250 KB WebP. The right choice depends on whether you need transparency, exact pixels, or a small file that still looks like a photograph. ZANCTA Convert Image and Compress Image run that work in the browser."
@@ -50,7 +50,7 @@ export default function ImageFormatGuidePage() {
           <p>HEIC, SVG, and AVIF are out of scope for the current image tools. Convert those elsewhere, or export JPG/PNG/WebP from the original app, then finish locally.</p>
         </ContentSection>
       </ContentPage>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Guides", path: "/guides/local-processing" }, { name: "JPG vs PNG vs WebP", path: PATH }])) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Local processing", path: "/guides/local-processing" }, { name: "JPG vs PNG vs WebP", path: PATH }])) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaqPage(faqs)) }} />
     </>
   );

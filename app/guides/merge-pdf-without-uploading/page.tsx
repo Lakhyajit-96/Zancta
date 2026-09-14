@@ -19,7 +19,7 @@ export default function MergePdfGuidePage() {
   return (
     <>
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides/local-processing" }, { name: "Merge PDFs without uploading" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing", href: "/guides/local-processing" }, { name: "Merge PDFs without uploading" }]}
         eyebrow={PATH}
         title="Merge PDF files without uploading them."
         intro="Most “merge PDF online” sites send every file to a server, wait, then send a new PDF back. That is simple, and it also means the operator briefly holds contracts, IDs, or bank statements. This page explains how to combine PDFs in the browser instead, using ZANCTA Merge PDF."
@@ -60,7 +60,7 @@ export default function MergePdfGuidePage() {
           </p>
         </ContentSection>
       </ContentPage>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Guides", path: "/guides/local-processing" }, { name: "Merge PDFs without uploading", path: PATH }])) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Local processing", path: "/guides/local-processing" }, { name: "Merge PDFs without uploading", path: PATH }])) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaqPage(faqs)) }} />
     </>
   );

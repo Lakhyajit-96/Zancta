@@ -200,7 +200,6 @@ export function jsonLdSoftwareApp(tool: { name: string; description: string; slu
     description: tool.description,
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Web",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
     url: `${PUBLIC_SITE_URL}/tools/${tool.slug}`,
   };
 }

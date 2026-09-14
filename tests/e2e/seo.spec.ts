@@ -34,11 +34,11 @@ test("tools catalog has unique metadata and twitter image", async ({ page }) => 
   expect(twitter || "").toMatch(/zancta-og-hero/);
 });
 
-test("SoftwareApplication offers use INR and llms.txt is factual", async ({ page, request }) => {
+test("SoftwareApplication avoids blanket pricing and llms.txt is factual", async ({ page, request }) => {
   await page.goto("/tools/pdf-merge");
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
-  expect(jsonLd.some((text) => /"priceCurrency":\s*"INR"/.test(text))).toBeTruthy();
-  expect(jsonLd.join("")).not.toMatch(/"priceCurrency":\s*"USD"/);
+  expect(jsonLd.some((text) => /"SoftwareApplication"/.test(text))).toBeTruthy();
+  expect(jsonLd.join("")).not.toMatch(/"offers"|"priceCurrency"/);
 
   const llms = await request.get("/llms.txt");
   expect(llms.ok()).toBeTruthy();
@@ -46,6 +46,31 @@ test("SoftwareApplication offers use INR and llms.txt is factual", async ({ page
   expect(body).toMatch(/ZANCTA/);
   expect(body).toMatch(/Merge PDF/);
   expect(body).not.toMatch(/#1|most secure|guaranteed indexing|guaranteed ChatGPT/i);
+});
+
+test("legacy routes are permanent one-hop redirects", async ({ request }) => {
+  for (const path of ["/Tools", "/features"]) {
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status(), path).toBe(308);
+    expect(response.headers().location, path).toMatch(/\/tools$/);
+  }
+
+  const tools = await request.get("/tools");
+  expect(tools.status()).toBe(200);
+});
+
+test("crawl semantics remain explicit on tools, FAQ, and guides", async ({ page }) => {
+  await page.goto("/tools");
+  expect(await page.locator("h1").count()).toBe(1);
+  expect(await page.locator("h2").count()).toBeGreaterThan(0);
+
+  await page.goto("/faq");
+  expect(await page.locator("h1").count()).toBe(1);
+  expect(await page.locator("h2").count()).toBeGreaterThan(0);
+
+  await page.goto("/guides/local-processing");
+  expect(await page.locator("main > section > article").count()).toBe(1);
+  await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Local processing");
 });
 
 test("local processing guide is unique and linked", async ({ page }) => {

@@ -19,7 +19,7 @@ export default function RemoveExifGuidePage() {
   return (
     <>
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides/local-processing" }, { name: "Remove EXIF before sharing" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing", href: "/guides/local-processing" }, { name: "Remove EXIF before sharing" }]}
         eyebrow={PATH}
         title="Remove EXIF before you share a photo."
         intro="Cameras and phones often write extra data next to the pixels: when the shot was taken, which device took it, and — if location was on — GPS coordinates. Email, listings, and some chat apps keep that data. This page explains what ZANCTA EXIF Cleaner does in the browser, and what it does not claim."
@@ -73,7 +73,7 @@ export default function RemoveExifGuidePage() {
           ))}
         </ContentSection>
       </ContentPage>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Guides", path: "/guides/local-processing" }, { name: "Remove EXIF before sharing", path: PATH }])) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Local processing", path: "/guides/local-processing" }, { name: "Remove EXIF before sharing", path: PATH }])) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaqPage(faqs)) }} />
     </>
   );

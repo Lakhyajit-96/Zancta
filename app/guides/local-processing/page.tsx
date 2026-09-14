@@ -11,7 +11,7 @@ export const metadata = pageMeta("/guides/local-processing", {
 export default function LocalProcessingGuidePage() {
   return (
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing" }]}
         eyebrow="/guides/local-processing"
         title="Local processing, explained."
       intro="This guide is for people who need to merge, split, compress, or read files without sending the document to a website. It describes the current ZANCTA tools, not a cloud conversion service."

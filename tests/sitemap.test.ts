@@ -33,6 +33,7 @@ describe("sitemap contract", () => {
     expect(urls).toContain(`${origin}/refund-and-cancellation`);
     expect(urls).toContain(`${origin}/contact`);
     expect(urls).not.toContain(`${origin}/features`);
+    expect(urls).not.toContain(`${origin}/Tools`);
     expect(urls).not.toContain(`${origin}/docs`);
   });
 

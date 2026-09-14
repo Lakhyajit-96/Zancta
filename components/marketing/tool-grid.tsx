@@ -22,7 +22,7 @@ function ToolSection({ title, tools }: { title: string; tools: ToolMeta[] }) {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between border-b border-border pb-3">
-        <h3 className="eyebrow">{title}</h3>
+        <h2 className="eyebrow">{title}</h2>
         <span className="font-mono text-[0.65rem] text-muted-foreground">{String(tools.length).padStart(2, "0")}</span>
       </div>
       <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">

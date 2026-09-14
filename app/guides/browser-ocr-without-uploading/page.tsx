@@ -19,7 +19,7 @@ export default function BrowserOcrGuidePage() {
   return (
     <>
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides/local-processing" }, { name: "Browser OCR" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing", href: "/guides/local-processing" }, { name: "Browser OCR" }]}
         eyebrow={PATH}
         title="How browser OCR works without uploading documents."
         intro="Cloud OCR is convenient: you upload a photo, a server runs a model, and text comes back. That also means the document exists on someone else’s disk, at least briefly. Browser OCR loads an engine into the page and runs it next to the file. This page describes that model as ZANCTA implements it — not as a universal claim about every OCR website."
@@ -54,7 +54,7 @@ export default function BrowserOcrGuidePage() {
           </p>
         </ContentSection>
       </ContentPage>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Guides", path: "/guides/local-processing" }, { name: "Browser OCR", path: PATH }])) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Local processing", path: "/guides/local-processing" }, { name: "Browser OCR", path: PATH }])) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaqPage(faqs)) }} />
     </>
   );

@@ -26,6 +26,12 @@ const faqs = [
   ["How does account deletion work?", "Authenticated account deletion is available through the account flow. It removes associated application account records; it does not need to delete local tool files because those files are not uploaded for processing."],
 ] as const;
 
+const faqGroups = [
+  { title: "Local processing and file support", items: faqs.slice(0, 7) },
+  { title: "Accounts and Premium", items: faqs.slice(7, 10) },
+  { title: "Storage, browsers, and support", items: faqs.slice(10) },
+] as const;
+
 export default function FAQPage() {
   return (
     <>
@@ -38,8 +44,13 @@ export default function FAQPage() {
             <p className="mt-6 text-base leading-8 text-muted-foreground">Answers for the product as it exists today. Tool pages remain the source of truth when a limit differs.</p>
           </header>
 
-          <div className="mt-10 max-w-3xl">
-            <FAQAccordion items={faqs} />
+          <div className="mt-10 max-w-3xl space-y-10">
+            {faqGroups.map((group) => (
+              <section key={group.title}>
+                <h2 className="mb-4 text-lg font-semibold tracking-[-0.01em] text-foreground">{group.title}</h2>
+                <FAQAccordion items={group.items} />
+              </section>
+            ))}
           </div>
         </section>
       </main>

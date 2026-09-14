@@ -50,9 +50,9 @@ export function ContentPage({
             </div>
           )}
 
-          <div className="content-sections mt-10 grid gap-x-16 gap-y-12 md:grid-cols-2">
+          <article className="content-sections mt-10 grid gap-x-16 gap-y-12 md:grid-cols-2">
             {children}
-          </div>
+          </article>
         </section>
       </main>
       <Footer />

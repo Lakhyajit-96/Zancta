@@ -19,7 +19,7 @@ export default function CompressPdfGuidePage() {
   return (
     <>
       <ContentPage
-        crumbs={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides/local-processing" }, { name: "Compress PDF without uploading" }]}
+        crumbs={[{ name: "Home", href: "/" }, { name: "Local processing", href: "/guides/local-processing" }, { name: "Compress PDF without uploading" }]}
         eyebrow={PATH}
         title="Compress a PDF without uploading it."
         intro="Search results for “compress PDF online” usually mean: send the file to a server, downsample every photo, and email you a smaller copy. That can shrink a scan-heavy brochure. It also means a stranger’s computer held the document. This page explains what ZANCTA Compress PDF actually does in the browser, and when it will not make the file smaller."
@@ -72,7 +72,7 @@ export default function CompressPdfGuidePage() {
           ))}
         </ContentSection>
       </ContentPage>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Guides", path: "/guides/local-processing" }, { name: "Compress PDF without uploading", path: PATH }])) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbList([{ name: "Home", path: "/" }, { name: "Local processing", path: "/guides/local-processing" }, { name: "Compress PDF without uploading", path: PATH }])) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaqPage(faqs)) }} />
     </>
   );

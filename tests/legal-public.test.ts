@@ -28,14 +28,13 @@ describe("public legal and AI-search facts", () => {
     expect(LEGAL_PUBLIC.annualDisplayINR).toBe("₹999 / year");
   });
 
-  it("SoftwareApplication offers are free INR, not USD", () => {
+  it("SoftwareApplication does not publish an inaccurate blanket price", () => {
     const json = jsonLdSoftwareApp({
       name: "Merge PDF",
       description: "Merge PDFs locally.",
       slug: "pdf-merge",
     });
-    expect(JSON.stringify(json)).toMatch(/"priceCurrency":"INR"/);
-    expect(JSON.stringify(json)).not.toMatch(/USD/);
+    expect(json).not.toHaveProperty("offers");
   });
 
   it("publishes one consistent ZANCTA WebSite entity", () => {
