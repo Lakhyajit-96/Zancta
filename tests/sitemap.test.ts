@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { GET } from "@/app/sitemap.xml/route";
 import { buildSitemapXml, sitemapUrlCount } from "@/lib/seo/sitemap-xml";
-import { allIndexablePaths, INDEXABLE_STATIC_PATHS } from "@/lib/seo/public-urls";
+import { allIndexablePaths, canonicalSitemapUrl, INDEXABLE_STATIC_PATHS } from "@/lib/seo/public-urls";
 import { HOMEPAGE_DESCRIPTION, pageMeta, PUBLIC_SITE_URL } from "@/lib/seo";
 
 describe("sitemap contract", () => {
@@ -22,7 +22,7 @@ describe("sitemap contract", () => {
       expect(url).not.toMatch(/\/signin|\/signup|\/account|\/api\/|\/verify-email|\/forgot-password|\/reset-password/);
       expect(url).not.toContain("background-remover");
     }
-    expect(urls).toContain(`${origin}/`);
+    expect(urls).toContain(origin);
     expect(urls).toContain(`${origin}/guides/local-processing`);
     expect(urls).toContain(`${origin}/guides/merge-pdf-without-uploading`);
     expect(urls).toContain(`${origin}/guides/jpg-vs-png-vs-webp`);
@@ -61,13 +61,18 @@ describe("sitemap contract", () => {
     expect(meta.openGraph).toMatchObject({ url: "https://zancta.tech/tools" });
   });
 
+  it("uses the same root representation in sitemap and metadata helpers", () => {
+    expect(canonicalSitemapUrl("/")).toBe("https://zancta.tech");
+    expect(pageMeta("/").alternates).toEqual({ canonical: "https://zancta.tech" });
+  });
+
   it("homepage description is within Bing's typical 50-160 character range", () => {
     expect(HOMEPAGE_DESCRIPTION.length).toBeGreaterThanOrEqual(50);
     expect(HOMEPAGE_DESCRIPTION.length).toBeLessThanOrEqual(160);
     const home = pageMeta("/", { description: HOMEPAGE_DESCRIPTION });
     expect(home.description).toBe(HOMEPAGE_DESCRIPTION);
-    expect(home.alternates).toEqual({ canonical: "https://zancta.tech/" });
-    expect(home.openGraph).toMatchObject({ description: HOMEPAGE_DESCRIPTION, url: "https://zancta.tech/" });
+    expect(home.alternates).toEqual({ canonical: "https://zancta.tech" });
+    expect(home.openGraph).toMatchObject({ description: HOMEPAGE_DESCRIPTION, url: "https://zancta.tech" });
   });
 
   it("root layout does not stamp a homepage canonical onto every route", async () => {

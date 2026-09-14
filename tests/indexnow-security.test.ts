@@ -75,6 +75,7 @@ describe("IndexNow URL allowlist", () => {
   it("collapses query variants and caps the allowlist", () => {
     const queried = Array.from({ length: 8 }, (_, i) => `https://zancta.tech/tools?n=${i}`);
     expect(sanitizeIndexNowUrls(queried)).toEqual(["https://zancta.tech/tools"]);
+    expect(sanitizeIndexNowUrls(["https://zancta.tech/"])).toEqual(["https://zancta.tech"]);
     const many = allIndexablePaths().map((path) => canonicalSitemapUrl(path));
     expect(sanitizeIndexNowUrls(many).length).toBe(20);
   });

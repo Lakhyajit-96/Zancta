@@ -37,13 +37,13 @@ export function allIndexablePaths(): string[] {
 }
 
 export function canonicalSitemapUrl(path: string): string {
-  if (!path || path === "/") return `${SITEMAP_ORIGIN}/`;
+  if (!path || path === "/") return SITEMAP_ORIGIN;
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${SITEMAP_ORIGIN}${normalized}`;
 }
 
 export function assertIndexableUrl(url: string): boolean {
-  if (!url.startsWith(`${SITEMAP_ORIGIN}/`) && url !== `${SITEMAP_ORIGIN}/`) return false;
+  if (!url.startsWith(`${SITEMAP_ORIGIN}/`) && url !== SITEMAP_ORIGIN) return false;
   if (/localhost|127\.0\.0\.1|vercel\.app|example\.com/i.test(url)) return false;
   if (BLOCKED_PATH.test(url)) return false;
   if (url.includes("background-remover")) return false;

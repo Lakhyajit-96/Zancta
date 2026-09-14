@@ -37,6 +37,10 @@ function canonicalPublicUrlSet(): Set<string> {
   return new Set(allIndexablePaths().map((path) => canonicalSitemapUrl(path)));
 }
 
+function canonicalizeUrl(url: URL): string {
+  return url.pathname === "/" && !url.search && !url.hash ? url.origin : url.toString();
+}
+
 export function isAllowedIndexNowUrl(raw: string): boolean {
   let parsed: URL;
   try {
@@ -50,7 +54,7 @@ export function isAllowedIndexNowUrl(raw: string): boolean {
   if (parsed.hostname !== ALLOWED_HOST) return false;
   parsed.hash = "";
   parsed.search = "";
-  const href = parsed.toString();
+  const href = canonicalizeUrl(parsed);
   if (!assertIndexableUrl(href)) return false;
   return canonicalPublicUrlSet().has(href);
 }
@@ -65,7 +69,7 @@ export function sanitizeIndexNowUrls(urls: unknown): string[] {
     const canonical = new URL(item);
     canonical.hash = "";
     canonical.search = "";
-    const href = canonical.toString();
+    const href = canonicalizeUrl(canonical);
     if (seen.has(href)) continue;
     seen.add(href);
     out.push(href);

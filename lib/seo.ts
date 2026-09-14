@@ -63,7 +63,7 @@ export const HOMEPAGE_DESCRIPTION =
 
 export function pageAbsoluteUrl(path: string): string {
   const origin = stripSlash(PUBLIC_SITE_URL);
-  if (!path || path === "/") return `${origin}/`;
+  if (!path || path === "/") return origin;
   return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
