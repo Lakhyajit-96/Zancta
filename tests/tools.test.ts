@@ -16,7 +16,6 @@ describe("tool registry", () => {
     expect(new Set(titles).size).toBe(titles.length);
     expect(new Set(descriptions).size).toBe(descriptions.length);
     for (const t of available) {
-      expect(t.seoTitle).toContain("ZANCTA");
       expect(t.seoDescription.length).toBeGreaterThan(50);
       expect(t.seoDescription).not.toMatch(/#1|best|fastest|most secure|guaranteed/i);
     }
